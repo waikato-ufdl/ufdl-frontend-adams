@@ -67,7 +67,7 @@
     <dependency>
       <groupId>com.github.waikato-ufdl</groupId>
       <artifactId>ufdl4j-core</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>${ufdl4j.version}</version>
     </dependency>
   </dependencies>
 

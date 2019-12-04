@@ -31,6 +31,7 @@
     <adams.version>19.12.0-SNAPSHOT</adams.version>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+    <ufdl4j.version>0.0.1-SNAPSHOT</ufdl4j.version>
   </properties>
 
   <modules>

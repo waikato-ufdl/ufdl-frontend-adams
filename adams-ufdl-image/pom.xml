@@ -91,6 +91,12 @@
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
+
+    <dependency>
+      <groupId>com.github.waikato-ufdl</groupId>
+      <artifactId>ufdl4j-image</artifactId>
+      <version>${ufdl4j.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
