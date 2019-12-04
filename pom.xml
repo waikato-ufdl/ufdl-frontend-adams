@@ -35,5 +35,6 @@
 
   <modules>
     <module>adams-ufdl-core</module>
+    <module>adams-ufdl-image</module>
   </modules>
 </project>
