@@ -471,6 +471,8 @@ public class UFDLConnection
         m_Client = new Client();
       m_Client.connection().server(m_Host.getValue());
       m_Client.connection().authentication(m_User, m_Password.getValue());
+      if (!m_Client.connection().authentication().getTokens().isValid())
+        result = "No valid API tokens available!";
     }
 
     return result;
