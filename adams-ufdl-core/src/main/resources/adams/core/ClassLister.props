@@ -1,0 +1,19 @@
+# Configuration file listing the superclasses and the packages in which to
+# look for derived classes.
+#
+# Format:
+# class.name=package1,package2,...
+#
+# Author:  FracPete (fracpete at waikato dot ac dot nz)
+
+# the UFDL sink actions
+adams.flow.sink.ufdl.AbstractUFDLSinkAction=\
+  adams.flow.sink.ufdl
+
+# the UFDL source actions
+adams.flow.source.ufdl.AbstractUFDLSourceAction=\
+  adams.flow.source.ufdl
+
+# the UFDL transformer actions
+adams.flow.transformer.ufdl.AbstractUFDLTransformerAction=\
+  adams.flow.transformer.ufdl
