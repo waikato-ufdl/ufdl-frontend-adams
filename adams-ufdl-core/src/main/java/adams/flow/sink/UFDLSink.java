@@ -15,7 +15,7 @@
 
 /*
  * UFDLSink.java
- * Copyright (C) 2019 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2019-2020 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.sink;
@@ -185,13 +185,12 @@ public class UFDLSink
   @Override
   public String setUp() {
     String		result;
-    UFDLConnection	conn;
 
     result = super.setUp();
 
     if (result == null) {
-      conn = (UFDLConnection) ActorUtils.findClosestType(this, UFDLConnection.class, true);
-      if (conn == null)
+      m_Connection = (UFDLConnection) ActorUtils.findClosestType(this, UFDLConnection.class, true);
+      if (m_Connection == null)
         result = "Failed to locate an instance of " + Utils.classToString(UFDLConnection.class) + "!";
     }
 
