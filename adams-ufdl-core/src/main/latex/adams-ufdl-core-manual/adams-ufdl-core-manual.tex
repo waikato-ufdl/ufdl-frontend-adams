@@ -42,7 +42,7 @@
 \center
 \begin{table}[b]
 	\begin{tabular}{c l l}
-		\parbox[c][2cm]{2cm}{\copyright 2019} &
+		\parbox[c][2cm]{2cm}{\copyright 2019-2020} &
 		\parbox[c][2cm]{5cm}{\includegraphics[width=5cm]{images/coat_of_arms.pdf}} \\
 	\end{tabular}
 	\includegraphics[width=12cm]{images/cc.png} \\
@@ -78,6 +78,46 @@ The following transformers can be used:
 The following sinks can be used:
 \begin{tight_itemize}
   \item \textit{UFDLSink} -- uses the specified UFDL sink action to consume data.
+\end{tight_itemize}
+
+\section{Actions}
+The following source actions can be used:
+\begin{tight_itemize}
+  \item \textit{CreateProject} -- creates a project.
+  \item \textit{CreateTeam} -- creates a team.
+  \item \textit{CreateUser} -- creates a user.
+  \item \textit{ListDatasets} -- lists all the datasets.
+  \item \textit{ListProjects} -- lists all the teams.
+  \item \textit{ListTeams} -- lists all the teams.
+  \item \textit{ListUsers} -- lists all the users.
+  \item \textit{Null} -- dummy, does nothing.
+\end{tight_itemize}
+The following transformer actions can be used:
+\begin{tight_itemize}
+  \item \textit{AddTeamMember} -- adds team member(s) via PK to the team passing through.
+  \item \textit{DeleteDataset} -- deletes a dataset (via PK or name).
+  \item \textit{DeleteProject} -- deletes a project (via PK or name).
+  \item \textit{DeleteTeam} -- deletes a team (via PK or name).
+  \item \textit{DeleteUser} -- deletes a user (via PK or name).
+  \item \textit{LoadDataset} -- loads a dataset (via PK or name).
+  \item \textit{LoadProject} -- loads a project (via PK or name).
+  \item \textit{LoadTeam} -- loads a team (via PK or name).
+  \item \textit{LoadUser} -- loads a user (via PK or name).
+  \item \textit{PassThrough} -- dummy, does nothing.
+\end{tight_itemize}
+The following sink actions can be used:
+\begin{tight_itemize}
+  \item \textit{Null} -- dummy, does nothing.
+\end{tight_itemize}
+
+\section{Conversions}
+The following conversions are available:
+\begin{tight_itemize}
+  \item \textit{UFDLJsonObjectToString} -- converts a UFDL object that wraps a JSON object into a JSON string.
+  \item \textit{UFDLDatasetToSpreadSheet} -- converts the UFDL project information to a spreadsheet.
+  \item \textit{UFDLProjectToSpreadSheet} -- converts the UFDL project information to a spreadsheet.
+  \item \textit{UFDLTeamToSpreadSheet} -- converts the UFDL team information to a spreadsheet.
+  \item \textit{UFDLUserToSpreadSheet} -- converts the UFDL user information to a spreadsheet.
 \end{tight_itemize}
 
 
