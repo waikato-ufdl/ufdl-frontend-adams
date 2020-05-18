@@ -1,0 +1,36 @@
+# Project: adams
+# Date: 2020-05-18 14:17:33
+# User: fracpete
+# Charset: UTF-8
+# Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
+#
+adams.flow.control.Flow -annotation "Creates an image classification dataset from the selected files.\\nUses host/user/password from the global UFDL Preferences." -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
+ adams.flow.standalone.CallableActors
+  adams.flow.sink.Display -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
+ adams.flow.standalone.UFDLConnection
+ adams.flow.source.Start
+ adams.flow.control.Trigger -name "select project"
+  adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListProjects
+  adams.flow.transformer.SpreadSheetSelectSubset -short-title true -message "Please select project" -allow-search true
+  adams.flow.control.Tee -name "# rows"
+   adams.flow.transformer.SpreadSheetInfo
+   adams.flow.transformer.SetVariable -var-name num_rows
+  adams.flow.control.ConditionalTee -name "not just one project selected?" -condition "adams.flow.condition.bool.Expression -expression \"@{num_rows} != 1\""
+   adams.flow.control.Stop -stop-msg "Exactly one project needs to get selected!"
+  adams.flow.transformer.SpreadSheetGetCell -col pk
+  adams.flow.transformer.SetVariable -var-name project_pk
+ adams.flow.control.Trigger -name "prompt user"
+  adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
+  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name project_name -display \"Project name\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name project_version -display Version -type INTEGER -default-value 1" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name project_licence -display Licence" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name project_public -display \"Public dataset?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name project_tags -display Tags" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+  adams.flow.transformer.MapToVariables
+ adams.flow.control.Trigger -name "create dataset"
+  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateImageClassificationDataset -name @{project_name} -version @{project_version} -project @{project_pk} -licence @{project_licence} -is-public @{project_public} -tags @{project_tags}"
+  adams.flow.transformer.SetStorageValue -storage-name dataset
+ adams.flow.control.Trigger -name "add files"
+  adams.flow.source.SelectFile -output-array true -file-chooser-title "Select images to add" -extension jpg,png
+  adams.flow.transformer.Convert -conversion adams.data.conversion.JoinOptions
+  adams.flow.transformer.SetVariable -var-name files
+  adams.flow.control.Trigger -name add
+   adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+   adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{files}"
+   adams.flow.sink.CallableSink -callable Display
