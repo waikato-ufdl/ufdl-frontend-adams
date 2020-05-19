@@ -50,7 +50,7 @@ public class DeleteProject
    */
   @Override
   public Class[] accepts() {
-    return new Class[]{Integer.class, String.class};
+    return new Class[]{Integer.class, String.class, Project.class};
   }
 
   /**
@@ -85,8 +85,10 @@ public class DeleteProject
     try {
       if (input instanceof Integer)
 	project = m_Client.projects().load((Integer) input);
-      else
+      else if (input instanceof String)
 	project = m_Client.projects().load("" + input);
+      else
+        project = (Project) input;
     }
     catch (Exception e) {
       errors.add("Failed to load project: " + input, e);

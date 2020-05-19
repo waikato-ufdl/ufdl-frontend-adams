@@ -50,7 +50,7 @@ public class LoadProject
    */
   @Override
   public Class[] accepts() {
-    return new Class[]{Integer.class, String.class};
+    return new Class[]{Integer.class, String.class, Project.class};
   }
 
   /**
@@ -81,8 +81,10 @@ public class LoadProject
     try {
       if (input instanceof Integer)
 	result = m_Client.projects().load((Integer) input);
-      else
+      else if (input instanceof String)
 	result = m_Client.projects().load("" + input);
+      else
+        result = m_Client.projects().load(((Project) input).getPK());
     }
     catch (Exception e) {
       errors.add("Failed to load project: " + input, e);
