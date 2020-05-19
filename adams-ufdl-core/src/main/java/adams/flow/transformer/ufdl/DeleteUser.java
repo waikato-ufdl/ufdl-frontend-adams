@@ -50,7 +50,7 @@ public class DeleteUser
    */
   @Override
   public Class[] accepts() {
-    return new Class[]{Integer.class, String.class};
+    return new Class[]{Integer.class, String.class, User.class};
   }
 
   /**
@@ -85,8 +85,10 @@ public class DeleteUser
     try {
       if (input instanceof Integer)
 	user = m_Client.users().load((Integer) input);
-      else
+      else if (input instanceof String)
 	user = m_Client.users().load("" + input);
+      else
+        user = (User) input;
     }
     catch (Exception e) {
       errors.add("Failed to load user: " + input, e);

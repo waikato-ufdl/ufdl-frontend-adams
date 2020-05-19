@@ -50,7 +50,7 @@ public class LoadUser
    */
   @Override
   public Class[] accepts() {
-    return new Class[]{Integer.class, String.class};
+    return new Class[]{Integer.class, String.class, User.class};
   }
 
   /**
@@ -81,8 +81,10 @@ public class LoadUser
     try {
       if (input instanceof Integer)
 	result = m_Client.users().load((Integer) input);
-      else
+      else if (input instanceof String)
 	result = m_Client.users().load("" + input);
+      else
+        result = m_Client.users().load(((User) input).getPK());
     }
     catch (Exception e) {
       errors.add("Failed to load user: " + input, e);
