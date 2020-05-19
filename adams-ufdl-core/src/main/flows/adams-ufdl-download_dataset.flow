@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-05-19 16:46:47
+# Date: 2020-05-19 16:51:08
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-net,adams-spreadsheet,adams-ufdl-core
@@ -9,7 +9,6 @@ adams.flow.control.Flow -annotation "Let\\\'s the user choose a dataset to downl
  adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListDatasets
  adams.flow.transformer.SpreadSheetSelectSubset -message "Please select datasets to download"
  adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk,name -variable-prefix dataset_
- adams.flow.control.Breakpoint -scope-restriction adams.flow.execution.debug.NoScopeRestriction -condition adams.flow.condition.bool.Expression
  adams.flow.control.Trigger -name "select output file for dataset"
   adams.flow.source.EnterManyValues -stop-if-canceled true -message "Downloading @{dataset_name}/@{dataset_pk}" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name output -display \"Output file\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -output-type MAP
   adams.flow.transformer.MapToVariables
