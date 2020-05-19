@@ -50,7 +50,7 @@ public class DeleteTeam
    */
   @Override
   public Class[] accepts() {
-    return new Class[]{Integer.class, String.class};
+    return new Class[]{Integer.class, String.class, Team.class};
   }
 
   /**
@@ -85,8 +85,10 @@ public class DeleteTeam
     try {
       if (input instanceof Integer)
 	team = m_Client.teams().load((Integer) input);
-      else
+      else if (input instanceof String)
 	team = m_Client.teams().load("" + input);
+      else
+        team = (Team) input;
     }
     catch (Exception e) {
       errors.add("Failed to load team: " + input, e);

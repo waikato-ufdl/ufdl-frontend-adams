@@ -50,7 +50,7 @@ public class LoadTeam
    */
   @Override
   public Class[] accepts() {
-    return new Class[]{Integer.class, String.class};
+    return new Class[]{Integer.class, String.class, Team.class};
   }
 
   /**
@@ -81,8 +81,10 @@ public class LoadTeam
     try {
       if (input instanceof Integer)
 	result = m_Client.teams().load((Integer) input);
-      else
+      else if (input instanceof String)
 	result = m_Client.teams().load("" + input);
+      else
+        result = m_Client.teams().load(((Team) input).getPK());
     }
     catch (Exception e) {
       errors.add("Failed to load team: " + input, e);
