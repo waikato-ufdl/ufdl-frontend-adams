@@ -50,7 +50,7 @@ public class LoadDataset
    */
   @Override
   public Class[] accepts() {
-    return new Class[]{Integer.class, String.class};
+    return new Class[]{Integer.class, String.class, Dataset.class};
   }
 
   /**
@@ -81,8 +81,10 @@ public class LoadDataset
     try {
       if (input instanceof Integer)
 	result = m_Client.datasets().load((Integer) input);
-      else
+      else if (input instanceof String)
 	result = m_Client.datasets().load("" + input);
+      else
+        result = m_Client.datasets().load(((Dataset) input).getPK());
     }
     catch (Exception e) {
       errors.add("Failed to load dataset: " + input, e);

@@ -50,7 +50,7 @@ public class DeleteDataset
    */
   @Override
   public Class[] accepts() {
-    return new Class[]{Integer.class, String.class};
+    return new Class[]{Integer.class, String.class, Dataset.class};
   }
 
   /**
@@ -85,8 +85,10 @@ public class DeleteDataset
     try {
       if (input instanceof Integer)
 	dataset = m_Client.datasets().load((Integer) input);
-      else
+      else if (input instanceof String)
 	dataset = m_Client.datasets().load("" + input);
+      else
+        dataset = (Dataset) input;
     }
     catch (Exception e) {
       errors.add("Failed to load dataset: " + input, e);
