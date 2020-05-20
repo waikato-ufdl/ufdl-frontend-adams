@@ -1,0 +1,36 @@
+# Project: adams
+# Date: 2020-05-21 09:05:41
+# User: fracpete
+# Charset: UTF-8
+# Modules: adams-core,adams-net,adams-spreadsheet,adams-ufdl-core
+#
+adams.flow.control.Flow -annotation "Let\\\'s the user copy a dataset.\\nUses host/user/password from the global UFDL Preferences." -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
+ adams.flow.standalone.CallableActors
+  adams.flow.sink.Display -name Info -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
+ adams.flow.standalone.UFDLConnection
+ adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListDatasets
+ adams.flow.transformer.SpreadSheetSelectSubset -message "Please select datasets to download"
+ adams.flow.control.Tee -name "dataset name"
+  adams.flow.transformer.SpreadSheetGetCell -col name
+  adams.flow.transformer.SetVariable -var-name old_name
+ adams.flow.transformer.SpreadSheetInfo -output-array true -type CELL_VALUES -column-index pk
+ adams.flow.control.Tee -name "# values"
+  adams.flow.transformer.ArrayLength
+  adams.flow.transformer.SetVariable -var-name num_datasets
+ adams.flow.control.ConditionalTee -name "didn\'t selected single dataset" -condition "adams.flow.condition.bool.Expression -expression \"@{num_datasets} != 1\""
+  adams.flow.control.Stop -stop-msg "must select exactly one dataset!"
+ adams.flow.transformer.GetArrayElement
+ adams.flow.transformer.SetVariable -var-name dataset_pk
+ adams.flow.control.Trigger -name "new name"
+  adams.flow.standalone.SetVariable -name reset -var-name name_entered -var-value false
+  adams.flow.source.EnterValue -stop-if-canceled true -message "Please enter new name" -initial-value @{old_name}
+  adams.flow.transformer.SetVariable -var-name new_name
+  adams.flow.transformer.SetVariable -name proceed -var-name name_entered -var-value true
+ adams.flow.control.Block -condition "adams.flow.condition.bool.Expression -expression \"@{name_entered} = false\""
+ adams.flow.control.Trigger -name "copy dataset"
+  adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+  adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.CopyDataset -new-name @{new_name}"
+  adams.flow.transformer.SetVariable -var-name success
+  adams.flow.control.Trigger -name output
+   adams.flow.source.CombineVariables -expression "@{new_name}/@{dataset_pk}: @{success}" -conversion adams.data.conversion.StringToString
+   adams.flow.sink.CallableSink -callable Info
