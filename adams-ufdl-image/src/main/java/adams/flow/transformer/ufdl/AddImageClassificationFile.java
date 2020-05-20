@@ -23,6 +23,7 @@ package adams.flow.transformer.ufdl;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import adams.core.io.PlaceholderFile;
+import adams.flow.core.ufdl.ImageNameExtraction;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
 
@@ -32,12 +33,15 @@ import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class AddImageClassificationFile
-  extends AbstractUFDLTransformerAction {
+  extends AbstractDatasetTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
   /** the file(s) to add. */
   protected PlaceholderFile[] m_Files;
+
+  /** how to extract the name of the file. */
+  protected ImageNameExtraction m_ImageNameExtraction;
 
   /**
    * Returns a string describing the object.
@@ -59,6 +63,10 @@ public class AddImageClassificationFile
     m_OptionManager.add(
       "file", "files",
       new PlaceholderFile[0]);
+
+    m_OptionManager.add(
+      "image-name-extraction", "imageNameExtraction",
+      ImageNameExtraction.NAME);
   }
 
   /**
@@ -91,23 +99,47 @@ public class AddImageClassificationFile
   }
 
   /**
+   * Sets how to extract the image name from the file name.
+   *
+   * @param value	the extraction type
+   */
+  public void setImageNameExtraction(ImageNameExtraction value) {
+    m_ImageNameExtraction = value;
+    reset();
+  }
+
+  /**
+   * Returns how to extract the image name from the file name.
+   *
+   * @return		the extraction type
+   */
+  public ImageNameExtraction getImageNameExtraction() {
+    return m_ImageNameExtraction;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String imageNameExtractionTipText() {
+    return "Determines how to generate the name of the image from its filename.";
+  }
+
+  /**
    * Returns a quick info about the actor, which will be displayed in the GUI.
    *
    * @return		null if no info available, otherwise short string
    */
   @Override
   public String getQuickInfo() {
-    return QuickInfoHelper.toString(this, "files", m_Files);
-  }
+    String	result;
 
-  /**
-   * Returns the classes that the transformer accepts.
-   *
-   * @return		the classes
-   */
-  @Override
-  public Class[] accepts() {
-    return new Class[]{Integer.class, String.class, Dataset.class};
+    result = QuickInfoHelper.toString(this, "files", m_Files);
+    result += QuickInfoHelper.toString(this, "imageNameExtraction", m_ImageNameExtraction, ", extract: ");
+
+    return result;
   }
 
   /**
@@ -121,55 +153,31 @@ public class AddImageClassificationFile
   }
 
   /**
-   * Transforms the input data.
+   * Transforms the dataset.
    *
-   * @param input	the input data
+   * @param dataset	the dataset
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
   @Override
-  protected Object doTransform(Object input, MessageCollection errors) {
-    Object			result;
-    Dataset 			dataset;
+  protected Object doTransform(Dataset dataset, MessageCollection errors) {
     ImageClassificationDatasets	action;
+    String			name;
 
-    result = input;
-
-    if (isLoggingEnabled())
-      getLogger().info("Adding files to: " + input);
-
-    // load dataset
-    dataset = null;
-    try {
-      if (input instanceof Integer)
-	dataset = m_Client.datasets().load((Integer) input);
-      else if (input instanceof String)
-	dataset = m_Client.datasets().load("" + input);
-      else
-	dataset = (Dataset) input;
-    }
-    catch (Exception e) {
-      errors.add("Failed to load dataset: " + input, e);
-    }
-
-    if (dataset == null) {
-      errors.add("Unknown dataset: " + input);
-    }
-    else {
-      for (PlaceholderFile file: m_Files) {
-        if (isLoggingEnabled())
-          getLogger().info("Adding file to dataset " + dataset + ": " + file);
-	try {
-	  action = m_Client.action(ImageClassificationDatasets.class);
-	  if (!action.addFile(dataset, file.getAbsoluteFile(), file.getName()))
-	    errors.add("Failed to add file to " + dataset + ": " + file);
-	}
-	catch (Exception e) {
-	  errors.add("Failed to add file to " + dataset + ": " + file, e);
-	}
+    for (PlaceholderFile file: m_Files) {
+      name = m_ImageNameExtraction.extract(file);
+      if (isLoggingEnabled())
+	getLogger().info("Adding image '" + name + "' to dataset " + dataset + ": " + file);
+      try {
+	action = m_Client.action(ImageClassificationDatasets.class);
+	if (!action.addFile(dataset, file.getAbsoluteFile(), name))
+	  errors.add("Failed to add image '" + name + "' to " + dataset + ": " + file);
+      }
+      catch (Exception e) {
+	errors.add("Failed to add image '" + name + "' to " + dataset + ": " + file, e);
       }
     }
 
-    return result;
+    return dataset;
   }
 }
