@@ -29,7 +29,7 @@ import com.github.waikatoufdl.ufdl4j.action.Teams.Team;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class LoadTeam
-  extends AbstractUFDLTransformerAction {
+  extends AbstractTeamTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -44,16 +44,6 @@ public class LoadTeam
   }
 
   /**
-   * Returns the classes that the transformer accepts.
-   *
-   * @return		the classes
-   */
-  @Override
-  public Class[] accepts() {
-    return new Class[]{Integer.class, String.class, Team.class};
-  }
-
-  /**
    * Returns the classes that the transformer generates.
    *
    * @return		the classes
@@ -64,32 +54,14 @@ public class LoadTeam
   }
 
   /**
-   * Transforms the input data.
+   * Transforms the team.
    *
-   * @param input	the input data
+   * @param team	the team
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
   @Override
-  protected Object doTransform(Object input, MessageCollection errors) {
-    Team    result;
-
-    if (isLoggingEnabled())
-      getLogger().info("Loading team: " + input);
-
-    result = null;
-    try {
-      if (input instanceof Integer)
-	result = m_Client.teams().load((Integer) input);
-      else if (input instanceof String)
-	result = m_Client.teams().load("" + input);
-      else
-        result = m_Client.teams().load(((Team) input).getPK());
-    }
-    catch (Exception e) {
-      errors.add("Failed to load team: " + input, e);
-    }
-
-    return result;
+  protected Object doTransform(Team team, MessageCollection errors) {
+    return team;
   }
 }

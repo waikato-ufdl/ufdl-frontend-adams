@@ -14,7 +14,7 @@
  */
 
 /*
- * DeleteUser.java
+ * AbstractUserTransformerAction.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
@@ -24,33 +24,23 @@ import adams.core.MessageCollection;
 import com.github.waikatoufdl.ufdl4j.action.Users.User;
 
 /**
- * Deletes the user either via PK or username.
+ * Ancestor for transformer actions on users.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class DeleteUser
-  extends AbstractUserTransformerAction {
+public abstract class AbstractUserTransformerAction
+  extends AbstractUFDLTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
   /**
-   * Returns a string describing the object.
-   *
-   * @return 			a description suitable for displaying in the gui
-   */
-  @Override
-  public String globalInfo() {
-    return "Deletes the user either via PK or user name.";
-  }
-
-  /**
-   * Returns the classes that the transformer generates.
+   * Returns the classes that the transformer accepts.
    *
    * @return		the classes
    */
   @Override
-  public Class[] generates() {
-    return new Class[]{Boolean.class};
+  public Class[] accepts() {
+    return new Class[]{Integer.class, String.class, User.class};
   }
 
   /**
@@ -60,21 +50,43 @@ public class DeleteUser
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
-  @Override
-  protected Object doTransform(User user, MessageCollection errors) {
-    boolean	result;
+  protected abstract Object doTransform(User user, MessageCollection errors);
 
-    result = false;
+  /**
+   * Transforms the input data.
+   *
+   * @param input	the input data
+   * @param errors 	for collecting errors
+   * @return 		the transformed data
+   */
+  @Override
+  protected Object doTransform(Object input, MessageCollection errors) {
+    Object	result;
+    User	user;
+
+    result = null;
 
     if (isLoggingEnabled())
-      getLogger().info("Deleting user: " + user);
+      getLogger().info("Transforming user: " + input);
 
+    // load user
+    user = null;
     try {
-      result = m_Client.users().delete(user);
+      if (input instanceof Integer)
+	user = m_Client.users().load((Integer) input);
+      else if (input instanceof String)
+	user = m_Client.users().load("" + input);
+      else
+        user = (User) input;
     }
     catch (Exception e) {
-      errors.add("Failed to delete user: " + user, e);
+      errors.add("Failed to load user: " + input, e);
     }
+
+    if (user == null)
+      errors.add("Unknown user: " + input);
+    else
+      result = doTransform(user, errors);
 
     return result;
   }

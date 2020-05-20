@@ -29,7 +29,7 @@ import com.github.waikatoufdl.ufdl4j.action.Projects.Project;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class LoadProject
-  extends AbstractUFDLTransformerAction {
+  extends AbstractProjectTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -44,16 +44,6 @@ public class LoadProject
   }
 
   /**
-   * Returns the classes that the transformer accepts.
-   *
-   * @return		the classes
-   */
-  @Override
-  public Class[] accepts() {
-    return new Class[]{Integer.class, String.class, Project.class};
-  }
-
-  /**
    * Returns the classes that the transformer generates.
    *
    * @return		the classes
@@ -64,32 +54,14 @@ public class LoadProject
   }
 
   /**
-   * Transforms the input data.
+   * Transforms the project.
    *
-   * @param input	the input data
+   * @param input	the project
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
   @Override
-  protected Object doTransform(Object input, MessageCollection errors) {
-    Project    result;
-
-    if (isLoggingEnabled())
-      getLogger().info("Loading project: " + input);
-
-    result = null;
-    try {
-      if (input instanceof Integer)
-	result = m_Client.projects().load((Integer) input);
-      else if (input instanceof String)
-	result = m_Client.projects().load("" + input);
-      else
-        result = m_Client.projects().load(((Project) input).getPK());
-    }
-    catch (Exception e) {
-      errors.add("Failed to load project: " + input, e);
-    }
-
-    return result;
+  protected Object doTransform(Project input, MessageCollection errors) {
+    return input;
   }
 }

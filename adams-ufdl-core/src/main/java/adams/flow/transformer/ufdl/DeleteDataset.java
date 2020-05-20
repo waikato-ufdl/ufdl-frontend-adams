@@ -29,7 +29,7 @@ import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class DeleteDataset
-  extends AbstractUFDLTransformerAction {
+  extends AbstractDatasetTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -44,16 +44,6 @@ public class DeleteDataset
   }
 
   /**
-   * Returns the classes that the transformer accepts.
-   *
-   * @return		the classes
-   */
-  @Override
-  public Class[] accepts() {
-    return new Class[]{Integer.class, String.class, Dataset.class};
-  }
-
-  /**
    * Returns the classes that the transformer generates.
    *
    * @return		the classes
@@ -64,46 +54,26 @@ public class DeleteDataset
   }
 
   /**
-   * Transforms the input data.
+   * Transforms the dataset.
    *
-   * @param input	the input data
+   * @param dataset	the dataset
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
   @Override
-  protected Object doTransform(Object input, MessageCollection errors) {
+  protected Object doTransform(Dataset dataset, MessageCollection errors) {
     boolean	result;
-    Dataset	dataset;
 
     result = false;
 
     if (isLoggingEnabled())
-      getLogger().info("Deleting dataset: " + input);
+      getLogger().info("Deleting dataset: " + dataset);
 
-    // load dataset
-    dataset = null;
     try {
-      if (input instanceof Integer)
-	dataset = m_Client.datasets().load((Integer) input);
-      else if (input instanceof String)
-	dataset = m_Client.datasets().load("" + input);
-      else
-        dataset = (Dataset) input;
+      result = m_Client.datasets().delete(dataset);
     }
     catch (Exception e) {
-      errors.add("Failed to load dataset: " + input, e);
-    }
-
-    if (dataset == null) {
-      errors.add("Unknown dataset: " + input);
-    }
-    else {
-      try {
-	result = m_Client.datasets().delete(dataset);
-      }
-      catch (Exception e) {
-        errors.add("Failed to delete dataset: " + dataset, e);
-      }
+      errors.add("Failed to delete dataset: " + dataset, e);
     }
 
     return result;

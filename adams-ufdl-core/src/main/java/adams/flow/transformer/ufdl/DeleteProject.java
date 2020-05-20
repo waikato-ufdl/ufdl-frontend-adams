@@ -29,7 +29,7 @@ import com.github.waikatoufdl.ufdl4j.action.Projects.Project;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class DeleteProject
-  extends AbstractUFDLTransformerAction {
+  extends AbstractProjectTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -44,16 +44,6 @@ public class DeleteProject
   }
 
   /**
-   * Returns the classes that the transformer accepts.
-   *
-   * @return		the classes
-   */
-  @Override
-  public Class[] accepts() {
-    return new Class[]{Integer.class, String.class, Project.class};
-  }
-
-  /**
    * Returns the classes that the transformer generates.
    *
    * @return		the classes
@@ -64,46 +54,26 @@ public class DeleteProject
   }
 
   /**
-   * Transforms the input data.
+   * Transforms the project.
    *
-   * @param input	the input data
+   * @param project	the project
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
   @Override
-  protected Object doTransform(Object input, MessageCollection errors) {
+  protected Object doTransform(Project project, MessageCollection errors) {
     boolean	result;
-    Project	project;
 
     result = false;
 
     if (isLoggingEnabled())
-      getLogger().info("Deleting project: " + input);
+      getLogger().info("Deleting project: " + project);
 
-    // load project
-    project = null;
     try {
-      if (input instanceof Integer)
-	project = m_Client.projects().load((Integer) input);
-      else if (input instanceof String)
-	project = m_Client.projects().load("" + input);
-      else
-        project = (Project) input;
+      result = m_Client.projects().delete(project);
     }
     catch (Exception e) {
-      errors.add("Failed to load project: " + input, e);
-    }
-
-    if (project == null) {
-      errors.add("Unknown project: " + input);
-    }
-    else {
-      try {
-	result = m_Client.projects().delete(project);
-      }
-      catch (Exception e) {
-        errors.add("Failed to delete project: " + project, e);
-      }
+      errors.add("Failed to delete project: " + project, e);
     }
 
     return result;

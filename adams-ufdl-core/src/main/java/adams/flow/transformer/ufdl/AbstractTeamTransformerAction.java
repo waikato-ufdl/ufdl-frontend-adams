@@ -14,7 +14,7 @@
  */
 
 /*
- * DeleteTeam.java
+ * AbstractTeamTransformerAction.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
@@ -24,33 +24,23 @@ import adams.core.MessageCollection;
 import com.github.waikatoufdl.ufdl4j.action.Teams.Team;
 
 /**
- * Deletes the team either via PK or teamname.
+ * Ancestor for transformer actions on teams.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class DeleteTeam
-  extends AbstractTeamTransformerAction {
+public abstract class AbstractTeamTransformerAction
+  extends AbstractUFDLTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
   /**
-   * Returns a string describing the object.
-   *
-   * @return 			a description suitable for displaying in the gui
-   */
-  @Override
-  public String globalInfo() {
-    return "Deletes the team either via PK or team name.";
-  }
-
-  /**
-   * Returns the classes that the transformer generates.
+   * Returns the classes that the transformer accepts.
    *
    * @return		the classes
    */
   @Override
-  public Class[] generates() {
-    return new Class[]{Boolean.class};
+  public Class[] accepts() {
+    return new Class[]{Integer.class, String.class, Team.class};
   }
 
   /**
@@ -60,21 +50,43 @@ public class DeleteTeam
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
-  @Override
-  protected Object doTransform(Team team, MessageCollection errors) {
-    boolean	result;
+  protected abstract Object doTransform(Team team, MessageCollection errors);
 
-    result = false;
+  /**
+   * Transforms the input data.
+   *
+   * @param input	the input data
+   * @param errors 	for collecting errors
+   * @return 		the transformed data
+   */
+  @Override
+  protected Object doTransform(Object input, MessageCollection errors) {
+    Object	result;
+    Team	team;
+
+    result = null;
 
     if (isLoggingEnabled())
-      getLogger().info("Deleting team: " + team);
+      getLogger().info("Transforming team: " + input);
 
+    // load team
+    team = null;
     try {
-      result = m_Client.teams().delete(team);
+      if (input instanceof Integer)
+	team = m_Client.teams().load((Integer) input);
+      else if (input instanceof String)
+	team = m_Client.teams().load("" + input);
+      else
+        team = (Team) input;
     }
     catch (Exception e) {
-      errors.add("Failed to delete team: " + team, e);
+      errors.add("Failed to load team: " + input, e);
     }
+
+    if (team == null)
+      errors.add("Unknown team: " + input);
+    else
+      result = doTransform(team, errors);
 
     return result;
   }

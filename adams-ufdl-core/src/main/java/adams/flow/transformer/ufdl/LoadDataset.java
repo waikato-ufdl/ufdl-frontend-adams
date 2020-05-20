@@ -29,7 +29,7 @@ import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class LoadDataset
-  extends AbstractUFDLTransformerAction {
+  extends AbstractDatasetTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -44,16 +44,6 @@ public class LoadDataset
   }
 
   /**
-   * Returns the classes that the transformer accepts.
-   *
-   * @return		the classes
-   */
-  @Override
-  public Class[] accepts() {
-    return new Class[]{Integer.class, String.class, Dataset.class};
-  }
-
-  /**
    * Returns the classes that the transformer generates.
    *
    * @return		the classes
@@ -64,32 +54,14 @@ public class LoadDataset
   }
 
   /**
-   * Transforms the input data.
+   * Transforms the dataset.
    *
-   * @param input	the input data
+   * @param dataset	the input data
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
   @Override
-  protected Object doTransform(Object input, MessageCollection errors) {
-    Dataset    result;
-
-    if (isLoggingEnabled())
-      getLogger().info("Loading dataset: " + input);
-
-    result = null;
-    try {
-      if (input instanceof Integer)
-	result = m_Client.datasets().load((Integer) input);
-      else if (input instanceof String)
-	result = m_Client.datasets().load("" + input);
-      else
-        result = m_Client.datasets().load(((Dataset) input).getPK());
-    }
-    catch (Exception e) {
-      errors.add("Failed to load dataset: " + input, e);
-    }
-
-    return result;
+  protected Object doTransform(Dataset dataset, MessageCollection errors) {
+    return dataset;
   }
 }

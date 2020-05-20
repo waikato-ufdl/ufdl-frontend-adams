@@ -29,7 +29,7 @@ import com.github.waikatoufdl.ufdl4j.action.Users.User;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class LoadUser
-  extends AbstractUFDLTransformerAction {
+  extends AbstractUserTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -44,16 +44,6 @@ public class LoadUser
   }
 
   /**
-   * Returns the classes that the transformer accepts.
-   *
-   * @return		the classes
-   */
-  @Override
-  public Class[] accepts() {
-    return new Class[]{Integer.class, String.class, User.class};
-  }
-
-  /**
    * Returns the classes that the transformer generates.
    *
    * @return		the classes
@@ -64,32 +54,14 @@ public class LoadUser
   }
 
   /**
-   * Transforms the input data.
+   * Transforms the user.
    *
-   * @param input	the input data
+   * @param user	the user
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
   @Override
-  protected Object doTransform(Object input, MessageCollection errors) {
-    User    result;
-
-    if (isLoggingEnabled())
-      getLogger().info("Loading user: " + input);
-
-    result = null;
-    try {
-      if (input instanceof Integer)
-	result = m_Client.users().load((Integer) input);
-      else if (input instanceof String)
-	result = m_Client.users().load("" + input);
-      else
-        result = m_Client.users().load(((User) input).getPK());
-    }
-    catch (Exception e) {
-      errors.add("Failed to load user: " + input, e);
-    }
-
-    return result;
+  protected Object doTransform(User user, MessageCollection errors) {
+    return user;
   }
 }

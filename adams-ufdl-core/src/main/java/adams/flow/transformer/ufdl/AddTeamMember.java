@@ -32,7 +32,7 @@ import com.github.waikatoufdl.ufdl4j.action.Users.User;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class AddTeamMember
-  extends AbstractUFDLTransformerAction {
+  extends AbstractTeamTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -127,16 +127,6 @@ public class AddTeamMember
   }
 
   /**
-   * Returns the classes that the transformer accepts.
-   *
-   * @return		the classes
-   */
-  @Override
-  public Class[] accepts() {
-    return new Class[]{Team.class};
-  }
-
-  /**
    * Returns the classes that the transformer generates.
    *
    * @return		the classes
@@ -147,29 +137,27 @@ public class AddTeamMember
   }
 
   /**
-   * Transforms the input data.
+   * Transforms the team.
    *
-   * @param input	the input data
+   * @param team	the team
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
   @Override
-  protected Object doTransform(Object input, MessageCollection errors) {
+  protected Object doTransform(Team team, MessageCollection errors) {
     Team 	result;
-    Team 	team;
     User 	user;
 
-    team = (Team) input;
     for (BaseInteger member: m_Members) {
       try {
         if (isLoggingEnabled())
           getLogger().info("Adding member " + member + " to team '" + team + "'");
         user = m_Client.users().load(member.intValue());
         if (!m_Client.teams().addMember(team, user, m_Permissions))
-          errors.add("Failed to add member " + member + " to team '" + team + "': " + input);
+          errors.add("Failed to add member " + member + " to team '" + team + "': " + team);
       }
       catch (Exception e) {
-        errors.add("Failed to add member " + member + " to team '" + team + "': " + input, e);
+        errors.add("Failed to add member " + member + " to team '" + team + "': " + team, e);
       }
     }
 
