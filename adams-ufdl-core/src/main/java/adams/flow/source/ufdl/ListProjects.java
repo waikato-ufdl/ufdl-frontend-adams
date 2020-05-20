@@ -21,9 +21,12 @@
 package adams.flow.source.ufdl;
 
 import adams.core.MessageCollection;
+import adams.core.QuickInfoHelper;
 import adams.data.conversion.UFDLProjectToSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
+import adams.flow.core.UFDLSoftDeleteObjectState;
+import adams.flow.core.UFDLSoftDeleteObjectStateHandler;
 import com.github.waikatoufdl.ufdl4j.action.Projects.Project;
 
 import java.util.List;
@@ -34,9 +37,13 @@ import java.util.List;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class ListProjects
-  extends AbstractUFDLSourceAction {
+  extends AbstractUFDLSourceAction
+  implements UFDLSoftDeleteObjectStateHandler {
 
   private static final long serialVersionUID = 2444931814949354710L;
+
+  /** the state of the projects to list. */
+  protected UFDLSoftDeleteObjectState m_State;
 
   /**
    * Returns a string describing the object.
@@ -46,6 +53,60 @@ public class ListProjects
   @Override
   public String globalInfo() {
     return "Outputs a spreadsheet with all the projects.";
+  }
+
+  /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "state", "state",
+      UFDLSoftDeleteObjectState.ACTIVE);
+  }
+
+  /**
+   * Sets the state of the objects to retrieve.
+   *
+   * @param value	the state
+   */
+  @Override
+  public void setState(UFDLSoftDeleteObjectState value) {
+    m_State = value;
+    reset();
+  }
+
+  /**
+   * Returns the state of the objects to retriev.
+   *
+   * @return		the state
+   */
+  @Override
+  public UFDLSoftDeleteObjectState getState() {
+    return m_State;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  @Override
+  public String stateTipText() {
+    return "The state of the projects to retrieve.";
+  }
+
+  /**
+   * Returns a quick info about the object, which can be displayed in the GUI.
+   *
+   * @return		null if no info available, otherwise short string
+   */
+  @Override
+  public String getQuickInfo() {
+    return QuickInfoHelper.toString(this, "state", m_State, "state: ");
   }
 
   /**
@@ -78,6 +139,8 @@ public class ListProjects
       projects = m_Client.projects().list();
       conv  = new UFDLProjectToSpreadSheet();
       for (Project project : projects) {
+        if (!m_State.accept(project))
+          continue;
         conv.setInput(project);
         msg = conv.convert();
         if (msg == null) {

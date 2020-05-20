@@ -21,6 +21,8 @@
 package adams.flow.source.ufdl;
 
 import adams.core.MessageCollection;
+import adams.core.QuickInfoHelper;
+import adams.core.TriState;
 import adams.data.conversion.UFDLUserToSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
@@ -38,6 +40,9 @@ public class ListUsers
 
   private static final long serialVersionUID = 2444931814949354710L;
 
+  /** the active state of the users. */
+  protected TriState m_Active;
+
   /**
    * Returns a string describing the object.
    *
@@ -46,6 +51,57 @@ public class ListUsers
   @Override
   public String globalInfo() {
     return "Outputs a spreadsheet with all the users.";
+  }
+
+  /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "active", "active",
+      TriState.TRUE);
+  }
+
+  /**
+   * Sets the state of the users to retrieve.
+   *
+   * @param value	the state
+   */
+  public void setActive(TriState value) {
+    m_Active = value;
+    reset();
+  }
+
+  /**
+   * Returns the state of the users to retriev.
+   *
+   * @return		the state
+   */
+  public TriState getActive() {
+    return m_Active;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String activeTipText() {
+    return "The active state of the users to retrieve.";
+  }
+
+  /**
+   * Returns a quick info about the object, which can be displayed in the GUI.
+   *
+   * @return		null if no info available, otherwise short string
+   */
+  @Override
+  public String getQuickInfo() {
+    return QuickInfoHelper.toString(this, "active", m_Active, "active: ");
   }
 
   /**
@@ -78,6 +134,16 @@ public class ListUsers
       users = m_Client.users().list();
       conv  = new UFDLUserToSpreadSheet();
       for (User user: users) {
+        switch (m_Active) {
+	  case FALSE:
+	    if (user.isActive())
+	      continue;
+	    break;
+	  case TRUE:
+	    if (!user.isActive())
+	      continue;
+	    break;
+	}
         conv.setInput(user);
         msg = conv.convert();
         if (msg == null) {
