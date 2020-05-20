@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-05-18 14:17:33
+# Date: 2020-05-20 15:45:59
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -27,7 +27,7 @@ adams.flow.control.Flow -annotation "Creates an image classification dataset fro
   adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateImageClassificationDataset -name @{project_name} -version @{project_version} -project @{project_pk} -licence @{project_licence} -is-public @{project_public} -tags @{project_tags}"
   adams.flow.transformer.SetStorageValue -storage-name dataset
  adams.flow.control.Trigger -name "add files"
-  adams.flow.source.SelectFile -output-array true -file-chooser-title "Select images to add" -extension jpg,png
+  adams.flow.source.SelectFile -output-array true -file-chooser-title "Select images to add" -initial-dir ${FLOWS}/data -extension jpg,png
   adams.flow.transformer.Convert -conversion adams.data.conversion.JoinOptions
   adams.flow.transformer.SetVariable -var-name files
   adams.flow.control.Trigger -name add
