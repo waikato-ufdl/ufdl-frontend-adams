@@ -14,7 +14,7 @@
  */
 
 /*
- * UFDLImageClassificationDatasetToSpreadSheet.java
+ * UFDLObjectDetectionDatasetToSpreadSheet.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
@@ -32,11 +32,11 @@ import java.sql.Date;
 import java.time.ZoneOffset;
 
 /**
- * Converts an image classification dataset into a Spreadsheet.
+ * Converts an object detection dataset into a Spreadsheet.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class UFDLImageClassificationDatasetToSpreadSheet
+public class UFDLObjectDetectionDatasetToSpreadSheet
   extends AbstractConversion {
 
   private static final long serialVersionUID = 2239463804853893127L;
@@ -48,7 +48,7 @@ public class UFDLImageClassificationDatasetToSpreadSheet
    */
   @Override
   public String globalInfo() {
-    return "Converts an image classification dataset into a Spreadsheet.";
+    return "Converts a object detection into a Spreadsheet.";
   }
 
   /**

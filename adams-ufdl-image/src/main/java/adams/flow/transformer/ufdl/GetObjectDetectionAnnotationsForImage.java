@@ -14,7 +14,7 @@
  */
 
 /*
- * DeleteImageClassificationFile.java
+ * GetObjectDetectionAnnotationsForImage.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
@@ -23,18 +23,20 @@ package adams.flow.transformer.ufdl;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
+import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
+import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
 
 /**
- * Deletes the specified image from the dataset passing through.
+ * Obtains the annotations of the specified image from the dataset passing through and forwards them.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class DeleteImageClassificationFile
+public class GetObjectDetectionAnnotationsForImage
   extends AbstractDatasetTransformerAction {
 
   private static final long serialVersionUID = -1421130988687306299L;
 
-  /** the name of the image to delete. */
+  /** the name of the image to get the annotations for. */
   protected String m_Name;
 
   /**
@@ -44,7 +46,7 @@ public class DeleteImageClassificationFile
    */
   @Override
   public String globalInfo() {
-    return "Deletes the specified image from the dataset passing through.";
+    return "Obtains the annotations of the specified image from the dataset passing through and forwards them.";
   }
 
   /**
@@ -60,7 +62,7 @@ public class DeleteImageClassificationFile
   }
 
   /**
-   * Sets the name of the image to download.
+   * Sets the name of the image to get the annotations for.
    *
    * @param value 	the name
    */
@@ -70,7 +72,7 @@ public class DeleteImageClassificationFile
   }
 
   /**
-   * Returns the name of the image to download.
+   * Returns the name of the image to get the annotations for.
    *
    * @return 		the name
    */
@@ -85,7 +87,7 @@ public class DeleteImageClassificationFile
    * 			displaying in the GUI or for listing the options.
    */
   public String nameTipText() {
-    return "The name of the image to download from the dataset.";
+    return "The name of the image to get the annotations for.";
   }
 
   /**
@@ -105,7 +107,7 @@ public class DeleteImageClassificationFile
    */
   @Override
   public Class[] generates() {
-    return new Class[]{Boolean.class};
+    return new Class[]{Annotations.class};
   }
 
   /**
@@ -117,15 +119,16 @@ public class DeleteImageClassificationFile
    */
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
-    boolean	result;
+    Annotations			result;
+    ObjectDetectionDatasets 	action;
 
-    result = false;
-
+    result = null;
     try {
-      result = m_Client.datasets().deleteFile(dataset, m_Name);
+      action = m_Client.action(ObjectDetectionDatasets.class);
+      result = action.getAnnotations(dataset, m_Name);
     }
     catch (Exception e) {
-      errors.add("Failed to delete image '" + m_Name + "' from dataset: " + dataset, e);
+      errors.add("Failed to retrieve annotations of image '" + m_Name + "' from dataset: " + dataset, e);
     }
 
     return result;

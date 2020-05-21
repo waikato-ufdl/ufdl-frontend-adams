@@ -67,22 +67,32 @@ This ADAMS module focuses on image processing tasks.
 
 The following conversions are available:
 \begin{tight_itemize}
+  \item \textit{ReportToUFDLAnnotations} -- converts an ADAMS report to UFDL annotations
+  \item \textit{UFDLAnnotationsToReport} -- converts UFDL annotations to an ADAMS report
   \item \textit{UFDLImageClassificationDatasetToSpreadSheet} -- turns an image classification dataset into a spreadsheet
+  \item \textit{UFDLObjectDetectionDatasetToSpreadSheet} -- turns an object detection dataset into a spreadsheet
 \end{tight_itemize}
 
 \section{Actions}
 The following source actions can be used:
 \begin{tight_itemize}
+  \item \textit{CreateImageClassificationDatasets} -- creates an image classification dataset
+  \item \textit{CreateObjectDetectionDatasets} -- creates an object detection dataset
   \item \textit{ListImageClassificationDatasets} -- lists image classification datasets
+  \item \textit{ListObjectDetectionDatasets} -- lists object detection datasets
 \end{tight_itemize}
 The following transformer actions can be used:
 \begin{tight_itemize}
   \item \textit{AddImageClassificationCategories} -- adds categories to images of an image classification dataset
   \item \textit{AddImageClassificationFile} -- adds images to an image classification dataset
+  \item \textit{AddObjectDetectionFile} -- adds an image (and its optional annnotations) to an object detection dataset
   \item \textit{DeleteImageClassificationCategories} -- removes categories from images of an image classification dataset
   \item \textit{DeleteImageClassificationFile} -- removes the specified images from an image classification dataset
   \item \textit{GetImageClassificationFile} -- retrieves a file from an image classification dataset via its name
+  \item \textit{GetObjectDetectionAnnotations} -- obtains all the annotations from an object detection dataset
+  \item \textit{GetObjectDetectionAnnotationsForImage} -- obtains the annotations of an image from an object detection dataset
   \item \textit{ListImageClassificationFiles} -- lists all the images in an image classification dataset
+  \item \textit{SetObjectDetectionAnnotationsForImage} -- sets the annotations of an image in an object detection dataset
 \end{tight_itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
