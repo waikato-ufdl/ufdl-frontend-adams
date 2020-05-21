@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-05-22 09:38:35
+# Date: 2020-05-22 10:56:34
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -25,11 +25,9 @@ adams.flow.control.Flow -annotation "Let\\\'s the user select files from a user-
   adams.flow.transformer.SpreadSheetSelectSubset -message "Please select images to display"
   adams.flow.transformer.SpreadSheetVariableRowIterator
   adams.flow.control.Tee -name "output files"
-   adams.flow.transformer.SetVariable -name image -var-name image_file -var-value ${TMP}/@{dataset_pk}-@{image} -value-type FILE_FORWARD_SLASHES -expand-value true
-   adams.flow.control.Trigger -name report
-    adams.flow.source.Variable -var-name image_file -conversion adams.data.conversion.StringToString
-    adams.flow.transformer.Convert -conversion "adams.data.conversion.ReplaceFileExtension -extension .report -use-forward-slashes true"
-    adams.flow.transformer.SetVariable -name report -var-name report_file
+   adams.flow.transformer.SetVariable -name image -var-name image_file -var-value ${TMP}/@{dataset_pk}-@{image} -value-type FILE_FORWARD_SLASHES -expand-value true -output-value true
+   adams.flow.transformer.Convert -conversion "adams.data.conversion.ReplaceFileExtension -extension .report -use-forward-slashes true"
+   adams.flow.transformer.SetVariable -name report -var-name report_file
   adams.flow.control.Trigger -name "get file"
    adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
    adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetObjectDetectionFile -name @{image} -output-file @{image_file}"
