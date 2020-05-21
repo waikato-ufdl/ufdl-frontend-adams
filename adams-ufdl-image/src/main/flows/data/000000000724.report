@@ -1,0 +1,19 @@
+#Fri May 22 09:12:32 NZST 2020
+#Simple report format (= Java properties file format)
+Filename=/home/fracpete/development/projects/waikato-ufdl/ufdl-frontend-adams/adams-ufdl-image/src/main/flows/data/000000000724.jpg
+Filename\tDataType=S
+Name=000000000724.jpg
+Name\tDataType=S
+Object.0001.height=163.0
+Object.0001.height\tDataType=N
+Object.0001.type=object
+Object.0001.type\tDataType=S
+Object.0001.width=153.0
+Object.0001.width\tDataType=N
+Object.0001.x=108.0
+Object.0001.x\tDataType=N
+Object.0001.y=67.0
+Object.0001.y\tDataType=N
+Parent\ ID=-1
+Path=/home/fracpete/development/projects/waikato-ufdl/ufdl-frontend-adams/adams-ufdl-image/src/main/flows/data
+Path\tDataType=S
