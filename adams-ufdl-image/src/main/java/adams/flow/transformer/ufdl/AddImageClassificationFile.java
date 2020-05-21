@@ -193,7 +193,7 @@ public class AddImageClassificationFile
    */
   @Override
   public Class[] generates() {
-    return new Class[]{Integer.class, String.class, Dataset.class};
+    return new Class[]{Dataset.class};
   }
 
   /**
