@@ -28,7 +28,7 @@ import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets.ImageClassificationDataset;
 
 /**
- * Loads the dataset either via PK or dataset name.
+ * Lists the images in the incoming image classification dataset.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
