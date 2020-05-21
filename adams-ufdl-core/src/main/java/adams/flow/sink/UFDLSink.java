@@ -211,6 +211,7 @@ public class UFDLSink
     errors = new MessageCollection();
     try {
       m_Action.setClient(m_Connection.getClient());
+      m_Action.setFlowContext(this);
       m_Action.consume(m_InputToken.getPayload(), errors);
     }
     catch (Exception e) {

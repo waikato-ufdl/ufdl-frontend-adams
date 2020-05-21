@@ -15,7 +15,7 @@
 
 /*
  * AbstractUFDLSinkAction.java
- * Copyright (C) 2019 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2019-2020 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.source.ufdl;
@@ -48,6 +48,8 @@ public abstract class AbstractUFDLSourceAction
   protected String check() {
     if (m_Client == null)
       return "No client provided!";
+    if (requiresFlowContext() && (m_FlowContext == null))
+      return "No flow context set!";
     return null;
   }
 

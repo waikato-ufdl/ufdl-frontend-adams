@@ -225,6 +225,7 @@ public class UFDLTransformer
     errors = new MessageCollection();
     try {
       m_Action.setClient(m_Connection.getClient());
+      m_Action.setFlowContext(this);
       output = m_Action.transform(m_InputToken.getPayload(), errors);
       if ((output != null) && errors.isEmpty())
         m_OutputToken = new Token(output);

@@ -15,7 +15,7 @@
 
 /*
  * AbstractUFDLSinkAction.java
- * Copyright (C) 2019 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2019-2020 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.transformer.ufdl;
@@ -58,6 +58,8 @@ public abstract class AbstractUFDLTransformerAction
       return "No client provided!";
     if (input == null)
       return "No input provided!";
+    if (requiresFlowContext() && (m_FlowContext == null))
+      return "No flow context set!";
     return null;
   }
 

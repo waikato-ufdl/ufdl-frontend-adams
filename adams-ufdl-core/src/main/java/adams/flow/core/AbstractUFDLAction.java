@@ -15,7 +15,7 @@
 
 /*
  * AbstractUFDLAction.java
- * Copyright (C) 2019 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2019-2020 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.core;
@@ -31,12 +31,42 @@ import com.github.waikatoufdl.ufdl4j.Client;
  */
 public abstract class AbstractUFDLAction
   extends AbstractOptionHandler
-  implements QuickInfoSupporter {
+  implements QuickInfoSupporter, FlowContextHandler {
 
   private static final long serialVersionUID = -7067718770232842692L;
 
   /** the client to use for interacting with the backend. */
   protected transient Client m_Client;
+
+  /** the flow context. */
+  protected Actor m_FlowContext;
+
+  /**
+   * Sets the flow context.
+   *
+   * @param value	the actor
+   */
+  public void setFlowContext(Actor value) {
+    m_FlowContext = value;
+  }
+
+  /**
+   * Returns the flow context, if any.
+   *
+   * @return		the actor, null if none available
+   */
+  public Actor getFlowContext() {
+    return m_FlowContext;
+  }
+
+  /**
+   * Returns whether the action requires flow context.
+   *
+   * @return		true if required
+   */
+  public boolean requiresFlowContext() {
+    return false;
+  }
 
   /**
    * Returns a quick info about the object, which can be displayed in the GUI.
