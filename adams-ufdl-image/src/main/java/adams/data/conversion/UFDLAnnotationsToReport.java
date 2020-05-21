@@ -27,6 +27,9 @@ import adams.flow.transformer.locateobjects.LocatedObjects;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotation;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
 
+import java.awt.Polygon;
+import java.util.List;
+
 /**
  * Converts the UFDL annotations into an ADAMS Report.
  *
@@ -59,7 +62,7 @@ public class UFDLAnnotationsToReport
 
     m_OptionManager.add(
       "prefix", "prefix",
-      "");
+      "Object.");
   }
 
   /**
@@ -133,6 +136,10 @@ public class UFDLAnnotationsToReport
     Annotations		annotations;
     LocatedObjects	objs;
     LocatedObject	obj;
+    int[]		x;
+    int[]		y;
+    int			i;
+    List<int[]> 	coordinates;
     
     annotations = (Annotations) m_Input;
     objs        = new LocatedObjects();
@@ -140,8 +147,16 @@ public class UFDLAnnotationsToReport
       obj = new LocatedObject(ann.getX(), ann.getY(), ann.getWidth(), ann.getHeight());
       obj.getMetaData().put("type", ann.getLabel());
       if (ann.hasPolygon()) {
-	// TODO polygon
+        coordinates = ann.getPolygon().getCoordinates();
+        x           = new int[coordinates.size()];
+        y           = new int[coordinates.size()];
+        for (i = 0; i < coordinates.size(); i++) {
+          x[i] = coordinates.get(i)[0];
+          y[i] = coordinates.get(i)[1];
+	}
+	obj.setPolygon(new Polygon(x, y, x.length));
       }
+      objs.add(obj);
     }
     result = objs.toReport(m_Prefix);
     

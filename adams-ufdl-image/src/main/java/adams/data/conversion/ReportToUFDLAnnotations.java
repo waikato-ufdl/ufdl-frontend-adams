@@ -27,6 +27,10 @@ import adams.flow.transformer.locateobjects.LocatedObject;
 import adams.flow.transformer.locateobjects.LocatedObjects;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotation;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
+import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Polygon;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Converts a Report with object annotations to UFDL annotations.
@@ -125,6 +129,10 @@ public class ReportToUFDLAnnotations
     LocatedObjects	objs;
     Annotation		ann;
     String		label;
+    int[]		x;
+    int[]		y;
+    int			i;
+    List<int[]> 	coordinates;
 
     report = (Report) m_Input;
     objs   = m_Finder.findObjects(report);
@@ -133,8 +141,23 @@ public class ReportToUFDLAnnotations
       label = "Object";
       if (obj.getMetaData().containsKey("type"))
         label = "" + obj.getMetaData().containsKey("type");
-      ann = new Annotation(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), label);
-      // TODO polygons
+      if (obj.hasPolygon()) {
+	x = obj.getPolygonX();
+	y = obj.getPolygonY();
+	coordinates = new ArrayList<>();
+	for (i = 0; i < x.length; i++)
+	  coordinates.add(new int[]{x[i], y[i]});
+	if (coordinates.size() >= 3) {
+	  ann = new Annotation(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), label, new Polygon(coordinates));
+	}
+	else {
+	  getLogger().warning("Object's polygon has fewer than 3 points, skipping: " + obj);
+	  ann = new Annotation(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), label);
+	}
+      }
+      else {
+	ann = new Annotation(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), label);
+      }
       result.add(ann);
     }
 
