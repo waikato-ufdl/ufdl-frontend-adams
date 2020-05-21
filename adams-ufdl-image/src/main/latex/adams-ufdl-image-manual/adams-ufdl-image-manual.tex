@@ -65,11 +65,22 @@ This ADAMS module focuses on image processing tasks.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Flow}
 
+The following conversions are available:
+\begin{tight_itemize}
+  \item \textit{UFDLImageClassificationDatasetToSpreadSheet} -- turns an image classification dataset into a spreadsheet
+\end{tight_itemize}
+
 \section{Actions}
+The following source actions can be used:
+\begin{tight_itemize}
+  \item \textit{ListImageClassificationDatasets} -- lists image classification datasets
+\end{tight_itemize}
 The following transformer actions can be used:
 \begin{tight_itemize}
+  \item \textit{AddImageClassificationCategories} -- adds categories to images of an image classification dataset
   \item \textit{AddImageClassificationFile} -- adds images to an image classification dataset
-  \item \textit{DeleteImageClassificationFile} -- deltes the specified images from an image classification dataset
+  \item \textit{DeleteImageClassificationCategories} -- removes categories from images of an image classification dataset
+  \item \textit{DeleteImageClassificationFile} -- removes the specified images from an image classification dataset
   \item \textit{GetImageClassificationFile} -- retrieves a file from an image classification dataset via its name
   \item \textit{ListImageClassificationFiles} -- lists all the images in an image classification dataset
 \end{tight_itemize}
