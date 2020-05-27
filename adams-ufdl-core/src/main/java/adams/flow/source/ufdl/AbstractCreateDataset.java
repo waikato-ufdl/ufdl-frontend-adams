@@ -37,8 +37,8 @@ public abstract class AbstractCreateDataset
   /** the dataset name. */
   protected String m_Name;
 
-  /** the version. */
-  protected int m_Version;
+  /** the description. */
+  protected String m_Description;
 
   /** the project PK. */
   protected int m_Project;
@@ -64,8 +64,8 @@ public abstract class AbstractCreateDataset
       "");
 
     m_OptionManager.add(
-      "version", "version",
-      1);
+      "description", "description",
+      "");
 
     m_OptionManager.add(
       "project", "project",
@@ -114,22 +114,22 @@ public abstract class AbstractCreateDataset
   }
 
   /**
-   * Sets the dataset version.
+   * Sets the dataset description.
    *
-   * @param value	the version
+   * @param value	the description
    */
-  public void setVersion(int value) {
-    m_Version = value;
+  public void setDescription(String value) {
+    m_Description = value;
     reset();
   }
 
   /**
-   * Returns the dataset version.
+   * Returns the dataset description.
    *
-   * @return		the version
+   * @return		the description
    */
-  public int getVersion() {
-    return m_Version;
+  public String getDescription() {
+    return m_Description;
   }
 
   /**
@@ -138,8 +138,8 @@ public abstract class AbstractCreateDataset
    * @return 		tip text for this property suitable for
    * 			displaying in the GUI or for listing the options.
    */
-  public String versionTipText() {
-    return "The dataset version.";
+  public String descriptionTipText() {
+    return "The dataset description.";
   }
 
   /**
@@ -268,7 +268,6 @@ public abstract class AbstractCreateDataset
     String	result;
 
     result = QuickInfoHelper.toString(this, "name", m_Name);
-    result += QuickInfoHelper.toString(this, "version", m_Version, "/");
     result += QuickInfoHelper.toString(this, "project", m_Project, ", project: ");
     result += QuickInfoHelper.toString(this, "licence", m_LoggingIsEnabled, ", licence: ");
     result += QuickInfoHelper.toString(this, "isPublic", m_IsPublic, "public", ", ");
