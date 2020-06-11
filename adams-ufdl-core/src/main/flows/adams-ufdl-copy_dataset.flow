@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-05-21 09:05:41
+# Date: 2020-06-11 15:25:11
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-net,adams-spreadsheet,adams-ufdl-core
@@ -8,25 +8,15 @@ adams.flow.control.Flow -annotation "Let\\\'s the user copy a dataset.\\nUses ho
  adams.flow.standalone.CallableActors
   adams.flow.sink.Display -name Info -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
  adams.flow.standalone.UFDLConnection
- adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListDatasets
- adams.flow.transformer.SpreadSheetSelectSubset -message "Please select datasets to download"
- adams.flow.control.Tee -name "dataset name"
-  adams.flow.transformer.SpreadSheetGetCell -col name
-  adams.flow.transformer.SetVariable -var-name old_name
- adams.flow.transformer.SpreadSheetInfo -output-array true -type CELL_VALUES -column-index pk
- adams.flow.control.Tee -name "# values"
-  adams.flow.transformer.ArrayLength
-  adams.flow.transformer.SetVariable -var-name num_datasets
- adams.flow.control.ConditionalTee -name "didn\'t selected single dataset" -condition "adams.flow.condition.bool.Expression -expression \"@{num_datasets} != 1\""
-  adams.flow.control.Stop -stop-msg "must select exactly one dataset!"
- adams.flow.transformer.GetArrayElement
- adams.flow.transformer.SetVariable -var-name dataset_pk
- adams.flow.control.Trigger -name "new name"
-  adams.flow.standalone.SetVariable -name reset -var-name name_entered -var-value false
-  adams.flow.source.EnterValue -stop-if-canceled true -message "Please enter new name" -initial-value @{old_name}
-  adams.flow.transformer.SetVariable -var-name new_name
-  adams.flow.transformer.SetVariable -name proceed -var-name name_entered -var-value true
- adams.flow.control.Block -condition "adams.flow.condition.bool.Expression -expression \"@{name_entered} = false\""
+ adams.flow.source.Start
+ adams.flow.control.Trigger -name "prompt user"
+  adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
+  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.DatasetList -name dataset -display Dataset -help \"the dataset to copy\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name new_name -display \"New name\" -help \"the name for the copy of the dataset\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+  adams.flow.control.Tee -name "dataset PK"
+   adams.flow.transformer.GetMapValue -key dataset
+   adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
+   adams.flow.transformer.SetVariable -var-name dataset_pk
+  adams.flow.transformer.MapToVariables
  adams.flow.control.Trigger -name "copy dataset"
   adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
   adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.CopyDataset -new-name @{new_name}"

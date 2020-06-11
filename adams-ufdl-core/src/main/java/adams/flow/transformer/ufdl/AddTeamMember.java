@@ -153,7 +153,7 @@ public class AddTeamMember
         if (isLoggingEnabled())
           getLogger().info("Adding member " + member + " to team '" + team + "'");
         user = m_Client.users().load(member.intValue());
-        if (!m_Client.teams().addMember(team, user, m_Permissions))
+        if (!m_Client.teams().addMembership(team, user, m_Permissions))
           errors.add("Failed to add member " + member + " to team '" + team + "': " + team);
       }
       catch (Exception e) {

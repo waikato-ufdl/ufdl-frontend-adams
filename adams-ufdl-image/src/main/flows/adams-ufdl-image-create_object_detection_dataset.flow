@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-05-21 17:10:59
+# Date: 2020-06-11 15:08:21
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -9,20 +9,14 @@ adams.flow.control.Flow -annotation "Creates an object detection dataset from th
   adams.flow.sink.Display -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
  adams.flow.standalone.UFDLConnection
  adams.flow.source.Start
- adams.flow.control.Trigger -name "select project"
-  adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListProjects
-  adams.flow.transformer.SpreadSheetSelectSubset -short-title true -message "Please select project" -allow-search true
-  adams.flow.control.Tee -name "# rows"
-   adams.flow.transformer.SpreadSheetInfo
-   adams.flow.transformer.SetVariable -var-name num_rows
-  adams.flow.control.ConditionalTee -name "not just one project selected?" -condition "adams.flow.condition.bool.Expression -expression \"@{num_rows} != 1\""
-   adams.flow.control.Stop -stop-msg "Exactly one project needs to get selected!"
-  adams.flow.transformer.SpreadSheetGetCell -col pk
-  adams.flow.transformer.SetVariable -var-name project_pk
  adams.flow.control.Trigger -name "prompt user"
   adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
-  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_name -display \"Dataset name\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_version -display Version -type INTEGER -default-value 1" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_licence -display Licence" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_public -display \"Public dataset?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_tags -display Tags" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_name -display \"Dataset name\"" -value "adams.flow.source.valuedefinition.LicenseList -name dataset_licence -display License" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_public -display \"Public dataset?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_tags -display Tags" -value "adams.flow.source.valuedefinition.ProjectList -name dataset_project -display Project" -output-type MAP -restoration-enabled true -restoration-file @{restore}
   adams.flow.transformer.MapToVariables
+  adams.flow.control.Trigger -name "project PK"
+   adams.flow.source.Variable -var-name dataset_project -conversion adams.data.conversion.StringToString
+   adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
+   adams.flow.transformer.SetVariable -var-name project_pk
  adams.flow.control.Trigger -name "create dataset"
   adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateObjectDetectionDataset -name @{dataset_name} -version @{dataset_version} -project @{project_pk} -licence @{dataset_licence} -is-public @{dataset_public} -tags @{dataset_tags}"
   adams.flow.transformer.SetStorageValue -storage-name dataset

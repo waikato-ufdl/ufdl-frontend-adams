@@ -111,7 +111,7 @@ public class UFDLObjectDetectionDatasetToSpreadSheet
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(dataset.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (dataset.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(dataset.getDeletionTime().toInstant(ZoneOffset.UTC))));
-    row.addCell("li").setContent(dataset.getLicence());
+    row.addCell("li").setContent(dataset.getLicense());
     row.addCell("pi").setContent(dataset.getProjectID());
     row.addCell("ve").setContent(dataset.getVersion());
     row.addCell("ta").setContent(dataset.getTags());

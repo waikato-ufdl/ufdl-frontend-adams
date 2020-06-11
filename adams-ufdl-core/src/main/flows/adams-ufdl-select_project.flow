@@ -1,0 +1,12 @@
+# Project: adams
+# Date: 2020-06-11 14:44:09
+# User: fracpete
+# Charset: UTF-8
+# Modules: adams-core,adams-net,adams-spreadsheet,adams-ufdl-core
+#
+adams.flow.control.Flow -annotation "Lets the user select a project and then displays the PK.\\nUses host/user/password from the global UFDL Preferences." -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
+ adams.flow.standalone.UFDLConnection
+ adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.ProjectList -name project -display Project" -output-type MAP
+ adams.flow.transformer.GetMapValue -key project
+ adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
+ adams.flow.sink.Display -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
