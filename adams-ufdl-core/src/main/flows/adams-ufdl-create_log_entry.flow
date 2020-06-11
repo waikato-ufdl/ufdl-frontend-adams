@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-11 16:22:04
+# Date: 2020-06-11 16:38:53
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-net,adams-spreadsheet,adams-ufdl-core
@@ -16,10 +16,10 @@ adams.flow.control.Flow -annotation "Creates a UFDL log entry based on user inpu
  adams.flow.transformer.CallableTransformer -callable "list current entries"
  adams.flow.control.Trigger -name "prompt user"
   adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
-  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.EnumValueDefinition -name level -display \"Log level\" -enum-class com.github.waikatoufdl.ufdl4j.action.LogLevel" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name message -display Message" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name internal -display Internal? -type BOOLEAN -default-value false" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.EnumValueDefinition -name level -display \"Log level\" -enum-class com.github.waikatoufdl.ufdl4j.action.LogLevel" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name message -display Message" -output-type MAP -restoration-enabled true -restoration-file @{restore}
   adams.flow.transformer.MapToVariables
  adams.flow.control.Trigger -name "create entry"
-  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateLogEntry -level @{level} -message @{message} -internal @{internal}"
+  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateLogEntry -level @{level} -message @{message}"
   adams.flow.transformer.Convert -conversion "adams.data.conversion.UFDLJsonObjectToString -pretty-printing true"
   adams.flow.sink.CallableSink -callable JSON
  adams.flow.transformer.CallableTransformer -name "CallableTransformer (2)" -callable "list current entries"

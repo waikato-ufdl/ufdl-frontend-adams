@@ -42,9 +42,6 @@ public class CreateLogEntry
   /** the message. */
   protected BaseText m_Message;
 
-  /** whether the user is internal. */
-  protected boolean m_Internal;
-
   /**
    * Returns a string describing the object.
    *
@@ -69,10 +66,6 @@ public class CreateLogEntry
     m_OptionManager.add(
       "message", "message",
       new BaseText());
-
-    m_OptionManager.add(
-      "internal", "internal",
-      false);
   }
 
   /**
@@ -134,35 +127,6 @@ public class CreateLogEntry
   }
 
   /**
-   * Sets whether the entry is internal.
-   *
-   * @param value	true if internal
-   */
-  public void setInternal(boolean value) {
-    m_Internal = value;
-    reset();
-  }
-
-  /**
-   * Returns whether the entry is internal.
-   *
-   * @return		true if internal
-   */
-  public boolean getInternal() {
-    return m_Internal;
-  }
-
-  /**
-   * Returns the tip text for this property.
-   *
-   * @return 		tip text for this property suitable for
-   * 			displaying in the GUI or for listing the options.
-   */
-  public String internalTipText() {
-    return "Whether the entry is flagged as internal.";
-  }
-
-  /**
    * Returns a quick info about the actor, which will be displayed in the GUI.
    *
    * @return		null if no info available, otherwise short string
@@ -199,7 +163,7 @@ public class CreateLogEntry
 
     result = null;
     try {
-      result = m_Client.log().create(m_Level, m_Message.getValue(), m_Internal);
+      result = m_Client.log().create(m_Level, m_Message.getValue());
     }
     catch (Exception e) {
       errors.add("Failed to create user!", e);
