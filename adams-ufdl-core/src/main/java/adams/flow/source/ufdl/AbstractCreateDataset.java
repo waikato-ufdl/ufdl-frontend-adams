@@ -44,7 +44,7 @@ public abstract class AbstractCreateDataset
   protected int m_Project;
 
   /** the license. */
-  protected String m_Licence;
+  protected int m_Licence;
 
   /** whether it is public. */
   protected boolean m_IsPublic;
@@ -73,7 +73,7 @@ public abstract class AbstractCreateDataset
 
     m_OptionManager.add(
       "licence", "licence",
-      "");
+      -1, -1, null);
 
     m_OptionManager.add(
       "is-public", "isPublic",
@@ -172,21 +172,21 @@ public abstract class AbstractCreateDataset
   }
 
   /**
-   * Sets the licence.
+   * Sets the PK of the licence.
    *
    * @param value	the licence
    */
-  public void setLicence(String value) {
+  public void setLicence(int value) {
     m_Licence = value;
     reset();
   }
 
   /**
-   * Returns the licence.
+   * Returns the PK of the licence.
    *
    * @return		the licence
    */
-  public String getLicence() {
+  public int getLicence() {
     return m_Licence;
   }
 
