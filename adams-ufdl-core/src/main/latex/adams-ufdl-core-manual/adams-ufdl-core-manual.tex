@@ -83,11 +83,13 @@ The following sinks can be used:
 \section{Actions}
 The following source actions can be used:
 \begin{tight_itemize}
+  \item \textit{CreateLogEntry} -- creates a log entry.
   \item \textit{CreateProject} -- creates a project.
   \item \textit{CreateTeam} -- creates a team.
   \item \textit{CreateUser} -- creates a user.
   \item \textit{ListDatasets} -- lists all the datasets.
   \item \textit{ListLicenses} -- lists all the licenses.
+  \item \textit{ListLogEntries} -- lists all the log entries.
   \item \textit{ListProjects} -- lists all the teams.
   \item \textit{ListTeams} -- lists all the teams.
   \item \textit{ListUsers} -- lists all the users.
@@ -98,6 +100,7 @@ The following transformer actions can be used:
   \item \textit{AddTeamMember} -- adds team member(s) via PK to the team passing through.
   \item \textit{CopyDataset} -- creates a copy of a dataset (via PK or name).
   \item \textit{DeleteDataset} -- deletes a dataset (via PK or name).
+  \item \textit{DeleteLogEntry} -- deletes a log entry (via PK).
   \item \textit{DeleteProject} -- deletes a project (via PK or name).
   \item \textit{DeleteTeam} -- deletes a team (via PK or name).
   \item \textit{DeleteUser} -- deletes a user (via PK or name).
@@ -129,6 +132,7 @@ The following conversions are available:
   \item \textit{UFDLDatasetToSpreadSheet} -- converts the UFDL project information to a spreadsheet.
   \item \textit{UFDLExtractListItemPK} -- extracts the PK from a list item output by \textit{EnterManyValues}.
   \item \textit{UFDLJsonObjectToString} -- converts a UFDL object that wraps a JSON object into a JSON string.
+  \item \textit{UFDLLogEntryToSpreadSheet} -- converts a UFDL log entry into a spreadsheet.
   \item \textit{UFDLProjectToSpreadSheet} -- converts the UFDL project information to a spreadsheet.
   \item \textit{UFDLTeamToSpreadSheet} -- converts the UFDL team information to a spreadsheet.
   \item \textit{UFDLUserToSpreadSheet} -- converts the UFDL user information to a spreadsheet.
