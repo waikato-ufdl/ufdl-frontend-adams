@@ -53,7 +53,7 @@ public class SetObjectDetectionAnnotationsForImage
    */
   @Override
   public String globalInfo() {
-    return "Obtains the annotations of the specified image from the dataset passing through and forwards them.";
+    return "Sets the annotations of the specified image in the dataset passing through.";
   }
 
   /**
@@ -73,7 +73,7 @@ public class SetObjectDetectionAnnotationsForImage
   }
 
   /**
-   * Sets the name of the image to get the annotations for.
+   * Sets the name of the image to set the annotations for.
    *
    * @param value 	the name
    */
@@ -83,7 +83,7 @@ public class SetObjectDetectionAnnotationsForImage
   }
 
   /**
-   * Returns the name of the image to get the annotations for.
+   * Returns the name of the image to set the annotations for.
    *
    * @return 		the name
    */
@@ -98,7 +98,7 @@ public class SetObjectDetectionAnnotationsForImage
    * 			displaying in the GUI or for listing the options.
    */
   public String nameTipText() {
-    return "The name of the image to get the annotations for.";
+    return "The name of the image to set the annotations for.";
   }
 
   /**
