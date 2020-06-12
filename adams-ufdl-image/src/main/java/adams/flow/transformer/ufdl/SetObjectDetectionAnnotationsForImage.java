@@ -30,7 +30,7 @@ import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
 
 /**
- * Sets the annotations of the specified image in the dataset passing through.
+ * Sets the annotations of the specified image in the dataset coming in.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
@@ -53,7 +53,7 @@ public class SetObjectDetectionAnnotationsForImage
    */
   @Override
   public String globalInfo() {
-    return "Sets the annotations of the specified image in the dataset passing through.";
+    return "Sets the annotations of the specified image in the dataset coming in.";
   }
 
   /**
