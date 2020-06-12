@@ -69,6 +69,7 @@ The following conversions are available:
 \begin{tight_itemize}
   \item \textit{ReportToUFDLAnnotations} -- converts an ADAMS report to UFDL annotations
   \item \textit{UFDLAnnotationsToReport} -- converts UFDL annotations to an ADAMS report
+  \item \textit{UFDLExtractImageNameFromFile} -- converts a file name into an image name used in datasets
   \item \textit{UFDLImageClassificationDatasetToSpreadSheet} -- turns an image classification dataset into a spreadsheet
   \item \textit{UFDLObjectDetectionDatasetToSpreadSheet} -- turns an object detection dataset into a spreadsheet
 \end{tight_itemize}
@@ -89,12 +90,16 @@ The following transformer actions can be used:
   \item \textit{DeleteImageClassificationCategories} -- removes categories from images of an image classification dataset
   \item \textit{DeleteImageClassificationFile} -- removes the specified images from an image classification dataset
   \item \textit{GetImageClassificationFile} -- retrieves a file from an image classification dataset via its name
+  \item \textit{GetImageClassificationMetadataForImage} -- retrieves the metadata for an image of an image classification dataset via its name
   \item \textit{GetObjectDetectionFile} -- retrieves a file from an object detection dataset via its name
+  \item \textit{GetObjectDetectionMetadataForImage} -- retrieves the metadata for an image of an object detection dataset via its name
   \item \textit{GetObjectDetectionAnnotations} -- obtains all the annotations from an object detection dataset
   \item \textit{GetObjectDetectionAnnotationsForImage} -- obtains the annotations of an image from an object detection dataset
   \item \textit{ListImageClassificationFiles} -- lists all the images in an image classification dataset
   \item \textit{ListObjectDetectionFiles} -- lists all the images in an object detection dataset
+  \item \textit{SetImageClassificationMetadataForImage} -- sets the metadata of an image in an object detection dataset
   \item \textit{SetObjectDetectionAnnotationsForImage} -- sets the annotations of an image in an object detection dataset
+  \item \textit{SetObjectDetectionMetadataForImage} -- sets the metadata of an image in an object detection dataset
 \end{tight_itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

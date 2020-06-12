@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-11 15:08:21
+# Date: 2020-06-12 16:06:47
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -11,14 +11,18 @@ adams.flow.control.Flow -annotation "Creates an object detection dataset from th
  adams.flow.source.Start
  adams.flow.control.Trigger -name "prompt user"
   adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
-  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_name -display \"Dataset name\"" -value "adams.flow.source.valuedefinition.LicenseList -name dataset_licence -display License" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_public -display \"Public dataset?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_tags -display Tags" -value "adams.flow.source.valuedefinition.ProjectList -name dataset_project -display Project" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_name -display \"Dataset name\"" -value "adams.flow.source.valuedefinition.LicenseList -name dataset_license -display License" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_public -display \"Public dataset?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_tags -display Tags" -value "adams.flow.source.valuedefinition.ProjectList -name dataset_project -display Project" -output-type MAP -restoration-enabled true -restoration-file @{restore}
   adams.flow.transformer.MapToVariables
   adams.flow.control.Trigger -name "project PK"
    adams.flow.source.Variable -var-name dataset_project -conversion adams.data.conversion.StringToString
    adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
    adams.flow.transformer.SetVariable -var-name project_pk
+  adams.flow.control.Trigger -name "license PK"
+   adams.flow.source.Variable -var-name dataset_license -conversion adams.data.conversion.StringToString
+   adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
+   adams.flow.transformer.SetVariable -var-name license_pk
  adams.flow.control.Trigger -name "create dataset"
-  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateObjectDetectionDataset -name @{dataset_name} -version @{dataset_version} -project @{project_pk} -licence @{dataset_licence} -is-public @{dataset_public} -tags @{dataset_tags}"
+  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateObjectDetectionDataset -name @{dataset_name} -project @{project_pk} -licence @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}"
   adams.flow.transformer.SetStorageValue -storage-name dataset
  adams.flow.control.Trigger -name "add files"
   adams.flow.source.SelectFile -file-chooser-title "Select images to add" -initial-dir ${FLOWS}/data -extension jpg,png
@@ -35,6 +39,14 @@ adams.flow.control.Flow -annotation "Creates an object detection dataset from th
   adams.flow.control.Trigger -name add
    adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
    adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddObjectDetectionFile -file @{file}"
+  adams.flow.control.Tee -name "add metadata"
+   adams.flow.control.Tee -name "image name"
+    adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractImageNameFromFile
+    adams.flow.transformer.SetVariable -var-name name
+   adams.flow.transformer.SetStorageValue -storage-name metadata
+   adams.flow.control.Trigger -name "add metadata to file"
+    adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+    adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetObjectDetectionMetadataForImage -name @{name}"
  adams.flow.control.Trigger -name "load all annotations"
   adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
   adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.GetObjectDetectionAnnotations

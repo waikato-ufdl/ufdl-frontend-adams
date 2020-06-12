@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-11 15:12:59
+# Date: 2020-06-12 16:04:08
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -17,14 +17,32 @@ adams.flow.control.Flow -annotation "Creates an image classification dataset fro
    adams.flow.source.Variable -var-name dataset_project -conversion adams.data.conversion.StringToString
    adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
    adams.flow.transformer.SetVariable -var-name project_pk
+  adams.flow.control.Trigger -name "license PK"
+   adams.flow.source.Variable -var-name dataset_license -conversion adams.data.conversion.StringToString
+   adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
+   adams.flow.transformer.SetVariable -var-name license_pk
  adams.flow.control.Trigger -name "create dataset"
-  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateImageClassificationDataset -name @{dataset_name} -project @{project_pk} -licence @{dataset_license} -is-public @{dataset_public} -tags @{dataset_tags}"
+  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateImageClassificationDataset -name @{dataset_name} -project @{project_pk} -licence @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}"
   adams.flow.transformer.SetStorageValue -storage-name dataset
  adams.flow.control.Trigger -name "add files"
   adams.flow.source.SelectFile -output-array true -file-chooser-title "Select images to add" -initial-dir ${FLOWS}/data -extension jpg,png
+  adams.flow.transformer.SetStorageValue -name "SetStorageValue (2)" -storage-name files
   adams.flow.transformer.Convert -conversion adams.data.conversion.JoinOptions
   adams.flow.transformer.SetVariable -var-name files
+  adams.flow.control.Trigger -name categories
+   adams.flow.source.EnterValue -stop-if-canceled true -message "Please enter a category"
+   adams.flow.transformer.SetVariable -var-name category
   adams.flow.control.Trigger -name add
    adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
-   adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{files}"
+   adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{files} -category @{category}"
    adams.flow.sink.CallableSink -callable Display
+  adams.flow.control.Trigger -name "add metadata"
+   adams.flow.source.StorageValue -storage-name files -conversion adams.data.conversion.UnknownToUnknown
+   adams.flow.transformer.ArrayToSequence
+   adams.flow.control.Tee -name "image name"
+    adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractImageNameFromFile
+    adams.flow.transformer.SetVariable -var-name name
+   adams.flow.transformer.SetStorageValue -storage-name metadata
+   adams.flow.control.Trigger -name "add metadata to file"
+    adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+    adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageClassificationMetadataForImage -name @{name}"
