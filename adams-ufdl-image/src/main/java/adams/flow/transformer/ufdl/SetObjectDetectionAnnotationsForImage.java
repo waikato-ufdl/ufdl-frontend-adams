@@ -171,7 +171,7 @@ public class SetObjectDetectionAnnotationsForImage
    */
   @Override
   public Class[] generates() {
-    return new Class[]{Annotations.class};
+    return new Class[]{Boolean.class};
   }
 
   /**
