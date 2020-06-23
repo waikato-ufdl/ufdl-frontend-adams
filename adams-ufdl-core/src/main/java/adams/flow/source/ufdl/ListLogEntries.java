@@ -20,6 +20,7 @@
 
 package adams.flow.source.ufdl;
 
+import adams.core.AdditionalInformationHandler;
 import adams.core.MessageCollection;
 import adams.data.conversion.UFDLLogEntryToSpreadSheet;
 import adams.data.spreadsheet.Row;
@@ -34,7 +35,8 @@ import java.util.List;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class ListLogEntries
-  extends AbstractUFDLSourceAction {
+  extends AbstractUFDLSourceAction
+  implements AdditionalInformationHandler {
 
   private static final long serialVersionUID = 2444931814949354710L;
 
@@ -56,6 +58,15 @@ public class ListLogEntries
   @Override
   public Class[] generates() {
     return new Class[]{SpreadSheet.class};
+  }
+
+  /**
+   * Returns the additional information.
+   *
+   * @return		the additional information, null or 0-length string for no information
+   */
+  public String getAdditionalInformation() {
+    return new UFDLLogEntryToSpreadSheet().getAdditionalInformation();
   }
 
   /**

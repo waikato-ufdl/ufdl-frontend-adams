@@ -20,9 +20,10 @@
 
 package adams.flow.source.ufdl;
 
+import adams.core.AdditionalInformationHandler;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
-import adams.data.conversion.UFDLImageClassificationDatasetToSpreadSheet;
+import adams.data.conversion.UFDLObjectDetectionDatasetToSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
 import adams.flow.core.UFDLSoftDeleteObjectState;
@@ -38,7 +39,7 @@ import java.util.List;
  */
 public class ListObjectDetectionDatasets
   extends AbstractUFDLSourceAction
-  implements UFDLSoftDeleteObjectStateHandler {
+  implements UFDLSoftDeleteObjectStateHandler, AdditionalInformationHandler {
 
   private static final long serialVersionUID = 2444931814949354710L;
 
@@ -120,6 +121,15 @@ public class ListObjectDetectionDatasets
   }
 
   /**
+   * Returns the additional information.
+   *
+   * @return		the additional information, null or 0-length string for no information
+   */
+  public String getAdditionalInformation() {
+    return new UFDLObjectDetectionDatasetToSpreadSheet().getAdditionalInformation();
+  }
+
+  /**
    * Generates the data.
    *
    * @param errors 	for collecting errors
@@ -130,14 +140,14 @@ public class ListObjectDetectionDatasets
     SpreadSheet			result;
     SpreadSheet			sheet;
     List<Dataset> 		datasets;
-    UFDLImageClassificationDatasetToSpreadSheet conv;
+    UFDLObjectDetectionDatasetToSpreadSheet conv;
     String			msg;
 
     result = null;
 
     try {
       datasets = m_Client.datasets().list();
-      conv  = new UFDLImageClassificationDatasetToSpreadSheet();
+      conv  = new UFDLObjectDetectionDatasetToSpreadSheet();
       for (Dataset dataset : datasets) {
         if (!m_State.accept(dataset))
           continue;

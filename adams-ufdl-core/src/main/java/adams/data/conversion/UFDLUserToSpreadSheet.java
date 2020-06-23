@@ -35,7 +35,7 @@ import java.time.ZoneOffset;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLUserToSpreadSheet
-  extends AbstractConversion {
+  extends AbstractUFDLObjectToSpreadSheetConversion {
 
   private static final long serialVersionUID = 2239463804853893127L;
 
@@ -60,13 +60,29 @@ public class UFDLUserToSpreadSheet
   }
 
   /**
-   * Returns the class that is generated as output.
+   * Generates the template.
    *
-   * @return		the class
+   * @return		the template
    */
   @Override
-  public Class generates() {
-    return SpreadSheet.class;
+  protected SpreadSheet getTemplate() {
+    SpreadSheet result;
+    Row 	row;
+
+    result = new DefaultSpreadSheet();
+    row    = result.getHeaderRow();
+    row.addCell("pk").setContentAsString("pk");
+    row.addCell("un").setContentAsString("username");
+    row.addCell("fn").setContentAsString("first_name");
+    row.addCell("ln").setContentAsString("last_name");
+    row.addCell("em").setContentAsString("email");
+    row.addCell("dj").setContentAsString("joined");
+    row.addCell("ll").setContentAsString("last_login");
+    row.addCell("st").setContentAsString("staff");
+    row.addCell("su").setContentAsString("superuser");
+    row.addCell("ac").setContentAsString("active");
+
+    return result;
   }
 
   /**
@@ -81,24 +97,9 @@ public class UFDLUserToSpreadSheet
     Row			row;
     User		user;
 
-    user = (User) m_Input;
+    user   = (User) m_Input;
     result = new DefaultSpreadSheet();
-
-    // header
-    row = result.getHeaderRow();
-    row.addCell("pk").setContentAsString("pk");
-    row.addCell("un").setContentAsString("username");
-    row.addCell("fn").setContentAsString("first_name");
-    row.addCell("ln").setContentAsString("last_name");
-    row.addCell("em").setContentAsString("email");
-    row.addCell("dj").setContentAsString("joined");
-    row.addCell("ll").setContentAsString("last_login");
-    row.addCell("st").setContentAsString("staff");
-    row.addCell("su").setContentAsString("superuser");
-    row.addCell("ac").setContentAsString("active");
-
-    // data
-    row = result.addRow();
+    row    = result.addRow();
     row.addCell("pk").setContent(user.getPK());
     row.addCell("un").setContent(user.getUserName());
     row.addCell("fn").setContent(user.getFirstName());

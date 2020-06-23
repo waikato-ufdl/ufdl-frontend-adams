@@ -35,7 +35,7 @@ import java.time.ZoneOffset;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLLogEntryToSpreadSheet
-  extends AbstractConversion {
+  extends AbstractUFDLObjectToSpreadSheetConversion {
 
   private static final long serialVersionUID = 2239463804853893127L;
 
@@ -60,13 +60,24 @@ public class UFDLLogEntryToSpreadSheet
   }
 
   /**
-   * Returns the class that is generated as output.
+   * Generates the template.
    *
-   * @return		the class
+   * @return		the template
    */
   @Override
-  public Class generates() {
-    return SpreadSheet.class;
+  protected SpreadSheet getTemplate() {
+    SpreadSheet result;
+    Row 	row;
+
+    result = new DefaultSpreadSheet();
+    row    = result.getHeaderRow();
+    row.addCell("pk").setContentAsString("pk");
+    row.addCell("t").setContentAsString("timestamp");
+    row.addCell("l").setContentAsString("level");
+    row.addCell("m").setContentAsString("conditions");
+    row.addCell("i").setContentAsString("limitations");
+
+    return result;
   }
 
   /**
@@ -82,18 +93,8 @@ public class UFDLLogEntryToSpreadSheet
     LogEntry 		entry;
 
     entry  = (LogEntry) m_Input;
-    result = new DefaultSpreadSheet();
-
-    // header
-    row = result.getHeaderRow();
-    row.addCell("pk").setContentAsString("pk");
-    row.addCell("t").setContentAsString("timestamp");
-    row.addCell("l").setContentAsString("level");
-    row.addCell("m").setContentAsString("conditions");
-    row.addCell("i").setContentAsString("limitations");
-
-    // data
-    row = result.addRow();
+    result = getTemplate();
+    row    = result.addRow();
     row.addCell("pk").setContent(entry.getPK());
     row.addCell("t").setContent(new DateTimeMsec(Date.from(entry.getCreationTime().toInstant(ZoneOffset.UTC))));
     row.addCell("l").setContentAsString(entry.getLevel().toString());

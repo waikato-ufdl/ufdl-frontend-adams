@@ -35,7 +35,7 @@ import java.time.ZoneOffset;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLProjectToSpreadSheet
-  extends AbstractConversion {
+  extends AbstractUFDLObjectToSpreadSheetConversion {
 
   private static final long serialVersionUID = 2239463804853893127L;
 
@@ -60,13 +60,25 @@ public class UFDLProjectToSpreadSheet
   }
 
   /**
-   * Returns the class that is generated as output.
+   * Generates the template.
    *
-   * @return		the class
+   * @return		the template
    */
   @Override
-  public Class generates() {
-    return SpreadSheet.class;
+  protected SpreadSheet getTemplate() {
+    SpreadSheet result;
+    Row 	row;
+
+    result = new DefaultSpreadSheet();
+    row    = result.getHeaderRow();
+    row.addCell("pk").setContentAsString("pk");
+    row.addCell("tn").setContentAsString("name");
+    row.addCell("ci").setContentAsString("creator_id");
+    row.addCell("ct").setContentAsString("creation_time");
+    row.addCell("dt").setContentAsString("deletion_time");
+    row.addCell("ti").setContentAsString("team_id");
+
+    return result;
   }
 
   /**
@@ -82,19 +94,8 @@ public class UFDLProjectToSpreadSheet
     Project		project;
 
     project = (Project) m_Input;
-    result = new DefaultSpreadSheet();
-
-    // header
-    row = result.getHeaderRow();
-    row.addCell("pk").setContentAsString("pk");
-    row.addCell("tn").setContentAsString("name");
-    row.addCell("ci").setContentAsString("creator_id");
-    row.addCell("ct").setContentAsString("creation_time");
-    row.addCell("dt").setContentAsString("deletion_time");
-    row.addCell("ti").setContentAsString("team_id");
-
-    // data
-    row = result.addRow();
+    result  = new DefaultSpreadSheet();
+    row     = result.addRow();
     row.addCell("pk").setContent(project.getPK());
     row.addCell("tn").setContent(project.getName());
     row.addCell("ci").setContent(project.getCreatorID());

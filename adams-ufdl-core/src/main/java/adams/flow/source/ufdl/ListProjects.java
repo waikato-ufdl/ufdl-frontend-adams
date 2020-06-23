@@ -20,6 +20,7 @@
 
 package adams.flow.source.ufdl;
 
+import adams.core.AdditionalInformationHandler;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import adams.data.conversion.UFDLProjectToSpreadSheet;
@@ -38,7 +39,7 @@ import java.util.List;
  */
 public class ListProjects
   extends AbstractUFDLSourceAction
-  implements UFDLSoftDeleteObjectStateHandler {
+  implements UFDLSoftDeleteObjectStateHandler, AdditionalInformationHandler {
 
   private static final long serialVersionUID = 2444931814949354710L;
 
@@ -117,6 +118,15 @@ public class ListProjects
   @Override
   public Class[] generates() {
     return new Class[]{SpreadSheet.class};
+  }
+
+  /**
+   * Returns the additional information.
+   *
+   * @return		the additional information, null or 0-length string for no information
+   */
+  public String getAdditionalInformation() {
+    return new UFDLProjectToSpreadSheet().getAdditionalInformation();
   }
 
   /**

@@ -32,7 +32,7 @@ import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLLicenseToSpreadSheet
-  extends AbstractConversion {
+  extends AbstractUFDLObjectToSpreadSheetConversion {
 
   private static final long serialVersionUID = 2239463804853893127L;
 
@@ -57,13 +57,25 @@ public class UFDLLicenseToSpreadSheet
   }
 
   /**
-   * Returns the class that is generated as output.
+   * Generates the template.
    *
-   * @return		the class
+   * @return		the template
    */
   @Override
-  public Class generates() {
-    return SpreadSheet.class;
+  protected SpreadSheet getTemplate() {
+    SpreadSheet result;
+    Row 	row;
+
+    result = new DefaultSpreadSheet();
+
+    row = result.getHeaderRow();
+    row.addCell("pk").setContentAsString("pk");
+    row.addCell("n").setContentAsString("name");
+    row.addCell("p").setContentAsString("permissions");
+    row.addCell("c").setContentAsString("conditions");
+    row.addCell("l").setContentAsString("limitations");
+
+    return result;
   }
 
   /**
@@ -79,18 +91,8 @@ public class UFDLLicenseToSpreadSheet
     License 		license;
 
     license = (License) m_Input;
-    result = new DefaultSpreadSheet();
-
-    // header
-    row = result.getHeaderRow();
-    row.addCell("pk").setContentAsString("pk");
-    row.addCell("n").setContentAsString("name");
-    row.addCell("p").setContentAsString("permissions");
-    row.addCell("c").setContentAsString("conditions");
-    row.addCell("l").setContentAsString("limitations");
-
-    // data
-    row = result.addRow();
+    result  = getTemplate();
+    row     = result.addRow();
     row.addCell("pk").setContent(license.getPK());
     row.addCell("n").setContent(license.getName());
     row.addCell("p").setContent(Utils.flatten(license.getPermissions().toArray(), ","));
