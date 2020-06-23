@@ -1,0 +1,149 @@
+# Project: adams
+# Date: 2020-06-23 15:46:29
+# User: fracpete
+# Charset: UTF-8
+# Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
+#
+adams.flow.control.Flow -annotation "Allows users to manage image classification datasets." -error-handling ACTORS_DECIDE_TO_STOP_ON_ERROR -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
+ adams.flow.standalone.CallableActors
+  adams.flow.sink.Display -name Info -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
+  adams.flow.sink.SpreadSheetDisplay -name Current -short-title true -display-type adams.flow.core.displaytype.Default -x -3 -cell-rendering-customizer adams.gui.core.spreadsheettable.DefaultCellRenderingCustomizer -allow-search true -writer adams.data.io.output.NullWriter
+  adams.flow.sink.ProgressBar -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -max @{max}
+ adams.flow.standalone.UFDLConnection
+ adams.flow.standalone.SetVariable -name initialize -var-name show_main_menu -var-value true
+ adams.flow.source.Start
+ adams.flow.control.WhileLoop -condition "adams.flow.condition.bool.VariableFlagSet -variable-name show_main_menu"
+  adams.flow.source.Start
+  adams.flow.control.CloseCallableDisplay -callable ProgressBar
+  adams.flow.control.Trigger -name "menu prompt"
+   adams.flow.source.EnterValue -stop-if-canceled true -message "Please select dataset operation" -selection-values Create -selection-values Update -selection-values View -selection-values Delete -selection-values Download -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
+   adams.flow.transformer.SetVariable -var-name choice
+  adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Create\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"View\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Download\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Exit\\\\\\\"\"" -lenient true
+   adams.flow.control.Trigger -name create
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name "list current datasets"
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListImageClassificationDatasets -state ANY"
+     adams.flow.sink.CallableSink -callable Current
+    adams.flow.control.Trigger -name "prompt user"
+     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+     adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-create.props -value-type FILE_FORWARD_SLASHES -expand-value true
+     adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_name -display \"Dataset name\"" -value "adams.flow.source.valuedefinition.LicenseList -name dataset_license -display License" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_public -display \"Public dataset?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_tags -display Tags" -value "adams.flow.source.valuedefinition.ProjectList -name dataset_project -display Project" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name image_dir -display \"Directory with images\" -type DIRECTORY_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name categories -display \"Image categories (blank-separated list)\" -default-value \"cat1 cat2\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+     adams.flow.transformer.MapToVariables
+     adams.flow.control.Trigger -name "project PK"
+      adams.flow.source.Variable -var-name dataset_project -conversion adams.data.conversion.StringToString
+      adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
+      adams.flow.transformer.SetVariable -var-name project_pk
+     adams.flow.control.Trigger -name "license PK"
+      adams.flow.source.Variable -var-name dataset_license -conversion adams.data.conversion.StringToString
+      adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
+      adams.flow.transformer.SetVariable -var-name license_pk
+     adams.flow.control.Trigger -name "buttons or combobox for categories?"
+      adams.flow.source.Variable -var-name categories -conversion adams.data.conversion.StringToString
+      adams.flow.transformer.StringSplit -expression " "
+      adams.flow.transformer.ArrayLength
+      adams.flow.control.IfThenElse -condition "adams.flow.condition.bool.Expression -expression \"X > 20\""
+       adams.flow.transformer.SetVariable -name then -var-name use_buttons -var-value false
+       adams.flow.transformer.SetVariable -name else -var-name use_buttons -var-value true
+    adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+    adams.flow.control.CloseCallableDisplay -callable Current
+    adams.flow.control.Trigger -name "check whether dataset name already exists"
+     adams.flow.standalone.SetVariable -name reset -var-name exists -var-value false
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListImageClassificationDatasets -state ANY"
+     adams.flow.transformer.SpreadSheetRowFilter -finder "adams.data.spreadsheet.rowfinder.ByStringComparison -att-index name -minimum @{dataset_name} -minimum-included true -maximum @{dataset_name} -maximum-included true"
+     adams.flow.control.ConditionalTee -name exists? -condition adams.flow.condition.bool.HasRows
+      adams.flow.transformer.SetVariable -var-name exists -var-value true
+    adams.flow.control.ConditionalTrigger -name "inform user" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name exists"
+     adams.flow.source.CombineVariables -expression "The dataset \\\"@{dataset_name}\\\" already exists,\\neither as active or deleted dataset.\\nPlease choose another name." -conversion adams.data.conversion.StringToString
+     adams.flow.sink.InformationDialog -title "Dataset exists already"
+    adams.flow.control.Block -name "Block if exists" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name exists"
+    adams.flow.control.Trigger -name "create dataset"
+     adams.flow.source.UFDLSource -stop-flow-on-error true -action "adams.flow.source.ufdl.CreateImageClassificationDataset -name @{dataset_name} -project @{project_pk} -licence @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}"
+     adams.flow.transformer.SetStorageValue -storage-name dataset
+    adams.flow.control.Trigger -name "add files"
+     adams.flow.standalone.SetVariable -name reset -var-name count -var-value 0
+     adams.flow.source.SelectFile -output-array true -file-chooser-title "Select images to add" -initial-dir @{image_dir} -extension jpg,png
+     adams.flow.control.Tee -name "# images"
+      adams.flow.transformer.ArrayLength
+      adams.flow.transformer.SetVariable -var-name max
+     adams.flow.transformer.ArrayToSequence
+     adams.flow.control.Tee -name progress
+      adams.flow.transformer.IncVariable -var-name count -output-variable-value true
+      adams.flow.sink.CallableSink -callable ProgressBar
+     adams.flow.transformer.SetVariable -var-name file
+     adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
+     adams.flow.transformer.ImageLabeler -x -2 -y -2 -label @{categories} -use-buttons @{use_buttons} -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
+     adams.flow.control.Tee -name "get label"
+      adams.flow.transformer.GetReportValue -field Classification[S]
+      adams.flow.transformer.SetVariable -var-name category
+     adams.flow.control.Trigger -name add
+      adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{file} -category @{category}"
+      adams.flow.sink.CallableSink -callable Info
+     adams.flow.control.Trigger -name "add metadata"
+      adams.flow.source.Variable -var-name file -conversion adams.data.conversion.StringToString
+      adams.flow.control.Tee -name "image name"
+       adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractImageNameFromFile
+       adams.flow.transformer.SetVariable -var-name name
+      adams.flow.transformer.SetStorageValue -storage-name metadata
+      adams.flow.control.Trigger -name "add metadata to file"
+       adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageClassificationMetadataForImage -name @{name}"
+   adams.flow.control.Trigger -name update
+    adams.flow.source.Start
+   adams.flow.control.Trigger -name view
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name "prompt user"
+     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+     adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-view.props -value-type FILE_FORWARD_SLASHES -expand-value true
+     adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.ImageClassificationDatasetList -name dataset -display Dataset" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+     adams.flow.transformer.MapToVariables
+     adams.flow.control.Trigger -name "dataset PK"
+      adams.flow.source.Variable -var-name dataset -conversion adams.data.conversion.StringToString
+      adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
+      adams.flow.transformer.SetVariable -var-name dataset_pk
+    adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+    adams.flow.control.ConditionalTrigger -name view? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to view dataset \\\"@{dataset}\\\"?\""
+     adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+     adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles
+     adams.flow.sink.CallableSink -callable Current
+    adams.flow.transformer.ConfirmationDialog
+   adams.flow.control.Trigger -name delete
+    adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListImageClassificationDatasets
+    adams.flow.transformer.SpreadSheetSelectSubset -message "Please select dataset(s) to delete" -allow-search true
+    adams.flow.control.Tee -name "# datasets"
+     adams.flow.transformer.SpreadSheetInfo
+     adams.flow.transformer.SetVariable -var-name num_datasets
+    adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_datasets} dataset(s)?\""
+     adams.flow.transformer.SpreadSheetVariableRowIterator
+     adams.flow.control.Trigger -name "delete dataset"
+      adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
+      adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteImageClassificationDataset
+      adams.flow.transformer.SetVariable -var-name success
+      adams.flow.control.Trigger -name output
+       adams.flow.source.CombineVariables -expression "@{name}/@{pk}: @{success}" -conversion adams.data.conversion.StringToString
+       adams.flow.sink.CallableSink -callable Info
+   adams.flow.control.Trigger -name download
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name "prompt user"
+     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+     adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-download.props -value-type FILE_FORWARD_SLASHES -expand-value true
+     adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.ImageClassificationDatasetList -name dataset" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name parameters -display \"Export parameters\" -help \"command-line options passed on to wai.annotations\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name output_file -display \"Output file\" -help \"extension must be zip or tar.gz\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+     adams.flow.transformer.MapToVariables
+     adams.flow.control.Trigger -name "dataset PK"
+      adams.flow.source.Variable -var-name dataset -conversion adams.data.conversion.StringToString
+      adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
+      adams.flow.transformer.SetVariable -var-name dataset_pk
+    adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+    adams.flow.control.ConditionalTrigger -name download? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to download dataset \\\"@{dataset}\\\"?\""
+     adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+     adams.flow.sink.UFDLSink -action "adams.flow.sink.ufdl.DownloadImageClassificationDataset -parameters @{parameters} -output-file @{output_file}"
+   adams.flow.control.Tee -name "clear output"
+    adams.flow.control.ClearCallableDisplay -name "clear info" -callable Info
+    adams.flow.control.CloseCallableDisplay -name "close info" -callable Info
+    adams.flow.control.CloseCallableDisplay -name "close progress" -callable ProgressBar
+    adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
+   adams.flow.control.Tee -name exit
+    adams.flow.control.Stop
