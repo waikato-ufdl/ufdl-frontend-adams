@@ -21,6 +21,7 @@
 package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
+import adams.core.Utils;
 import adams.data.spreadsheet.DefaultSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
@@ -73,11 +74,15 @@ public class ListImageClassificationFiles
     result = new DefaultSpreadSheet();
     row    = result.getHeaderRow();
     row.addCell("f").setContentAsString("image");
+    row.addCell("c").setContentAsString("categories");
 
     try {
       imagedataset = dataset.as(ImageClassificationDataset.class);
-      for (String file: imagedataset.files())
-        result.addRow().getCell("f").setContentAsString(file);
+      for (String file: imagedataset.files()) {
+        row = result.addRow();
+        row.getCell("f").setContentAsString(file);
+        row.getCell("c").setContentAsString(Utils.flatten(imagedataset.categories(file), ","));
+      }
     }
     catch (Exception e) {
       errors.add("Failed to list files for image classification dataset: " + dataset, e);
