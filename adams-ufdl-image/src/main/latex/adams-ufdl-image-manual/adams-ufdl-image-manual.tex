@@ -78,6 +78,7 @@ The following conversions are available:
 The following sink actions can be used:
 \begin{tight_itemize}
   \item \textit{DownloadObjectDetectionDataset} -- downloads an object detection dataset
+  \item \textit{DownloadImageClassificationDataset} -- downloads an image classification dataset
 \end{tight_itemize}
 The following source actions can be used:
 \begin{tight_itemize}
@@ -92,7 +93,9 @@ The following transformer actions can be used:
   \item \textit{AddImageClassificationFile} -- adds images to an image classification dataset
   \item \textit{AddObjectDetectionFile} -- adds an image (and its optional annnotations) to an object detection dataset
   \item \textit{DeleteImageClassificationCategories} -- removes categories from images of an image classification dataset
+  \item \textit{DeleteImageClassificationDataset} -- removes the specified image classification dataset
   \item \textit{DeleteImageClassificationFile} -- removes the specified images from an image classification dataset
+  \item \textit{DeleteObjectDetectionDataset} -- removes the specified object detection dataset
   \item \textit{GetImageClassificationFile} -- retrieves a file from an image classification dataset via its name
   \item \textit{GetImageClassificationMetadataForImage} -- retrieves the metadata for an image of an image classification dataset via its name
   \item \textit{GetObjectDetectionFile} -- retrieves a file from an object detection dataset via its name
