@@ -23,7 +23,6 @@ package adams.flow.transformer.ufdl;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
 
 /**
@@ -32,7 +31,7 @@ import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class GetObjectDetectionAnnotationsForImage
-  extends AbstractDatasetTransformerAction {
+  extends AbstractObjectDetectionDatasetTransformerAction {
 
   private static final long serialVersionUID = -1421130988687306299L;
 
@@ -120,12 +119,10 @@ public class GetObjectDetectionAnnotationsForImage
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
     Annotations			result;
-    ObjectDetectionDatasets 	action;
 
     result = null;
     try {
-      action = m_Client.action(ObjectDetectionDatasets.class);
-      result = action.getAnnotations(dataset, m_Name);
+      result = getDatasetsAction().getAnnotations(dataset, m_Name);
     }
     catch (Exception e) {
       errors.add("Failed to retrieve annotations of image '" + m_Name + "' from dataset: " + dataset, e);

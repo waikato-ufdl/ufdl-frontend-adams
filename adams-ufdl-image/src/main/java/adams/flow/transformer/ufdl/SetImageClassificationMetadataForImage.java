@@ -26,7 +26,6 @@ import adams.core.Utils;
 import adams.flow.control.StorageName;
 import adams.flow.control.StorageUser;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
 
 /**
  * Sets the metadata of the specified image in the dataset coming in.
@@ -34,7 +33,7 @@ import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class SetImageClassificationMetadataForImage
-  extends AbstractDatasetTransformerAction
+  extends AbstractImageClassificationDatasetTransformerAction
   implements StorageUser {
 
   private static final long serialVersionUID = -1421130988687306299L;
@@ -210,14 +209,12 @@ public class SetImageClassificationMetadataForImage
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
     boolean			result;
-    ImageClassificationDatasets action;
     String  			metadata;
 
     result = false;
     try {
       metadata = (String) m_FlowContext.getStorageHandler().getStorage().get(m_StorageName);
-      action = m_Client.action(ImageClassificationDatasets.class);
-      result = action.setMetadata(dataset, m_Name, metadata);
+      result = getDatasetsAction().setMetadata(dataset, m_Name, metadata);
     }
     catch (Exception e) {
       errors.add("Failed to set metadata for image '" + m_Name + "' in dataset: " + dataset, e);

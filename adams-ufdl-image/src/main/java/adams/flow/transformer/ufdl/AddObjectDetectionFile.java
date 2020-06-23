@@ -37,7 +37,7 @@ import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class AddObjectDetectionFile
-  extends AbstractDatasetTransformerAction
+  extends AbstractObjectDetectionDatasetTransformerAction
   implements StorageUser {
 
   private static final long serialVersionUID = 2890424326502728143L;
@@ -249,7 +249,7 @@ public class AddObjectDetectionFile
     Annotations			anns;
 
     try {
-      action = m_Client.action(ObjectDetectionDatasets.class);
+      action = getDatasetsAction();
     }
     catch (Exception e) {
       errors.add("Failed to instantiate " + Utils.classToString(ObjectDetectionDatasets.class) + " action!", e);

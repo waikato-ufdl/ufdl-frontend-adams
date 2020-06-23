@@ -40,7 +40,7 @@ import java.util.List;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class AddImageClassificationFile
-  extends AbstractDatasetTransformerAction {
+  extends AbstractImageClassificationDatasetTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -210,7 +210,7 @@ public class AddImageClassificationFile
     List<String> 		names;
 
     try {
-      action = m_Client.action(ImageClassificationDatasets.class);
+      action = getDatasetsAction();
     }
     catch (Exception e) {
       errors.add("Failed to instantiate " + Utils.classToString(ImageClassificationDatasets.class) + " action!", e);

@@ -32,7 +32,7 @@ import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class GetObjectDetectionFile
-  extends AbstractDatasetTransformerAction
+  extends AbstractObjectDetectionDatasetTransformerAction
   implements FileWriter {
 
   private static final long serialVersionUID = -1421130988687306299L;
@@ -165,7 +165,7 @@ public class GetObjectDetectionFile
 
     result = null;
     try {
-      if (!m_Client.datasets().getFile(dataset, m_Name, m_OutputFile.getAbsoluteFile()))
+      if (!getDatasetsAction().getFile(dataset, m_Name, m_OutputFile.getAbsoluteFile()))
 	errors.add("Failed to retrieve image '" + m_Name + "' from dataset: " + dataset);
       else
         result = m_OutputFile.getAbsolutePath();

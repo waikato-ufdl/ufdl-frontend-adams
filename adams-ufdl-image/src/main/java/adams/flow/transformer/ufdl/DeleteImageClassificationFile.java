@@ -30,7 +30,7 @@ import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class DeleteImageClassificationFile
-  extends AbstractDatasetTransformerAction {
+  extends AbstractImageClassificationDatasetTransformerAction {
 
   private static final long serialVersionUID = -1421130988687306299L;
 
@@ -122,7 +122,7 @@ public class DeleteImageClassificationFile
     result = false;
 
     try {
-      result = m_Client.datasets().deleteFile(dataset, m_Name);
+      result = getDatasetsAction().deleteFile(dataset, m_Name);
     }
     catch (Exception e) {
       errors.add("Failed to delete image '" + m_Name + "' from dataset: " + dataset, e);

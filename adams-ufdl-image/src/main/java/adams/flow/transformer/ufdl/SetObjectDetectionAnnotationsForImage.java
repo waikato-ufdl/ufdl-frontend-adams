@@ -26,7 +26,6 @@ import adams.core.Utils;
 import adams.flow.control.StorageName;
 import adams.flow.control.StorageUser;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
 
 /**
@@ -35,7 +34,7 @@ import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class SetObjectDetectionAnnotationsForImage
-  extends AbstractDatasetTransformerAction
+  extends AbstractObjectDetectionDatasetTransformerAction
   implements StorageUser {
 
   private static final long serialVersionUID = -1421130988687306299L;
@@ -211,14 +210,12 @@ public class SetObjectDetectionAnnotationsForImage
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
     boolean			result;
-    ObjectDetectionDatasets 	action;
     Annotations			anns;
 
     result = false;
     try {
       anns   = (Annotations) m_FlowContext.getStorageHandler().getStorage().get(m_StorageName);
-      action = m_Client.action(ObjectDetectionDatasets.class);
-      result = action.setAnnotations(dataset, m_Name, anns);
+      result = getDatasetsAction().setAnnotations(dataset, m_Name, anns);
     }
     catch (Exception e) {
       errors.add("Failed to set annotations for image '" + m_Name + "' in dataset: " + dataset, e);

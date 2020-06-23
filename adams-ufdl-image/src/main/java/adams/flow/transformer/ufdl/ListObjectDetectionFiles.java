@@ -33,7 +33,7 @@ import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.ObjectDetect
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class ListObjectDetectionFiles
-  extends AbstractDatasetTransformerAction {
+  extends AbstractObjectDetectionDatasetTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 

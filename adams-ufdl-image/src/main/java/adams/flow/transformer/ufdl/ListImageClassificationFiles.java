@@ -33,7 +33,7 @@ import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets.ImageCla
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class ListImageClassificationFiles
-  extends AbstractDatasetTransformerAction {
+  extends AbstractImageClassificationDatasetTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 

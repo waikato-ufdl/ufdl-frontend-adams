@@ -22,7 +22,6 @@ package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
 
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,7 @@ import java.util.Map;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class GetImageClassificationCategories
-  extends AbstractDatasetTransformerAction {
+  extends AbstractImageClassificationDatasetTransformerAction {
 
   private static final long serialVersionUID = -1421130988687306299L;
 
@@ -67,12 +66,10 @@ public class GetImageClassificationCategories
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
     Map<String,List<String>>		result;
-    ImageClassificationDatasets 	action;
 
     result = null;
     try {
-      action = m_Client.action(ImageClassificationDatasets.class);
-      result = action.getCategories(dataset);
+      result = getDatasetsAction().getCategories(dataset);
     }
     catch (Exception e) {
       errors.add("Failed to retrieve categories for dataset: " + dataset, e);

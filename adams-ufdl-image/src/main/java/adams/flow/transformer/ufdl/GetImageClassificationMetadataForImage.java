@@ -23,7 +23,6 @@ package adams.flow.transformer.ufdl;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
 
 /**
  * Obtains the metadata of the specified image from the dataset passing through and forwards it.
@@ -31,7 +30,7 @@ import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class GetImageClassificationMetadataForImage
-  extends AbstractDatasetTransformerAction {
+  extends AbstractImageClassificationDatasetTransformerAction {
 
   private static final long serialVersionUID = -1421130988687306299L;
 
@@ -119,12 +118,10 @@ public class GetImageClassificationMetadataForImage
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
     String			result;
-    ImageClassificationDatasets action;
 
     result = null;
     try {
-      action = m_Client.action(ImageClassificationDatasets.class);
-      result = action.getMetadata(dataset, m_Name);
+      result = getDatasetsAction().getMetadata(dataset, m_Name);
     }
     catch (Exception e) {
       errors.add("Failed to retrieve metadata of image '" + m_Name + "' from dataset: " + dataset, e);

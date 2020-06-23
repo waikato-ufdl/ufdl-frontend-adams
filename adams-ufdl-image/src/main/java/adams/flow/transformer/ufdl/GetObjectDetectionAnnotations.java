@@ -22,7 +22,6 @@ package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
 
 import java.util.Map;
@@ -33,7 +32,7 @@ import java.util.Map;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class GetObjectDetectionAnnotations
-  extends AbstractDatasetTransformerAction {
+  extends AbstractObjectDetectionDatasetTransformerAction {
 
   private static final long serialVersionUID = -1421130988687306299L;
 
@@ -67,12 +66,10 @@ public class GetObjectDetectionAnnotations
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
     Map<String,Annotations>	result;
-    ObjectDetectionDatasets 	action;
 
     result = null;
     try {
-      action = m_Client.action(ObjectDetectionDatasets.class);
-      result = action.getAnnotations(dataset);
+      result = getDatasetsAction().getAnnotations(dataset);
     }
     catch (Exception e) {
       errors.add("Failed to retrieve annotations for dataset: " + dataset, e);

@@ -29,6 +29,7 @@ import adams.data.spreadsheet.SpreadSheet;
 import adams.flow.core.UFDLSoftDeleteObjectState;
 import adams.flow.core.UFDLSoftDeleteObjectStateHandler;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
+import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
 
 import java.util.List;
 
@@ -140,13 +141,15 @@ public class ListObjectDetectionDatasets
     SpreadSheet			result;
     SpreadSheet			sheet;
     List<Dataset> 		datasets;
+    ObjectDetectionDatasets	action;
     UFDLObjectDetectionDatasetToSpreadSheet conv;
     String			msg;
 
     result = null;
 
     try {
-      datasets = m_Client.datasets().list();
+      action   = m_Client.action(ObjectDetectionDatasets.class);
+      datasets = action.list();
       conv  = new UFDLObjectDetectionDatasetToSpreadSheet();
       for (Dataset dataset : datasets) {
         if (!m_State.accept(dataset))

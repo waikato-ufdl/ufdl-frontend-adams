@@ -21,14 +21,16 @@
 package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
+import com.github.waikatoufdl.ufdl4j.action.Datasets;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 
 /**
  * Ancestor of transformer actions on datasets.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
+ * @param <T> the type of Datasets action
  */
-public abstract class AbstractDatasetTransformerAction
+public abstract class AbstractDatasetTransformerAction<T extends Datasets>
   extends AbstractUFDLTransformerAction {
 
   private static final long serialVersionUID = 1320770985737432995L;
@@ -40,6 +42,16 @@ public abstract class AbstractDatasetTransformerAction
   @Override
   public Class[] accepts() {
     return new Class[]{Integer.class, String.class, Dataset.class};
+  }
+
+  /**
+   * Returns the datasets action to use.
+   *
+   * @return		the action
+   * @throws Exception	if instantiation of action fails
+   */
+  protected T getDatasetsAction() throws Exception {
+    return (T) m_Client.action(Datasets.class);
   }
 
   /**
@@ -62,6 +74,7 @@ public abstract class AbstractDatasetTransformerAction
   protected Object doTransform(Object input, MessageCollection errors) {
     Object	result;
     Dataset 	dataset;
+    T		action;
 
     result = null;
 
@@ -71,10 +84,11 @@ public abstract class AbstractDatasetTransformerAction
     // load dataset
     dataset = null;
     try {
+      action = getDatasetsAction();
       if (input instanceof Integer)
-	dataset = m_Client.datasets().load((Integer) input);
+	dataset = action.load((Integer) input);
       else if (input instanceof String)
-	dataset = m_Client.datasets().load("" + input);
+	dataset = action.load("" + input);
       else
 	dataset = (Dataset) input;
     }

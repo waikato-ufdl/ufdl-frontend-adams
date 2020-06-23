@@ -24,7 +24,6 @@ import adams.core.MessageCollection;
 import adams.core.base.BaseObject;
 import adams.core.base.BaseString;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
 
 import java.util.Arrays;
 
@@ -34,7 +33,7 @@ import java.util.Arrays;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class AddImageClassificationCategories
-  extends AbstractDatasetTransformerAction {
+  extends AbstractImageClassificationDatasetTransformerAction {
 
   private static final long serialVersionUID = -1421130988687306299L;
 
@@ -73,11 +72,8 @@ public class AddImageClassificationCategories
    */
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
-    ImageClassificationDatasets 	action;
-
     try {
-      action = m_Client.action(ImageClassificationDatasets.class);
-      if (!action.addCategories(
+      if (!getDatasetsAction().addCategories(
         dataset,
 	Arrays.asList(BaseObject.toStringArray(m_Names)),
 	Arrays.asList(BaseObject.toStringArray(m_Categories))))
