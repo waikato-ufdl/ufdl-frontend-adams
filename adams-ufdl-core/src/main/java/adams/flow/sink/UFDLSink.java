@@ -20,6 +20,7 @@
 
 package adams.flow.sink;
 
+import adams.core.AdditionalInformationHandler;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import adams.core.Utils;
@@ -86,7 +87,8 @@ import adams.flow.standalone.UFDLConnection;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLSink
-  extends AbstractSink {
+  extends AbstractSink
+  implements AdditionalInformationHandler {
 
   private static final long serialVersionUID = -2779693911370733238L;
 
@@ -175,6 +177,25 @@ public class UFDLSink
   @Override
   public Class[] accepts() {
     return m_Action.accepts();
+  }
+
+  /**
+   * Returns the additional information.
+   *
+   * @return		the additional information
+   */
+  @Override
+  public String getAdditionalInformation() {
+    StringBuilder	result;
+
+    result = new StringBuilder(super.getAdditionalInformation());
+
+    if (m_Action instanceof AdditionalInformationHandler) {
+      result.append("\n\n");
+      result.append(((AdditionalInformationHandler) m_Action).getAdditionalInformation());
+    }
+
+    return result.toString();
   }
 
   /**
