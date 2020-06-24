@@ -95,7 +95,7 @@ public class UFDLTeamToSpreadSheet
     Team		team;
 
     team   = (Team) m_Input;
-    result = new DefaultSpreadSheet();
+    result = getTemplate();
     row    = result.addRow();
     row.addCell("pk").setContent(team.getPK());
     row.addCell("tn").setContent(team.getName());

@@ -98,7 +98,7 @@ public class UFDLUserToSpreadSheet
     User		user;
 
     user   = (User) m_Input;
-    result = new DefaultSpreadSheet();
+    result = getTemplate();
     row    = result.addRow();
     row.addCell("pk").setContent(user.getPK());
     row.addCell("un").setContent(user.getUserName());

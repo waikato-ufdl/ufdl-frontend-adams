@@ -94,7 +94,7 @@ public class UFDLProjectToSpreadSheet
     Project		project;
 
     project = (Project) m_Input;
-    result  = new DefaultSpreadSheet();
+    result  = getTemplate();
     row     = result.addRow();
     row.addCell("pk").setContent(project.getPK());
     row.addCell("tn").setContent(project.getName());
