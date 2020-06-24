@@ -72,6 +72,18 @@ public class UFDLObjectDetectionDatasetToSpreadSheet
     Row 	row;
 
     result = new DefaultSpreadSheet();
+    row    = result.getHeaderRow();
+    row.addCell("pk").setContentAsString("pk");
+    row.addCell("tn").setContentAsString("name");
+    row.addCell("ci").setContentAsString("creator_id");
+    row.addCell("ct").setContentAsString("creation_time");
+    row.addCell("dt").setContentAsString("deletion_time");
+    row.addCell("li").setContentAsString("licence");
+    row.addCell("pi").setContentAsString("project_id");
+    row.addCell("ve").setContentAsString("version");
+    row.addCell("ta").setContentAsString("tags");
+    row.addCell("pu").setContentAsString("public");
+    row.addCell("fs").setContentAsString("files");
 
     return result;
   }
@@ -91,22 +103,8 @@ public class UFDLObjectDetectionDatasetToSpreadSheet
 
     dataset   = (Dataset) m_Input;
     icdataset = dataset.as(ImageClassificationDataset.class);
-    result    = new DefaultSpreadSheet();
-    row       = result.getHeaderRow();
-    row.addCell("pk").setContentAsString("pk");
-    row.addCell("tn").setContentAsString("name");
-    row.addCell("ci").setContentAsString("creator_id");
-    row.addCell("ct").setContentAsString("creation_time");
-    row.addCell("dt").setContentAsString("deletion_time");
-    row.addCell("li").setContentAsString("licence");
-    row.addCell("pi").setContentAsString("project_id");
-    row.addCell("ve").setContentAsString("version");
-    row.addCell("ta").setContentAsString("tags");
-    row.addCell("pu").setContentAsString("public");
-    row.addCell("fs").setContentAsString("files");
-
-    // data
-    row = result.addRow();
+    result    = getTemplate();
+    row       = result.addRow();
     row.addCell("pk").setContent(dataset.getPK());
     row.addCell("tn").setContent(dataset.getName());
     row.addCell("ci").setContent(dataset.getCreatorID());
