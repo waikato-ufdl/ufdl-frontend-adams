@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-23 15:46:29
+# Date: 2020-06-24 15:47:58
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -9,6 +9,13 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
   adams.flow.sink.Display -name Info -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
   adams.flow.sink.SpreadSheetDisplay -name Current -short-title true -display-type adams.flow.core.displaytype.Default -x -3 -cell-rendering-customizer adams.gui.core.spreadsheettable.DefaultCellRenderingCustomizer -allow-search true -writer adams.data.io.output.NullWriter
   adams.flow.sink.ProgressBar -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -max @{max}
+  adams.flow.sink.DisplayPanelManager -name Images -display-type adams.flow.core.displaytype.Default -width 800 -height 600 -provider "adams.flow.sink.ImageViewer -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -zoom -1.0 -show-properties true -selection-processor adams.gui.visualization.image.selection.NullProcessor -left-click-processor adams.gui.visualization.image.leftclick.NullProcessor -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -image-overlay adams.gui.visualization.image.NullOverlay" -entry-name-variable image -allow-search true
+  adams.flow.control.Tee -name "clear output"
+   adams.flow.control.ClearCallableDisplay -name "clear info" -callable Info
+   adams.flow.control.CloseCallableDisplay -name "close info" -callable Info
+   adams.flow.control.CloseCallableDisplay -name "close progress" -callable ProgressBar
+   adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
+   adams.flow.control.CloseCallableDisplay -name "close images" -callable Images
  adams.flow.standalone.UFDLConnection
  adams.flow.standalone.SetVariable -name initialize -var-name show_main_menu -var-value true
  adams.flow.source.Start
@@ -107,8 +114,22 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.control.ConditionalTrigger -name view? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to view dataset \\\"@{dataset}\\\"?\""
      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
      adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles
-     adams.flow.sink.CallableSink -callable Current
-    adams.flow.transformer.ConfirmationDialog
+     adams.flow.transformer.SpreadSheetSelectSubset -message "Please select image(s) to view"
+     adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
+     adams.flow.control.Trigger -name "load categories"
+      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationCategoriesForImage -name @{image}"
+      adams.flow.transformer.CollectionToArray
+      adams.flow.transformer.StringJoin -glue ,
+      adams.flow.transformer.SetVariable -var-name categories
+     adams.flow.control.Trigger -name "load image"
+      adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
+      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationFile -name @{image} -output-file @{output_file}"
+      adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
+      adams.flow.transformer.SetReportValue -field Classification[S] -value @{categories}
+      adams.flow.control.Cast
+      adams.flow.sink.CallableSink -callable Images
    adams.flow.control.Trigger -name delete
     adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListImageClassificationDatasets
     adams.flow.transformer.SpreadSheetSelectSubset -message "Please select dataset(s) to delete" -allow-search true
@@ -141,9 +162,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
      adams.flow.sink.UFDLSink -action "adams.flow.sink.ufdl.DownloadImageClassificationDataset -parameters @{parameters} -output-file @{output_file}"
    adams.flow.control.Tee -name "clear output"
-    adams.flow.control.ClearCallableDisplay -name "clear info" -callable Info
-    adams.flow.control.CloseCallableDisplay -name "close info" -callable Info
-    adams.flow.control.CloseCallableDisplay -name "close progress" -callable ProgressBar
-    adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
+    adams.flow.transformer.CallableTransformer -callable "clear output"
    adams.flow.control.Tee -name exit
+    adams.flow.transformer.CallableTransformer -callable "clear output"
     adams.flow.control.Stop
