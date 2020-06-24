@@ -70,7 +70,9 @@ The following conversions are available:
   \item \textit{ReportToUFDLAnnotations} -- converts an ADAMS report to UFDL annotations
   \item \textit{UFDLAnnotationsToReport} -- converts UFDL annotations to an ADAMS report
   \item \textit{UFDLExtractImageNameFromFile} -- converts a file name into an image name used in datasets
+  \item \textit{UFDLImageClassificationDatasetFilesToSpreadSheet} -- outputs all the files in an image classification dataset as spreadsheet
   \item \textit{UFDLImageClassificationDatasetToSpreadSheet} -- turns an image classification dataset into a spreadsheet
+  \item \textit{UFDLObjectDetectionDatasetFilesToSpreadSheet} -- outputs all the files in an object detection dataset as spreadsheet
   \item \textit{UFDLObjectDetectionDatasetToSpreadSheet} -- turns an object detection dataset into a spreadsheet
 \end{tight_itemize}
 
@@ -96,6 +98,8 @@ The following transformer actions can be used:
   \item \textit{DeleteImageClassificationDataset} -- removes the specified image classification dataset
   \item \textit{DeleteImageClassificationFile} -- removes the specified images from an image classification dataset
   \item \textit{DeleteObjectDetectionDataset} -- removes the specified object detection dataset
+  \item \textit{GetImageClassificationCategories} -- retrieves the map of image/categories for a dataset
+  \item \textit{GetImageClassificationCategoriesForImage} -- retrieves the categories of an image from a dataset
   \item \textit{GetImageClassificationFile} -- retrieves a file from an image classification dataset via its name
   \item \textit{GetImageClassificationMetadataForImage} -- retrieves the metadata for an image of an image classification dataset via its name
   \item \textit{GetObjectDetectionFile} -- retrieves a file from an object detection dataset via its name
