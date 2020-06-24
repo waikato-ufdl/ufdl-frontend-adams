@@ -21,6 +21,7 @@
 package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
+import adams.core.QuickInfoHelper;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 
 import java.util.List;
@@ -87,6 +88,16 @@ public class GetImageClassificationCategoriesForImage
    */
   public String nameTipText() {
     return "The name of the image to get the metadata for.";
+  }
+
+  /**
+   * Returns a quick info about the actor, which will be displayed in the GUI.
+   *
+   * @return		null if no info available, otherwise short string
+   */
+  @Override
+  public String getQuickInfo() {
+    return QuickInfoHelper.toString(this, "name", (m_Name.isEmpty() ? "-none-" : m_Name));
   }
 
   /**

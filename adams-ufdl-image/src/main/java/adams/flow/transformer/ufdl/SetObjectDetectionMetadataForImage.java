@@ -137,7 +137,7 @@ public class SetObjectDetectionMetadataForImage
   public String getQuickInfo() {
     String	result;
 
-    result = QuickInfoHelper.toString(this, "name", m_Name);
+    result = QuickInfoHelper.toString(this, "name", (m_Name.isEmpty() ? "-none-" : m_Name));
     result += QuickInfoHelper.toString(this, "storageName", m_StorageName, ", storage: ");
 
     return result;

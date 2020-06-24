@@ -96,7 +96,7 @@ public class GetObjectDetectionAnnotationsForImage
    */
   @Override
   public String getQuickInfo() {
-    return QuickInfoHelper.toString(this, "name", m_Name);
+    return QuickInfoHelper.toString(this, "name", (m_Name.isEmpty() ? "-none-" : m_Name));
   }
 
   /**
