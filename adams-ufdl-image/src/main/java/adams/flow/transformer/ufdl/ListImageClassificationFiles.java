@@ -20,13 +20,11 @@
 
 package adams.flow.transformer.ufdl;
 
+import adams.core.AdditionalInformationHandler;
 import adams.core.MessageCollection;
-import adams.core.Utils;
-import adams.data.spreadsheet.DefaultSpreadSheet;
-import adams.data.spreadsheet.Row;
+import adams.data.conversion.UFDLImageClassificationDatasetFilesToSpreadSheet;
 import adams.data.spreadsheet.SpreadSheet;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets.ImageClassificationDataset;
 
 /**
  * Lists the images in the incoming image classification dataset.
@@ -34,7 +32,8 @@ import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets.ImageCla
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class ListImageClassificationFiles
-  extends AbstractImageClassificationDatasetTransformerAction {
+  extends AbstractImageClassificationDatasetTransformerAction
+  implements AdditionalInformationHandler {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -59,6 +58,15 @@ public class ListImageClassificationFiles
   }
 
   /**
+   * Returns the additional information.
+   *
+   * @return		the additional information, null or 0-length string for no information
+   */
+  public String getAdditionalInformation() {
+    return new UFDLImageClassificationDatasetFilesToSpreadSheet().getAdditionalInformation();
+  }
+
+  /**
    * Transforms the dataset.
    *
    * @param dataset	the input data
@@ -68,24 +76,22 @@ public class ListImageClassificationFiles
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
     SpreadSheet			result;
-    Row				row;
-    ImageClassificationDataset 	imagedataset;
+    UFDLImageClassificationDatasetFilesToSpreadSheet	 conv;
+    String			msg;
 
-    result = new DefaultSpreadSheet();
-    row    = result.getHeaderRow();
-    row.addCell("f").setContentAsString("image");
-    row.addCell("c").setContentAsString("categories");
+    result = null;
 
     try {
-      imagedataset = dataset.as(ImageClassificationDataset.class);
-      for (String file: imagedataset.files()) {
-        row = result.addRow();
-        row.getCell("f").setContentAsString(file);
-        row.getCell("c").setContentAsString(Utils.flatten(imagedataset.categories(file), ","));
-      }
+      conv = new UFDLImageClassificationDatasetFilesToSpreadSheet();
+      conv.setInput(dataset);
+      msg = conv.convert();
+      if (msg != null)
+	errors.add("Failed to list image classification files for dataset: " + dataset + "\n" + msg);
+      else
+        result = (SpreadSheet) conv.getOutput();
     }
     catch (Exception e) {
-      errors.add("Failed to list files for image classification dataset: " + dataset, e);
+      errors.add("Failed to list image classification files for dataset: " + dataset, e);
     }
 
     return result;

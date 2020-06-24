@@ -20,12 +20,11 @@
 
 package adams.flow.transformer.ufdl;
 
+import adams.core.AdditionalInformationHandler;
 import adams.core.MessageCollection;
-import adams.data.spreadsheet.DefaultSpreadSheet;
-import adams.data.spreadsheet.Row;
+import adams.data.conversion.UFDLObjectDetectionDatasetFilesToSpreadSheet;
 import adams.data.spreadsheet.SpreadSheet;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.ObjectDetectionDataset;
 
 /**
  * Lists the images in the incoming object detection dataset.
@@ -33,7 +32,8 @@ import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.ObjectDetect
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class ListObjectDetectionFiles
-  extends AbstractObjectDetectionDatasetTransformerAction {
+  extends AbstractObjectDetectionDatasetTransformerAction
+  implements AdditionalInformationHandler {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -58,6 +58,15 @@ public class ListObjectDetectionFiles
   }
 
   /**
+   * Returns the additional information.
+   *
+   * @return		the additional information, null or 0-length string for no information
+   */
+  public String getAdditionalInformation() {
+    return new UFDLObjectDetectionDatasetFilesToSpreadSheet().getAdditionalInformation();
+  }
+
+  /**
    * Transforms the dataset.
    *
    * @param dataset	the input data
@@ -67,20 +76,22 @@ public class ListObjectDetectionFiles
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
     SpreadSheet			result;
-    Row				row;
-    ObjectDetectionDataset 	objdetdataset;
+    UFDLObjectDetectionDatasetFilesToSpreadSheet conv;
+    String			msg;
 
-    result = new DefaultSpreadSheet();
-    row    = result.getHeaderRow();
-    row.addCell("f").setContentAsString("image");
+    result = null;
 
     try {
-      objdetdataset = dataset.as(ObjectDetectionDataset.class);
-      for (String file: objdetdataset.files())
-        result.addRow().getCell("f").setContentAsString(file);
+      conv = new UFDLObjectDetectionDatasetFilesToSpreadSheet();
+      conv.setInput(dataset);
+      msg = conv.convert();
+      if (msg != null)
+	errors.add("Failed to list object detection files for dataset: " + dataset + "\n" + msg);
+      else
+        result = (SpreadSheet) conv.getOutput();
     }
     catch (Exception e) {
-      errors.add("Failed to list files for object detection dataset: " + dataset, e);
+      errors.add("Failed to list object detection files for dataset: " + dataset, e);
     }
 
     return result;

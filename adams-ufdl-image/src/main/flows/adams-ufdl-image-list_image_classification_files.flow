@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-05-20 15:50:56
+# Date: 2020-06-24 08:59:58
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -10,7 +10,7 @@ adams.flow.control.Flow -annotation "Lists the files from a dataset that the use
  adams.flow.standalone.UFDLConnection
  adams.flow.source.Start
  adams.flow.control.Trigger -name "select dataset"
-  adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListDatasets
+  adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListImageClassificationDatasets
   adams.flow.transformer.SpreadSheetSelectSubset -short-title true -message "Please select project" -allow-search true
   adams.flow.control.Tee -name "# rows"
    adams.flow.transformer.SpreadSheetInfo
