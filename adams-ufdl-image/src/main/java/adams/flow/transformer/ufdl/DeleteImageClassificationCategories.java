@@ -21,6 +21,7 @@
 package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
+import adams.core.QuickInfoHelper;
 import adams.core.base.BaseObject;
 import adams.core.base.BaseString;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
@@ -51,6 +52,95 @@ public class DeleteImageClassificationCategories
   @Override
   public String globalInfo() {
     return "Removes the specified categories from the named images for the dataset passing through.";
+  }
+
+  /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "name", "names",
+      new BaseString[0]);
+
+    m_OptionManager.add(
+      "category", "categories",
+      new BaseString[0]);
+  }
+
+  /**
+   * Sets the names of the images to update.
+   *
+   * @param value	the names
+   */
+  public void setNames(BaseString[] value) {
+    m_Names = value;
+    reset();
+  }
+
+  /**
+   * Returns the names of the images to update.
+   *
+   * @return		the names
+   */
+  public BaseString[] getNames() {
+    return m_Names;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String namesTipText() {
+    return "The names of the images to update.";
+  }
+
+  /**
+   * Sets the categories to remove from each image.
+   *
+   * @param value	the categories
+   */
+  public void setCategories(BaseString[] value) {
+    m_Categories = value;
+    reset();
+  }
+
+  /**
+   * Returns the categories to remove from each image.
+   *
+   * @return		the categories
+   */
+  public BaseString[] getCategories() {
+    return m_Categories;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String categoriesTipText() {
+    return "The categories to remove from each image.";
+  }
+
+  /**
+   * Returns a quick info about the object, which can be displayed in the GUI.
+   *
+   * @return		null if no info available, otherwise short string
+   */
+  @Override
+  public String getQuickInfo() {
+    String	result;
+
+    result = QuickInfoHelper.toString(this, "names", m_Names, "names: ");
+    result += QuickInfoHelper.toString(this, "categories", m_Categories, ", categories: ");
+
+    return result;
   }
 
   /**
