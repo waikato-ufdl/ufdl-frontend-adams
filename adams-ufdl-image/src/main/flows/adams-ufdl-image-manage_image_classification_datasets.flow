@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-25 15:31:38
+# Date: 2020-06-25 16:09:50
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -32,18 +32,17 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
    adams.flow.control.Tee -name "get label"
     adams.flow.transformer.GetReportValue -field Classification[S]
     adams.flow.transformer.SetVariable -var-name category
+   adams.flow.control.Tee -name "get interaction"
+    adams.flow.transformer.GetReportValue -field interaction-log[S]
+    adams.flow.transformer.SetStorageValue -storage-name metadata
    adams.flow.control.Trigger -name add
     adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
     adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{file} -category @{category}"
     adams.flow.control.Trigger -name info
      adams.flow.source.CombineVariables -expression "added to dataset @{dataset_pk}: @{file}" -conversion adams.data.conversion.StringToString
      adams.flow.sink.CallableSink -callable Info
-   adams.flow.control.Trigger -name "add metadata"
+   adams.flow.control.Trigger -name "add interaction as metadata"
     adams.flow.source.Variable -var-name file -conversion adams.data.conversion.StringToString
-    adams.flow.control.Tee -name "image name"
-     adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractImageNameFromFile
-     adams.flow.transformer.SetVariable -var-name image
-    adams.flow.transformer.SetStorageValue -storage-name metadata
     adams.flow.control.Trigger -name "add metadata to file"
      adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageClassificationMetadataForImage -name @{image}"
@@ -145,45 +144,59 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
        adams.flow.transformer.CallableTransformer -callable "buttons or combobox for categories?"
        adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles
        adams.flow.transformer.SpreadSheetSelectSubset -message "Please select images to update" -allow-search true
-       adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
-       adams.flow.control.Trigger -name "load categories"
-        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationCategoriesForImage -name @{image}"
-        adams.flow.transformer.CollectionToArray
-        adams.flow.transformer.StringJoin -glue ,
-        adams.flow.transformer.SetVariable -var-name current_categories
-       adams.flow.control.Trigger -name "update image"
-        adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
-        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-        adams.flow.transformer.SetStorageValue -storage-name dataset
-        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationFile -name @{image} -output-file @{output_file}"
-        adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
-        adams.flow.transformer.SetReportValue -field Classification[S] -value @{current_categories}
-        adams.flow.control.Cast
-        adams.flow.transformer.ImageLabeler -x -2 -y -2 -label @{categories} -use-buttons @{use_buttons} -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
-        adams.flow.control.Tee -name "get label"
-         adams.flow.transformer.GetReportValue -field Classification[S]
-         adams.flow.transformer.SetStorageValue -storage-name metadata
-        adams.flow.control.Trigger -name "add metadata to file"
-         adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
-         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageClassificationMetadataForImage -name @{image}"
+       adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
+        adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
+        adams.flow.control.Trigger -name "load categories"
+         adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationCategoriesForImage -name @{image}"
+         adams.flow.transformer.CollectionToArray
+         adams.flow.transformer.StringJoin -glue " "
+         adams.flow.transformer.SetVariable -var-name current_categories
+        adams.flow.control.Trigger -name "load interactions from metadata"
+         adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationMetadataForImage -name @{image}"
+         adams.flow.transformer.SetVariable -var-name interaction
+        adams.flow.control.Trigger -name "update image"
+         adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
+         adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+         adams.flow.transformer.SetStorageValue -storage-name dataset
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationFile -name @{image} -output-file @{output_file}"
+         adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
+         adams.flow.transformer.SetReportValue -name "set label" -field Classification[S] -value @{current_categories}
+         adams.flow.transformer.SetReportValue -name "set interaction log" -field interaction-log[S] -value @{interaction}
+         adams.flow.control.Cast
+         adams.flow.transformer.ImageLabeler -x -2 -y -2 -label @{categories} -use-buttons @{use_buttons} -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
+         adams.flow.control.Tee -name "get label"
+          adams.flow.transformer.GetReportValue -field Classification[S]
+          adams.flow.transformer.SetVariable -var-name category
+         adams.flow.control.Trigger -name "update labels"
+          adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+          adams.flow.transformer.UFDLTransformer -name "remove old" -action "adams.flow.transformer.ufdl.DeleteImageClassificationCategories -name @{image} -category @{current_categories}"
+          adams.flow.transformer.UFDLTransformer -name "add new" -action "adams.flow.transformer.ufdl.AddImageClassificationCategories -name @{image} -category @{category}"
+         adams.flow.control.Tee -name "get interaction"
+          adams.flow.transformer.GetReportValue -field interaction-log[S]
+          adams.flow.transformer.SetStorageValue -storage-name metadata
+         adams.flow.control.Trigger -name "add interaction as metadata"
+          adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageClassificationMetadataForImage -name @{image}"
       adams.flow.control.Trigger -name "delete images"
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
        adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles
        adams.flow.transformer.SpreadSheetSelectSubset -message "Please select images to delete" -allow-search true
-       adams.flow.control.Tee -name "# images"
-        adams.flow.transformer.SpreadSheetInfo
-        adams.flow.transformer.SetVariable -var-name num_images
-       adams.flow.control.ConditionalTee -name "delete images?" -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_images} images?\""
-        adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
-        adams.flow.control.Trigger -name "delete image"
-         adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteImageClassificationFile -name @{image}"
-         adams.flow.transformer.SetVariable -var-name success
-         adams.flow.control.Trigger -name "output success"
-          adams.flow.source.CombineVariables -expression "@{image}: @{success}" -conversion adams.data.conversion.StringToString
-          adams.flow.transformer.StringInsert -position first -value "deleted (@{dataset_pk}): " -variable true
-          adams.flow.sink.CallableSink -callable Info
+       adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
+        adams.flow.control.Tee -name "# images"
+         adams.flow.transformer.SpreadSheetInfo
+         adams.flow.transformer.SetVariable -var-name num_images
+        adams.flow.control.ConditionalTee -name "delete images?" -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_images} images?\""
+         adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
+         adams.flow.control.Trigger -name "delete image"
+          adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteImageClassificationFile -name @{image}"
+          adams.flow.transformer.SetVariable -var-name success
+          adams.flow.control.Trigger -name "output success"
+           adams.flow.source.CombineVariables -expression "@{image}: @{success}" -conversion adams.data.conversion.StringToString
+           adams.flow.transformer.StringInsert -position first -value "deleted (@{dataset_pk}): " -variable true
+           adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Tee -name "clear output"
        adams.flow.transformer.CallableTransformer -callable "clear output"
       adams.flow.control.Trigger -name return
@@ -205,36 +218,43 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
      adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles
      adams.flow.transformer.SpreadSheetSelectSubset -message "Please select image(s) to view"
-     adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
-     adams.flow.control.Trigger -name "load categories"
-      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationCategoriesForImage -name @{image}"
-      adams.flow.transformer.CollectionToArray
-      adams.flow.transformer.StringJoin -glue ,
-      adams.flow.transformer.SetVariable -var-name current_categories
-     adams.flow.control.Trigger -name "load image"
-      adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
-      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationFile -name @{image} -output-file @{output_file}"
-      adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
-      adams.flow.transformer.SetReportValue -field Classification[S] -value @{current_categories}
-      adams.flow.control.Cast
-      adams.flow.sink.CallableSink -callable Images
+     adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
+      adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
+      adams.flow.control.Trigger -name "load categories"
+       adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationCategoriesForImage -name @{image}"
+       adams.flow.transformer.CollectionToArray
+       adams.flow.transformer.StringJoin -glue " "
+       adams.flow.transformer.SetVariable -var-name current_categories
+      adams.flow.control.Trigger -name "load interactions from metadata"
+       adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationMetadataForImage -name @{image}"
+       adams.flow.transformer.SetVariable -var-name interaction
+      adams.flow.control.Trigger -name "load image"
+       adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
+       adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationFile -name @{image} -output-file @{output_file}"
+       adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
+       adams.flow.transformer.SetReportValue -name "set category" -field Classification[S] -value @{current_categories}
+       adams.flow.transformer.SetReportValue -name "set interaction log" -field interaction-log[S] -value @{interaction}
+       adams.flow.control.Cast
+       adams.flow.sink.CallableSink -callable Images
    adams.flow.control.Trigger -name delete -annotation "TODO: allow hard delete"
     adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListImageClassificationDatasets
     adams.flow.transformer.SpreadSheetSelectSubset -message "Please select dataset(s) to delete" -allow-search true
-    adams.flow.control.Tee -name "# datasets"
-     adams.flow.transformer.SpreadSheetInfo
-     adams.flow.transformer.SetVariable -var-name num_datasets
-    adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_datasets} dataset(s)?\""
-     adams.flow.transformer.SpreadSheetVariableRowIterator
-     adams.flow.control.Trigger -name "delete dataset"
-      adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-      adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteImageClassificationDataset
-      adams.flow.transformer.SetVariable -var-name success
-      adams.flow.control.Trigger -name output
-       adams.flow.source.CombineVariables -expression "@{name}/@{pk}: @{success}" -conversion adams.data.conversion.StringToString
-       adams.flow.sink.CallableSink -callable Info
+    adams.flow.control.ConditionalTee -name "delete datasets" -condition adams.flow.condition.bool.HasRows
+     adams.flow.control.Tee -name "# datasets"
+      adams.flow.transformer.SpreadSheetInfo
+      adams.flow.transformer.SetVariable -var-name num_datasets
+     adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_datasets} dataset(s)?\""
+      adams.flow.transformer.SpreadSheetVariableRowIterator
+      adams.flow.control.Trigger -name "delete dataset"
+       adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
+       adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteImageClassificationDataset
+       adams.flow.transformer.SetVariable -var-name success
+       adams.flow.control.Trigger -name output
+        adams.flow.source.CombineVariables -expression "@{name}/@{pk}: @{success}" -conversion adams.data.conversion.StringToString
+        adams.flow.sink.CallableSink -callable Info
    adams.flow.control.Trigger -name download
     adams.flow.source.Start
     adams.flow.control.Trigger -name "prompt user"
