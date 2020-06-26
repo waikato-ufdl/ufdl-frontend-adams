@@ -1,18 +1,21 @@
 # Project: adams
-# Date: 2020-06-26 14:41:41
+# Date: 2020-06-26 16:14:10
 # User: fracpete
 # Charset: UTF-8
-# Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
+# Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
 #
 adams.flow.control.Flow -annotation "Allows users to manage image classification datasets.\\nUses host/user/password from the global UFDL Preferences.\\nAssumes that users/teams/projects have been set up already." -error-handling ACTORS_DECIDE_TO_STOP_ON_ERROR -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
  adams.flow.standalone.CallableActors
   adams.flow.sink.Display -name Info -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
+  adams.flow.sink.HistoryDisplay -name Errors -short-title true -display-type adams.flow.core.displaytype.Default -y -3
   adams.flow.sink.SpreadSheetDisplay -name Current -short-title true -display-type adams.flow.core.displaytype.Default -x -3 -cell-rendering-customizer adams.gui.core.spreadsheettable.DefaultCellRenderingCustomizer -allow-search true -writer adams.data.io.output.NullWriter
   adams.flow.sink.ProgressBar -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -max @{max}
   adams.flow.sink.DisplayPanelManager -name Images -display-type adams.flow.core.displaytype.Default -width 800 -height 600 -provider "adams.flow.sink.ImageViewer -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -zoom -1.0 -show-properties true -selection-processor adams.gui.visualization.image.selection.NullProcessor -left-click-processor adams.gui.visualization.image.leftclick.NullProcessor -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -image-overlay adams.gui.visualization.image.NullOverlay" -entry-name-variable image -allow-search true
   adams.flow.control.Tee -name "clear output"
    adams.flow.control.ClearCallableDisplay -name "clear info" -callable Info
+   adams.flow.control.ClearCallableDisplay -name "clear errors" -callable Errors
    adams.flow.control.CloseCallableDisplay -name "close info" -callable Info
+   adams.flow.control.CloseCallableDisplay -name "close errors" -callable Errors
    adams.flow.control.CloseCallableDisplay -name "close progress" -callable ProgressBar
    adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
    adams.flow.control.CloseCallableDisplay -name "close images" -callable Images
@@ -55,6 +58,29 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.transformer.SetVariable -name else -var-name use_buttons -var-value true
  adams.flow.standalone.UFDLConnection
  adams.flow.standalone.SetVariable -name initialize -var-name show_main_menu -var-value true
+ adams.flow.standalone.QueueInit -storage-name errors
+ adams.flow.standalone.SetVariable -name "log file" -var-name logfile -var-value @{flow_filename_long}.log -value-type FILE_FORWARD_SLASHES -expand-value true
+ adams.flow.standalone.Rats
+  adams.flow.standalone.Rat -name "error queue" -receiver "adams.flow.standalone.rats.input.DeQueue -storage-name errors" -transmitter adams.flow.standalone.rats.output.DummyOutput -log-generator adams.flow.standalone.rats.log.LogEntryGenerator -scope-handling-variables COPY -scope-handling-storage SHARE
+   adams.flow.control.Tee -name "get error"
+    adams.flow.transformer.Convert -conversion adams.data.conversion.TextContainerToString
+    adams.flow.transformer.StringIndent -indentation " " -num-times 4
+    adams.flow.transformer.SetVariable -var-name error
+   adams.flow.control.Tee -name "get actor"
+    adams.flow.transformer.GetReportValue -field Actor[S]
+    adams.flow.transformer.SetVariable -var-name actor
+   adams.flow.control.Tee -name "get action"
+    adams.flow.transformer.GetReportValue -field Action[S]
+    adams.flow.transformer.SetVariable -var-name action
+   adams.flow.control.Tee -name "get timestamp"
+    adams.flow.transformer.GetReportValue -field Timestamp[S]
+    adams.flow.transformer.SetVariable -var-name timestamp
+   adams.flow.control.Trigger -name "add to log file"
+    adams.flow.source.CombineVariables -expression "\\n@{timestamp}\\n  actor: @{actor}\\n  action: @{action}\\n  error: \\n@{error}" -conversion adams.data.conversion.StringToString
+    adams.flow.sink.DumpFile -output @{logfile} -append true
+   adams.flow.control.Trigger -name "display error"
+    adams.flow.source.CombineVariables -expression "@{timestamp}\\n  actor: @{actor}\\n  action: @{action}\\n  error: \\n@{error}" -conversion adams.data.conversion.StringToString
+    adams.flow.sink.CallableSink -callable Errors
  adams.flow.source.Start
  adams.flow.control.WhileLoop -name "main menu loop" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name show_main_menu"
   adams.flow.source.Start
@@ -66,7 +92,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
    adams.flow.control.Trigger -name create
     adams.flow.source.Start
     adams.flow.control.Trigger -name "list current datasets"
-     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListImageClassificationDatasets -state ANY"
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListImageClassificationDatasets -state ANY" -use-error-queue true
      adams.flow.sink.CallableSink -callable Current
     adams.flow.control.Trigger -name "prompt user"
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
@@ -81,7 +107,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.control.CloseCallableDisplay -callable Current
     adams.flow.control.Trigger -name "check whether dataset name already exists"
      adams.flow.standalone.SetVariable -name reset -var-name exists -var-value false
-     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListImageClassificationDatasets -state ANY"
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListImageClassificationDatasets -state ANY" -use-error-queue true
      adams.flow.transformer.SpreadSheetRowFilter -finder "adams.data.spreadsheet.rowfinder.ByStringComparison -att-index name -minimum @{dataset_name} -minimum-included true -maximum @{dataset_name} -maximum-included true"
      adams.flow.control.ConditionalTee -name exists? -condition adams.flow.condition.bool.HasRows
       adams.flow.transformer.SetVariable -var-name exists -var-value true
@@ -90,9 +116,9 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.sink.InformationDialog -title "Dataset exists already"
     adams.flow.control.Block -name "Block if exists" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name exists"
     adams.flow.control.Trigger -name "create dataset"
-     adams.flow.source.UFDLSource -stop-flow-on-error true -action "adams.flow.source.ufdl.CreateImageClassificationDataset -name @{dataset_name} -project @{project_pk} -licence @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}"
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateImageClassificationDataset -name @{dataset_name} -project @{project_pk} -licence @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}" -use-error-queue true
      adams.flow.transformer.SetStorageValue -storage-name dataset
-    adams.flow.transformer.CallableTransformer -callable "add files"
+     adams.flow.transformer.CallableTransformer -callable "add files"
    adams.flow.control.Trigger -name update
     adams.flow.standalone.SetVariable -name initialize -var-name show_update_menu -var-value true
     adams.flow.source.Start
@@ -139,19 +165,19 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
         adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
         adams.flow.control.Trigger -name "load categories"
          adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationCategoriesForImage -name @{image}"
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationCategoriesForImage -name @{image}" -use-error-queue true
          adams.flow.transformer.CollectionToArray
          adams.flow.transformer.StringJoin -glue " "
          adams.flow.transformer.SetVariable -var-name current_categories
         adams.flow.control.Trigger -name "load interactions from metadata"
          adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationMetadataForImage -name @{image}"
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationMetadataForImage -name @{image}" -use-error-queue true
          adams.flow.transformer.SetVariable -var-name interaction
         adams.flow.control.Trigger -name "update image"
          adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
          adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
          adams.flow.transformer.SetStorageValue -storage-name dataset
-         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationFile -name @{image} -output-file @{output_file}"
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationFile -name @{image} -output-file @{output_file}" -use-error-queue true
          adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
          adams.flow.transformer.SetReportValue -name "set label" -field Classification[S] -value @{current_categories}
          adams.flow.transformer.SetReportValue -name "set interaction log" -field interaction-log[S] -value @{interaction}
@@ -169,10 +195,10 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
           adams.flow.transformer.SetStorageValue -storage-name metadata
          adams.flow.control.Trigger -name "add interaction as metadata"
           adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
-          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageClassificationMetadataForImage -name @{image}"
+          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageClassificationMetadataForImage -name @{image}" -use-error-queue true
       adams.flow.control.Trigger -name "delete images"
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-       adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles
+       adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles -use-error-queue true
        adams.flow.transformer.SpreadSheetSelectSubset -message "Please select images to delete" -allow-search true
        adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
         adams.flow.control.Tee -name "# images"
@@ -204,31 +230,31 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
     adams.flow.control.Trigger -name "view selected dataset"
      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-     adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles
+     adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles -use-error-queue true
      adams.flow.transformer.SpreadSheetSelectSubset -message "Please select image(s) to view"
      adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
       adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
       adams.flow.control.Trigger -name "load categories"
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationCategoriesForImage -name @{image}"
+       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationCategoriesForImage -name @{image}" -use-error-queue true
        adams.flow.transformer.CollectionToArray
        adams.flow.transformer.StringJoin -glue " "
        adams.flow.transformer.SetVariable -var-name current_categories
       adams.flow.control.Trigger -name "load interactions from metadata"
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationMetadataForImage -name @{image}"
+       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationMetadataForImage -name @{image}" -use-error-queue true
        adams.flow.transformer.SetVariable -var-name interaction
       adams.flow.control.Trigger -name "load image"
        adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationFile -name @{image} -output-file @{output_file}"
+       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationFile -name @{image} -output-file @{output_file}" -use-error-queue true
        adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
        adams.flow.transformer.SetReportValue -name "set category" -field Classification[S] -value @{current_categories}
        adams.flow.transformer.SetReportValue -name "set interaction log" -field interaction-log[S] -value @{interaction}
        adams.flow.control.Cast
        adams.flow.sink.CallableSink -callable Images
    adams.flow.control.Trigger -name delete -annotation "TODO: allow hard delete"
-    adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListImageClassificationDatasets
+    adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListImageClassificationDatasets -use-error-queue true
     adams.flow.transformer.SpreadSheetSelectSubset -message "Please select dataset(s) to delete" -allow-search true
     adams.flow.control.ConditionalTee -name "delete datasets" -condition adams.flow.condition.bool.HasRows
      adams.flow.control.Tee -name "# datasets"
@@ -238,7 +264,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
       adams.flow.transformer.SpreadSheetVariableRowIterator
       adams.flow.control.Trigger -name "delete dataset"
        adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-       adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteImageClassificationDataset
+       adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteImageClassificationDataset -use-error-queue true
        adams.flow.transformer.SetVariable -var-name success
        adams.flow.control.Trigger -name output
         adams.flow.source.CombineVariables -expression "@{name}/@{pk}: @{success}" -conversion adams.data.conversion.StringToString
@@ -256,7 +282,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.control.Trigger -name "download selected dataset"
      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
      adams.flow.control.Tee -name download
-      adams.flow.sink.UFDLSink -action "adams.flow.sink.ufdl.DownloadImageClassificationDataset -parameters @{parameters} -output-file @{output_file}"
+      adams.flow.sink.UFDLSink -action "adams.flow.sink.ufdl.DownloadImageClassificationDataset -parameters @{parameters} -output-file @{output_file}" -use-error-queue true
      adams.flow.control.ConditionalTrigger -name display? -condition "adams.flow.condition.bool.Expression -expression \"@{display_in_filebrowser} = true\""
       adams.flow.source.Variable -var-name output_file -conversion adams.data.conversion.StringToString
       adams.flow.sink.FileBrowser
