@@ -1,0 +1,108 @@
+% This work is made available under the terms of the
+% Creative Commons Attribution-ShareAlike 4.0 license,
+% http://creativecommons.org/licenses/by-sa/4.0/.
+
+\documentclass[a4paper]{book}
+
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{scalefnt}
+\usepackage{tikz}
+
+% watermark -- for draft stage
+%\usepackage[firstpage]{draftwatermark}
+%\SetWatermarkLightness{0.9}
+%\SetWatermarkScale{5}
+
+\input{latex_extensions}
+
+\title{
+  \textbf{ADAMS} \\
+  {\Large \textbf{A}dvanced \textbf{D}ata mining \textbf{A}nd \textbf{M}achine
+  learning \textbf{S}ystem} \\
+  {\Large Module: adams-ufdl-speech} \\
+  \vspace{1cm}
+  \includegraphics[width=2cm]{images/ufdl-speech-module.png} \\
+}
+\author{
+  Peter Reutemann
+}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\begin{document}
+
+\begin{titlepage}
+\maketitle
+
+\thispagestyle{empty}
+\center
+\begin{table}[b]
+	\begin{tabular}{c l l}
+		\parbox[c][2cm]{2cm}{\copyright 2020} &
+		\parbox[c][2cm]{5cm}{\includegraphics[width=5cm]{images/coat_of_arms.pdf}} \\
+	\end{tabular}
+	\includegraphics[width=12cm]{images/cc.png} \\
+\end{table}
+
+\end{titlepage}
+
+\tableofcontents
+%\listoffigures
+%\listoftables
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{UFDL}
+UFDL, or user-friendly deep-learning, enables users with little or no deep-learning
+expertise to maintain datasets for deep-learning tasks such as speech
+and object detection and also build deep-learnings models using these.
+
+This ADAMS module focuses on speech processing tasks.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Flow}
+
+The following conversions are available:
+\begin{tight_itemize}
+  \item \textit{UFDLSpeechDatasetFilesToSpreadSheet} -- turns the files and transcripts of a speed dataset into a spreadsheet
+  \item \textit{UFDLSpeechDatasetToSpreadSheet} -- turns a speech dataset into a spreadsheet
+\end{tight_itemize}
+
+\section{Actions}
+The following sink actions can be used:
+\begin{tight_itemize}
+  \item \textit{DownloadSpeechDataset} -- downloads a speech dataset
+\end{tight_itemize}
+The following source actions can be used:
+\begin{tight_itemize}
+  \item \textit{CreateSpeechDatasets} -- creates a speech dataset
+  \item \textit{ListSpeechDatasets} -- lists speech datasets
+\end{tight_itemize}
+The following transformer actions can be used:
+\begin{tight_itemize}
+  \item \textit{AddSpeechFile} -- adds files to a speech dataset
+  \item \textit{DeleteSpeechDataset} -- removes the specified speech dataset
+  \item \textit{DeleteSpeechFile} -- removes the specified files from a speech dataset
+  \item \textit{GetSpeechFile} -- retrieves a file from a speech dataset via its name
+  \item \textit{GetSpeechMetadataForFile} -- retrieves the metadata for an file of a speech dataset via its name
+  \item \textit{GetSpeechTranscripts} -- retrieves the map of file/transcripts for a dataset
+  \item \textit{GetSpeechTranscriptForFile} -- retrieves the transcript of a file from a dataset
+  \item \textit{ListSpeechFiles} -- lists all the files in a speech dataset
+  \item \textit{SetSpeechMetadataForFile} -- sets the metadata of an file in an object detection dataset
+  \item \textit{SetSpeechTranscriptForFile} -- sets the metadata of an file in an object detection dataset
+\end{tight_itemize}
+
+\section{EnterManyValues extensions}
+The following extensions of value definitions used by the \textit{EnterManyValues}
+source make it easier for users to select PKs:
+\begin{tight_itemize}
+  \item \textit{UFDLSpeechDatasetList} -- for selecting a speech dataset
+\end{tight_itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{bibliography}
+
+\end{document}

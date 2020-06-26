@@ -14,26 +14,30 @@
  */
 
 /*
- * LicenseList.java
+ * UFDLSpeechDatasetList.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.source.valuedefinition;
 
+import adams.core.ClassCrossReference;
+import adams.flow.transformer.UFDLExtractAndTransferPK;
 import com.github.fracpete.javautils.struct.Struct2;
-import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
+import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
+import com.github.waikatoufdl.ufdl4j.action.SpeechDatasets;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
 /**
- * For selecting a license.
+ * For selecting a UFDL speech dataset.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class LicenseList
-  extends AbstractUFDLListValueDefinition {
+public class UFDLSpeechDatasetList
+  extends AbstractUFDLSoftDeleteListValueDefinition
+  implements ClassCrossReference {
 
   private static final long serialVersionUID = 4093023607556720026L;
 
@@ -44,7 +48,17 @@ public class LicenseList
    */
   @Override
   public String globalInfo() {
-    return "For selecting a license.";
+    return "For selecting a speech dataset.";
+  }
+
+  /**
+   * Returns the cross-referenced classes.
+   *
+   * @return		the classes
+   */
+  @Override
+  public Class[] getClassCrossReferences() {
+    return new Class[]{UFDLExtractAndTransferPK.class};
   }
 
   /**
@@ -55,15 +69,20 @@ public class LicenseList
   @Override
   protected List<Struct2<Integer, String>> listItems() {
     List<Struct2<Integer, String>>	result;
+    SpeechDatasets  	action;
 
     result = new ArrayList<>();
 
     try {
-      for (License license : m_Connection.getClient().licenses().list())
-        result.add(new Struct2<>(license.getPK(), license.getName()));
+      action = m_Connection.getClient().action(SpeechDatasets.class);
+      for (Dataset dataset : action.list()) {
+        if (!m_State.accept(dataset))
+          continue;
+        result.add(new Struct2<>(dataset.getPK(), dataset.getName()));
+      }
     }
     catch (Exception e) {
-      getLogger().log(Level.SEVERE, "Failed to retrieve list of licenses!", e);
+      getLogger().log(Level.SEVERE, "Failed to retrieve list of speech datasets!", e);
     }
 
     return result;

@@ -14,26 +14,29 @@
  */
 
 /*
- * TeamList.java
+ * UFDLDatasetList.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.source.valuedefinition;
 
+import adams.core.ClassCrossReference;
+import adams.flow.transformer.UFDLExtractAndTransferPK;
 import com.github.fracpete.javautils.struct.Struct2;
-import com.github.waikatoufdl.ufdl4j.action.Teams.Team;
+import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
 /**
- * For selecting a team.
+ * For selecting a UFDL dataset.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class TeamList
-  extends AbstractUFDLSoftDeleteListValueDefinition {
+public class UFDLDatasetList
+  extends AbstractUFDLSoftDeleteListValueDefinition
+  implements ClassCrossReference {
 
   private static final long serialVersionUID = 4093023607556720026L;
 
@@ -44,7 +47,17 @@ public class TeamList
    */
   @Override
   public String globalInfo() {
-    return "For selecting a team.";
+    return "For selecting a UFDL dataset.";
+  }
+
+  /**
+   * Returns the cross-referenced classes.
+   *
+   * @return		the classes
+   */
+  @Override
+  public Class[] getClassCrossReferences() {
+    return new Class[]{UFDLExtractAndTransferPK.class};
   }
 
   /**
@@ -59,14 +72,14 @@ public class TeamList
     result = new ArrayList<>();
 
     try {
-      for (Team team : m_Connection.getClient().teams().list()) {
-        if (!m_State.accept(team))
+      for (Dataset dataset : m_Connection.getClient().datasets().list()) {
+        if (!m_State.accept(dataset))
           continue;
-        result.add(new Struct2<>(team.getPK(), team.getName()));
+        result.add(new Struct2<>(dataset.getPK(), dataset.getName()));
       }
     }
     catch (Exception e) {
-      getLogger().log(Level.SEVERE, "Failed to retrieve list of teams!", e);
+      getLogger().log(Level.SEVERE, "Failed to retrieve list of datasets!", e);
     }
 
     return result;

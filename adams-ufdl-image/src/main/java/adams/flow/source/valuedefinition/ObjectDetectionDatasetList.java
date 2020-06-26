@@ -20,6 +20,8 @@
 
 package adams.flow.source.valuedefinition;
 
+import adams.core.ClassCrossReference;
+import adams.flow.transformer.UFDLExtractAndTransferPK;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
@@ -34,7 +36,8 @@ import java.util.logging.Level;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class ObjectDetectionDatasetList
-  extends AbstractUFDLSoftDeleteListValueDefinition {
+  extends AbstractUFDLSoftDeleteListValueDefinition
+  implements ClassCrossReference {
 
   private static final long serialVersionUID = 4093023607556720026L;
 
@@ -46,6 +49,16 @@ public class ObjectDetectionDatasetList
   @Override
   public String globalInfo() {
     return "For selecting an object detection dataset.";
+  }
+
+  /**
+   * Returns the cross-referenced classes.
+   *
+   * @return		the classes
+   */
+  @Override
+  public Class[] getClassCrossReferences() {
+    return new Class[]{UFDLExtractAndTransferPK.class};
   }
 
   /**

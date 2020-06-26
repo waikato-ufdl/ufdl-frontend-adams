@@ -26,7 +26,7 @@ import adams.core.Utils;
 import adams.core.base.BaseObject;
 import adams.core.base.BaseString;
 import adams.core.io.PlaceholderFile;
-import adams.flow.core.ufdl.ImageNameExtraction;
+import adams.flow.core.UFDLFileNameExtraction;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
 
@@ -48,7 +48,7 @@ public class AddImageClassificationFile
   protected PlaceholderFile[] m_Files;
 
   /** how to extract the name of the file. */
-  protected ImageNameExtraction m_ImageNameExtraction;
+  protected UFDLFileNameExtraction m_ImageNameExtraction;
 
   /** the categories to assign to each image. */
   protected BaseString[] m_Categories;
@@ -76,7 +76,7 @@ public class AddImageClassificationFile
 
     m_OptionManager.add(
       "image-name-extraction", "imageNameExtraction",
-      ImageNameExtraction.NAME);
+      UFDLFileNameExtraction.NAME);
 
     m_OptionManager.add(
       "category", "categories",
@@ -117,7 +117,7 @@ public class AddImageClassificationFile
    *
    * @param value	the extraction type
    */
-  public void setImageNameExtraction(ImageNameExtraction value) {
+  public void setImageNameExtraction(UFDLFileNameExtraction value) {
     m_ImageNameExtraction = value;
     reset();
   }
@@ -127,7 +127,7 @@ public class AddImageClassificationFile
    *
    * @return		the extraction type
    */
-  public ImageNameExtraction getImageNameExtraction() {
+  public UFDLFileNameExtraction getImageNameExtraction() {
     return m_ImageNameExtraction;
   }
 

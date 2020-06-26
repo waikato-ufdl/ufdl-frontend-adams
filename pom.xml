@@ -39,6 +39,7 @@
   <modules>
     <module>adams-ufdl-core</module>
     <module>adams-ufdl-image</module>
+    <module>adams-ufdl-speech</module>
     <module>adams-ufdl-all</module>
   </modules>
 

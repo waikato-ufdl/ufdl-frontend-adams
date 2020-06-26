@@ -14,11 +14,11 @@
  */
 
 /*
- * ImageNameExtraction.java
+ * UFDLFileNameExtraction.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
-package adams.flow.core.ufdl;
+package adams.flow.core;
 
 import adams.core.io.FileUtils;
 import adams.core.io.PlaceholderFile;
@@ -26,11 +26,11 @@ import adams.core.io.PlaceholderFile;
 import java.io.File;
 
 /**
- * How to extract image names.
+ * How to extract file names.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public enum ImageNameExtraction {
+public enum UFDLFileNameExtraction {
   /** just the name. */
   NAME,
   /** name and parent dir. */

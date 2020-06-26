@@ -73,6 +73,8 @@ The following sources can be used:
 \end{tight_itemize}
 The following transformers can be used:
 \begin{tight_itemize}
+  \item \textit{UFDLExtractAndTransferPK} -- extracts the primary key of a list item
+  in a variable and transfers it into another variable.
   \item \textit{UFDLTransformer} -- uses the specified UFDL transform action to process data.
 \end{tight_itemize}
 The following sinks can be used:
@@ -119,17 +121,18 @@ The following sink actions can be used:
 The following extensions of value definitions used by the \textit{EnterManyValues}
 source make it easier for users to select PKs:
 \begin{tight_itemize}
-  \item \textit{DatasetList} -- for selecting a dataset
-  \item \textit{LicenseList} -- for selecting a license
-  \item \textit{ProjectList} -- for selecting a project
-  \item \textit{TeamList} -- for selecting a team
-  \item \textit{UserList} -- for selecting a user
+  \item \textit{UFDLDatasetList} -- for selecting a dataset
+  \item \textit{UFDLLicenseList} -- for selecting a license
+  \item \textit{UFDLProjectList} -- for selecting a project
+  \item \textit{UFDLTeamList} -- for selecting a team
+  \item \textit{UFDLUserList} -- for selecting a user
 \end{tight_itemize}
 
 \section{Conversions}
 The following conversions are available:
 \begin{tight_itemize}
   \item \textit{UFDLDatasetToSpreadSheet} -- converts the UFDL project information to a spreadsheet.
+  \item \textit{UFDLExtractFileNameFromFile} -- converts a file name into an name used in datasets
   \item \textit{UFDLExtractListItemPK} -- extracts the PK from a list item output by \textit{EnterManyValues}.
   \item \textit{UFDLJsonObjectToString} -- converts a UFDL object that wraps a JSON object into a JSON string.
   \item \textit{UFDLLogEntryToSpreadSheet} -- converts a UFDL log entry into a spreadsheet.

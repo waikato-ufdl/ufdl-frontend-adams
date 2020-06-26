@@ -14,27 +14,27 @@
  */
 
 /*
- * UFDLExtractImageNameFromFile.java
+ * UFDLExtractFileNameFromFile.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
 
 import adams.core.io.PlaceholderFile;
-import adams.flow.core.ufdl.ImageNameExtraction;
+import adams.flow.core.UFDLFileNameExtraction;
 
 /**
  * Converts a file into a name used in datasets.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class UFDLExtractImageNameFromFile
+public class UFDLExtractFileNameFromFile
   extends AbstractStringConversion {
 
   private static final long serialVersionUID = 2239463804853893127L;
 
   /** how to extract the name of the file. */
-  protected ImageNameExtraction m_ImageNameExtraction;
+  protected UFDLFileNameExtraction m_FileNameExtraction;
 
   /**
    * Returns a string describing the object.
@@ -54,27 +54,27 @@ public class UFDLExtractImageNameFromFile
     super.defineOptions();
 
     m_OptionManager.add(
-      "image-name-extraction", "imageNameExtraction",
-      ImageNameExtraction.NAME);
+      "file-name-extraction", "fileNameExtraction",
+      UFDLFileNameExtraction.NAME);
   }
 
   /**
-   * Sets how to extract the image name from the file name.
+   * Sets how to extract the name from the file name.
    *
    * @param value	the extraction type
    */
-  public void setImageNameExtraction(ImageNameExtraction value) {
-    m_ImageNameExtraction = value;
+  public void setFileNameExtraction(UFDLFileNameExtraction value) {
+    m_FileNameExtraction = value;
     reset();
   }
 
   /**
-   * Returns how to extract the image name from the file name.
+   * Returns how to extract the name from the file name.
    *
    * @return		the extraction type
    */
-  public ImageNameExtraction getImageNameExtraction() {
-    return m_ImageNameExtraction;
+  public UFDLFileNameExtraction getFileNameExtraction() {
+    return m_FileNameExtraction;
   }
 
   /**
@@ -84,7 +84,7 @@ public class UFDLExtractImageNameFromFile
    * 			displaying in the GUI or for listing the options.
    */
   public String imageNameExtractionTipText() {
-    return "Determines how to generate the name of the image from its filename.";
+    return "Determines how to generate the name from the filename.";
   }
 
   /**
@@ -95,6 +95,6 @@ public class UFDLExtractImageNameFromFile
    */
   @Override
   protected Object doConvert() throws Exception {
-    return m_ImageNameExtraction.extract(new PlaceholderFile((String) m_Input));
+    return m_FileNameExtraction.extract(new PlaceholderFile((String) m_Input));
   }
 }

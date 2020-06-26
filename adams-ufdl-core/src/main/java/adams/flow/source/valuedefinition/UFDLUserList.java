@@ -14,26 +14,29 @@
  */
 
 /*
- * ProjectList.java
+ * UserList.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.source.valuedefinition;
 
+import adams.core.ClassCrossReference;
+import adams.flow.transformer.UFDLExtractAndTransferPK;
 import com.github.fracpete.javautils.struct.Struct2;
-import com.github.waikatoufdl.ufdl4j.action.Projects.Project;
+import com.github.waikatoufdl.ufdl4j.action.Users.User;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
 /**
- * For selecting a project.
+ * For selecting a UFDL user.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class ProjectList
-  extends AbstractUFDLSoftDeleteListValueDefinition {
+public class UFDLUserList
+  extends AbstractUFDLListValueDefinition
+  implements ClassCrossReference {
 
   private static final long serialVersionUID = 4093023607556720026L;
 
@@ -44,7 +47,17 @@ public class ProjectList
    */
   @Override
   public String globalInfo() {
-    return "For selecting a project.";
+    return "For selecting a UFDL user.";
+  }
+
+  /**
+   * Returns the cross-referenced classes.
+   *
+   * @return		the classes
+   */
+  @Override
+  public Class[] getClassCrossReferences() {
+    return new Class[]{UFDLExtractAndTransferPK.class};
   }
 
   /**
@@ -59,14 +72,11 @@ public class ProjectList
     result = new ArrayList<>();
 
     try {
-      for (Project project : m_Connection.getClient().projects().list()) {
-        if (!m_State.accept(project))
-          continue;
-        result.add(new Struct2<>(project.getPK(), project.getName()));
-      }
+      for (User user : m_Connection.getClient().users().list())
+        result.add(new Struct2<>(user.getPK(), user.getUserName()));
     }
     catch (Exception e) {
-      getLogger().log(Level.SEVERE, "Failed to retrieve list of projects!", e);
+      getLogger().log(Level.SEVERE, "Failed to retrieve list of users!", e);
     }
 
     return result;

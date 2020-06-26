@@ -11,7 +11,7 @@ adams.flow.control.Flow -annotation "Let\\\'s the user copy a dataset.\\nUses ho
  adams.flow.source.Start
  adams.flow.control.Trigger -name "prompt user"
   adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
-  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.DatasetList -name dataset -display Dataset -help \"the dataset to copy\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name new_name -display \"New name\" -help \"the name for the copy of the dataset\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.UFDLDatasetList -name dataset -display Dataset -help \"the dataset to copy\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name new_name -display \"New name\" -help \"the name for the copy of the dataset\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
   adams.flow.control.Tee -name "dataset PK"
    adams.flow.transformer.GetMapValue -key dataset
    adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK

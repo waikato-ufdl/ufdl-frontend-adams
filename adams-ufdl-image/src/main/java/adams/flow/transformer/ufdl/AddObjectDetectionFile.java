@@ -26,7 +26,7 @@ import adams.core.Utils;
 import adams.core.io.PlaceholderFile;
 import adams.flow.control.StorageName;
 import adams.flow.control.StorageUser;
-import adams.flow.core.ufdl.ImageNameExtraction;
+import adams.flow.core.UFDLFileNameExtraction;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
@@ -46,7 +46,7 @@ public class AddObjectDetectionFile
   protected PlaceholderFile m_File;
 
   /** how to extract the name of the file. */
-  protected ImageNameExtraction m_ImageNameExtraction;
+  protected UFDLFileNameExtraction m_ImageNameExtraction;
 
   /** the storage item with the annotations. */
   protected StorageName m_StorageName;
@@ -74,7 +74,7 @@ public class AddObjectDetectionFile
 
     m_OptionManager.add(
       "image-name-extraction", "imageNameExtraction",
-      ImageNameExtraction.NAME);
+      UFDLFileNameExtraction.NAME);
 
     m_OptionManager.add(
       "storage-name", "storageName",
@@ -115,7 +115,7 @@ public class AddObjectDetectionFile
    *
    * @param value	the extraction type
    */
-  public void setImageNameExtraction(ImageNameExtraction value) {
+  public void setImageNameExtraction(UFDLFileNameExtraction value) {
     m_ImageNameExtraction = value;
     reset();
   }
@@ -125,7 +125,7 @@ public class AddObjectDetectionFile
    *
    * @return		the extraction type
    */
-  public ImageNameExtraction getImageNameExtraction() {
+  public UFDLFileNameExtraction getImageNameExtraction() {
     return m_ImageNameExtraction;
   }
 

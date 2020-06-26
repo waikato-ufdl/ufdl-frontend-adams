@@ -14,26 +14,29 @@
  */
 
 /*
- * DatasetList.java
+ * ProjectList.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.source.valuedefinition;
 
+import adams.core.ClassCrossReference;
+import adams.flow.transformer.UFDLExtractAndTransferPK;
 import com.github.fracpete.javautils.struct.Struct2;
-import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
+import com.github.waikatoufdl.ufdl4j.action.Projects.Project;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
 /**
- * For selecting a dataset.
+ * For selecting a UFDL project.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class DatasetList
-  extends AbstractUFDLSoftDeleteListValueDefinition {
+public class UFDLProjectList
+  extends AbstractUFDLSoftDeleteListValueDefinition
+  implements ClassCrossReference {
 
   private static final long serialVersionUID = 4093023607556720026L;
 
@@ -44,7 +47,17 @@ public class DatasetList
    */
   @Override
   public String globalInfo() {
-    return "For selecting a dataset.";
+    return "For selecting a UFDL project.";
+  }
+
+  /**
+   * Returns the cross-referenced classes.
+   *
+   * @return		the classes
+   */
+  @Override
+  public Class[] getClassCrossReferences() {
+    return new Class[]{UFDLExtractAndTransferPK.class};
   }
 
   /**
@@ -59,14 +72,14 @@ public class DatasetList
     result = new ArrayList<>();
 
     try {
-      for (Dataset dataset : m_Connection.getClient().datasets().list()) {
-        if (!m_State.accept(dataset))
+      for (Project project : m_Connection.getClient().projects().list()) {
+        if (!m_State.accept(project))
           continue;
-        result.add(new Struct2<>(dataset.getPK(), dataset.getName()));
+        result.add(new Struct2<>(project.getPK(), project.getName()));
       }
     }
     catch (Exception e) {
-      getLogger().log(Level.SEVERE, "Failed to retrieve list of datasets!", e);
+      getLogger().log(Level.SEVERE, "Failed to retrieve list of projects!", e);
     }
 
     return result;
