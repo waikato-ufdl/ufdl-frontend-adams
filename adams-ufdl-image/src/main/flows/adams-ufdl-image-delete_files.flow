@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-05-20 15:50:49
+# Date: 2020-06-26 14:32:39
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -10,15 +10,9 @@ adams.flow.control.Flow -annotation "Deletes the sepcified files from a dataset 
  adams.flow.standalone.UFDLConnection
  adams.flow.source.Start
  adams.flow.control.Trigger -name "select dataset"
-  adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListDatasets
-  adams.flow.transformer.SpreadSheetSelectSubset -short-title true -message "Please select project" -allow-search true
-  adams.flow.control.Tee -name "# rows"
-   adams.flow.transformer.SpreadSheetInfo
-   adams.flow.transformer.SetVariable -var-name num_rows
-  adams.flow.control.ConditionalTee -name "not just one dataset selected?" -condition "adams.flow.condition.bool.Expression -expression \"@{num_rows} != 1\""
-   adams.flow.control.Stop -stop-msg "Exactly one dataset needs to get selected!"
-  adams.flow.transformer.SpreadSheetGetCell -col pk
-  adams.flow.transformer.SetVariable -var-name dataset_pk
+  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.UFDLDatasetList -name dataset -display Dataset" -output-type MAP
+  adams.flow.transformer.MapToVariables
+  adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
  adams.flow.control.Trigger -name "select images"
   adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
   adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles

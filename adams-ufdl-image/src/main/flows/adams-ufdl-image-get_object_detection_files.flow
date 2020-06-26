@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-24 14:42:08
+# Date: 2020-06-26 14:36:35
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -10,22 +10,16 @@ adams.flow.control.Flow -annotation "Retrieves the sepcified files from a datase
  adams.flow.standalone.UFDLConnection
  adams.flow.source.Start
  adams.flow.control.Trigger -name "select dataset"
-  adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListObjectDetectionDatasets
-  adams.flow.transformer.SpreadSheetSelectSubset -short-title true -message "Please select project" -allow-search true
-  adams.flow.control.Tee -name "# rows"
-   adams.flow.transformer.SpreadSheetInfo
-   adams.flow.transformer.SetVariable -var-name num_rows
-  adams.flow.control.ConditionalTee -name "not just one dataset selected?" -condition "adams.flow.condition.bool.Expression -expression \"@{num_rows} != 1\""
-   adams.flow.control.Stop -stop-msg "Exactly one dataset needs to get selected!"
-  adams.flow.transformer.SpreadSheetGetCell -col pk
-  adams.flow.transformer.SetVariable -var-name dataset_pk
+  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.UFDLObjectDetectionDatasetList -name dataset -display \"Dataset to download\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name format_params -display \"Format options\" -help \"the output parameters to pass on to wai.annotations\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name output -display \"Output file (zip or tar.gz)\" -type FILE_ABSOLUTE -use-forward-slashes true" -output-type MAP
+  adams.flow.transformer.MapToVariables
+  adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
  adams.flow.control.Trigger -name "select images"
   adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
   adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListObjectDetectionFiles
   adams.flow.transformer.SpreadSheetSelectSubset -message "Please select images to delete"
   adams.flow.transformer.SpreadSheetVariableRowIterator -lenient true
   adams.flow.transformer.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -value-type FILE_FORWARD_SLASHES -expand-value true
-  adams.flow.control.Trigger -name "retrieve meta-data"
+  adams.flow.control.Trigger -name "retrieve annotations"
    adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
    adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetObjectDetectionAnnotationsForImage -name @{image}"
    adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLAnnotationsToReport

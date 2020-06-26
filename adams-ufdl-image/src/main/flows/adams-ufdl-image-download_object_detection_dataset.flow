@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-15 14:11:09
+# Date: 2020-06-26 14:34:12
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -11,10 +11,7 @@ adams.flow.control.Flow -annotation "Let\\\'s the user choose an object detectio
   adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
   adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.UFDLObjectDetectionDatasetList -name dataset -display \"Dataset to download\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name format_params -display \"Format options\" -help \"the output parameters to pass on to wai.annotations\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name output -display \"Output file (zip or tar.gz)\" -type FILE_ABSOLUTE -use-forward-slashes true" -output-type MAP -restoration-enabled true -restoration-file @{restore}
   adams.flow.transformer.MapToVariables
-  adams.flow.control.Trigger -name "get dataset ID"
-   adams.flow.source.Variable -var-name dataset -conversion adams.data.conversion.StringToString
-   adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
-   adams.flow.transformer.SetVariable -var-name dataset_pk
+  adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
  adams.flow.control.Trigger -name "download dataset"
   adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
   adams.flow.sink.UFDLSink -action "adams.flow.sink.ufdl.DownloadObjectDetectionDataset -parameters @{format_params} -output-file @{output}"
