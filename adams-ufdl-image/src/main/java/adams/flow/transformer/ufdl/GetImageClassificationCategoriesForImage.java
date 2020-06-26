@@ -62,7 +62,7 @@ public class GetImageClassificationCategoriesForImage
   }
 
   /**
-   * Sets the name of the image to get the metadata for.
+   * Sets the name of the image to get the categories for.
    *
    * @param value 	the name
    */
@@ -72,7 +72,7 @@ public class GetImageClassificationCategoriesForImage
   }
 
   /**
-   * Returns the name of the image to get the metadata for.
+   * Returns the name of the image to get the categories for.
    *
    * @return 		the name
    */
@@ -87,7 +87,7 @@ public class GetImageClassificationCategoriesForImage
    * 			displaying in the GUI or for listing the options.
    */
   public String nameTipText() {
-    return "The name of the image to get the metadata for.";
+    return "The name of the image to get the categories for.";
   }
 
   /**
