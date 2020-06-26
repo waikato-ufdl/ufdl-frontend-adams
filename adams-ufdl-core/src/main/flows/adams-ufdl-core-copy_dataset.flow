@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-11 15:25:11
+# Date: 2020-06-26 14:14:27
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-net,adams-spreadsheet,adams-ufdl-core
@@ -12,10 +12,7 @@ adams.flow.control.Flow -annotation "Let\\\'s the user copy a dataset.\\nUses ho
  adams.flow.control.Trigger -name "prompt user"
   adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
   adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.UFDLDatasetList -name dataset -display Dataset -help \"the dataset to copy\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name new_name -display \"New name\" -help \"the name for the copy of the dataset\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
-  adams.flow.control.Tee -name "dataset PK"
-   adams.flow.transformer.GetMapValue -key dataset
-   adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
-   adams.flow.transformer.SetVariable -var-name dataset_pk
+  adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
   adams.flow.transformer.MapToVariables
  adams.flow.control.Trigger -name "copy dataset"
   adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt

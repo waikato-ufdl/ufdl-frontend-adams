@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-11 14:43:35
+# Date: 2020-06-26 14:18:35
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-net,adams-spreadsheet,adams-ufdl-core
@@ -7,6 +7,8 @@
 adams.flow.control.Flow -annotation "Lets the user select a dataset and then displays the PK.\\nUses host/user/password from the global UFDL Preferences." -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
  adams.flow.standalone.UFDLConnection
  adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLDatasetList -name dataset -display Dataset" -output-type MAP
- adams.flow.transformer.GetMapValue -key dataset
- adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
- adams.flow.sink.Display -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
+ adams.flow.transformer.MapToVariables
+ adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+ adams.flow.control.Trigger -name output
+  adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToString
+  adams.flow.sink.Display -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
