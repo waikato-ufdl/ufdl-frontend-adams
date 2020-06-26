@@ -85,7 +85,7 @@ public class DeleteImageClassificationFile
    * 			displaying in the GUI or for listing the options.
    */
   public String nameTipText() {
-    return "The name of the image to download from the dataset.";
+    return "The name of the image to delete from the dataset.";
   }
 
   /**
