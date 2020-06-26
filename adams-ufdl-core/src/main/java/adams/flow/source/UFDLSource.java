@@ -21,14 +21,22 @@
 package adams.flow.source;
 
 import adams.core.AdditionalInformationHandler;
+import adams.core.DateUtils;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import adams.core.Utils;
+import adams.data.text.TextContainer;
+import adams.flow.control.StorageName;
+import adams.flow.control.StorageQueueHandler;
+import adams.flow.control.StorageUpdater;
 import adams.flow.core.ActorUtils;
+import adams.flow.core.QueueHelper;
 import adams.flow.core.Token;
 import adams.flow.source.ufdl.AbstractUFDLSourceAction;
 import adams.flow.source.ufdl.Null;
 import adams.flow.standalone.UFDLConnection;
+
+import java.util.Date;
 
 /**
  <!-- globalinfo-start -->
@@ -83,18 +91,34 @@ import adams.flow.standalone.UFDLConnection;
  * &nbsp;&nbsp;&nbsp;default: adams.flow.source.ufdl.Null
  * </pre>
  *
+ * <pre>-use-error-queue &lt;boolean&gt; (property: useErrorQueue)
+ * &nbsp;&nbsp;&nbsp;If enabled, forwards the errors from the action to the specified queue.
+ * &nbsp;&nbsp;&nbsp;default: false
+ * </pre>
+ *
+ * <pre>-error-queue &lt;adams.flow.control.StorageName&gt; (property: errorQueue)
+ * &nbsp;&nbsp;&nbsp;The name of the queue in internal storage to forward the errors to.
+ * &nbsp;&nbsp;&nbsp;default: errors
+ * </pre>
+ *
  <!-- options-end -->
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLSource
   extends AbstractSimpleSource
-  implements AdditionalInformationHandler {
+  implements AdditionalInformationHandler, StorageUpdater {
 
   private static final long serialVersionUID = -2779693911370733238L;
 
   /** the action to use. */
   protected AbstractUFDLSourceAction m_Action;
+
+  /** whether to forward errors to the error queue. */
+  protected boolean m_UseErrorQueue;
+
+  /** the name of the error queue in the internal storage. */
+  protected StorageName m_ErrorQueue;
 
   /** the connection to use. */
   protected transient UFDLConnection m_Connection;
@@ -119,6 +143,14 @@ public class UFDLSource
     m_OptionManager.add(
       "action", "action",
       new Null());
+
+    m_OptionManager.add(
+      "use-error-queue", "useErrorQueue",
+      false);
+
+    m_OptionManager.add(
+      "error-queue", "errorQueue",
+      new StorageName("errors"));
   }
 
   /**
@@ -138,7 +170,14 @@ public class UFDLSource
    */
   @Override
   public String getQuickInfo() {
-    return QuickInfoHelper.toString(this, "action", m_Action);
+    String  	result;
+
+    result = QuickInfoHelper.toString(this, "action", m_Action);
+
+    if (m_UseErrorQueue)
+      result += QuickInfoHelper.toString(this, "errorQueue", m_ErrorQueue, ", error queue: ");
+
+    return result;
   }
 
   /**
@@ -171,6 +210,73 @@ public class UFDLSource
   }
 
   /**
+   * Sets whether to forward the errors from the action to the specified queue.
+   *
+   * @param value	true if to forward
+   */
+  public void setUseErrorQueue(boolean value) {
+    m_UseErrorQueue = value;
+    reset();
+  }
+
+  /**
+   * Returns whether to forward the errors from the action to the specified queue.
+   *
+   * @return		true if to forward
+   */
+  public boolean getUseErrorQueue() {
+    return m_UseErrorQueue;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String useErrorQueueTipText() {
+    return "If enabled, forwards the errors from the action to the specified queue.";
+  }
+
+  /**
+   * Sets the name for the queue in internal storage to forward the errors to.
+   *
+   * @param value	the name
+   */
+  public void setErrorQueue(StorageName value) {
+    m_ErrorQueue = value;
+    reset();
+  }
+
+  /**
+   * Returns the name for the queue in internal storage to forward the errors to.
+   *
+   * @return		the name
+   */
+  public StorageName getErrorQueue() {
+    return m_ErrorQueue;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String errorQueueTipText() {
+    return "The name of the queue in internal storage to forward the errors to.";
+  }
+
+  /**
+   * Returns whether storage items are being updated.
+   *
+   * @return		true if storage items are updated
+   */
+  public boolean isUpdatingStorage() {
+    return m_UseErrorQueue;
+  }
+
+  /**
    * Returns the class of objects that it generates.
    *
    * @return		the Class of the generated tokens
@@ -195,6 +301,10 @@ public class UFDLSource
       result.append("\n\n");
       result.append(((AdditionalInformationHandler) m_Action).getAdditionalInformation());
     }
+
+    result.append("\n\n");
+    result.append("If enabled, errors get forwarded as ").append(Utils.classToString(TextContainer.class)).append(", with the error as the content.\n");
+    result.append("The 'Actor' field in the report contains the actor that generated the error, the 'Action' field the full command-line of the action and 'Timestamp' the date/time of the error.");
 
     return result.toString();
   }
@@ -229,6 +339,8 @@ public class UFDLSource
     String		result;
     Object		output;
     MessageCollection	errors;
+    StorageQueueHandler queue;
+    TextContainer	cont;
 
     result = null;
     errors = new MessageCollection();
@@ -243,8 +355,25 @@ public class UFDLSource
       errors.add("Failed to generate output data!", e);
     }
 
-    if (!errors.isEmpty())
+    if (!errors.isEmpty()) {
       result = errors.toString();
+
+      if (m_UseErrorQueue) {
+        queue = QueueHelper.getQueue(this, m_ErrorQueue);
+        if (queue != null) {
+          cont = new TextContainer();
+          cont.setContent(errors.toString());
+          cont.setID(getFullName());
+          cont.getReport().setStringValue("Actor", getFullName());
+          cont.getReport().setStringValue("Action", m_Action.toCommandLine());
+          cont.getReport().setStringValue("Timestamp", DateUtils.getTimestampFormatterMsecs().format(new Date()));
+          queue.add(cont);
+        }
+        else {
+          getLogger().warning("Error queue not found: " + m_ErrorQueue);
+        }
+      }
+    }
 
     return result;
   }
