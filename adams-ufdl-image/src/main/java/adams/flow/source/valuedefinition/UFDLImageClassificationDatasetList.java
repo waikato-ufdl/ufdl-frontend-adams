@@ -14,7 +14,7 @@
  */
 
 /*
- * ImageClassificationDatasetList.java
+ * UFDLImageClassificationDatasetList.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
@@ -35,7 +35,7 @@ import java.util.logging.Level;
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class ImageClassificationDatasetList
+public class UFDLImageClassificationDatasetList
   extends AbstractUFDLSoftDeleteListValueDefinition
   implements ClassCrossReference {
 

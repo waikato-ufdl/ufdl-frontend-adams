@@ -105,7 +105,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.control.Trigger -name "prompt user"
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
      adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-update.props -value-type FILE_FORWARD_SLASHES -expand-value true
-     adams.flow.source.EnterManyValues -name "Update dataset" -value "adams.flow.source.valuedefinition.ImageClassificationDatasetList -name dataset -display Dataset" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.source.EnterManyValues -name "Update dataset" -value "adams.flow.source.valuedefinition.UFDLImageClassificationDatasetList -name dataset -display Dataset" -output-type MAP -restoration-enabled true -restoration-file @{restore}
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.transformer.MapToVariables
      adams.flow.control.Trigger -name "dataset PK"
@@ -206,7 +206,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.control.Trigger -name "prompt user"
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
      adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-view.props -value-type FILE_FORWARD_SLASHES -expand-value true
-     adams.flow.source.EnterManyValues -name "View dataset" -value "adams.flow.source.valuedefinition.ImageClassificationDatasetList -name dataset -display Dataset" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.source.EnterManyValues -name "View dataset" -value "adams.flow.source.valuedefinition.UFDLImageClassificationDatasetList -name dataset -display Dataset" -output-type MAP -restoration-enabled true -restoration-file @{restore}
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.transformer.MapToVariables
      adams.flow.control.Trigger -name "dataset PK"
@@ -260,7 +260,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.control.Trigger -name "prompt user"
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
      adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-download.props -value-type FILE_FORWARD_SLASHES -expand-value true
-     adams.flow.source.EnterManyValues -name "Download dataset" -value "adams.flow.source.valuedefinition.ImageClassificationDatasetList -name dataset" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name parameters -display \"Export parameters\" -help \"command-line options passed on to wai.annotations\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name output_file -display \"Output file\" -help \"extension must be zip or tar.gz\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name display_in_filebrowser -display \"Display in file browser?\" -type BOOLEAN -default-value false" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.source.EnterManyValues -name "Download dataset" -value "adams.flow.source.valuedefinition.UFDLImageClassificationDatasetList -name dataset" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name parameters -display \"Export parameters\" -help \"command-line options passed on to wai.annotations\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name output_file -display \"Output file\" -help \"extension must be zip or tar.gz\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name display_in_filebrowser -display \"Display in file browser?\" -type BOOLEAN -default-value false" -output-type MAP -restoration-enabled true -restoration-file @{restore}
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.transformer.MapToVariables
      adams.flow.control.Trigger -name "dataset PK"
