@@ -1,0 +1,142 @@
+# Project: adams
+# Date: 2020-06-28 11:58:52
+# User: fracpete
+# Charset: UTF-8
+# Modules: adams-audio,adams-core,adams-event,adams-ffmpeg,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-speech
+#
+adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/update/view/download/delete).\\nUses host/user/password from the global UFDL Preferences." -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
+ adams.flow.standalone.CallableActors
+  adams.flow.sink.Display -name Info -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
+  adams.flow.sink.HistoryDisplay -name Errors -short-title true -display-type adams.flow.core.displaytype.Default -y -3
+  adams.flow.sink.ProgressBar -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -max @{max}
+  adams.flow.sink.SpreadSheetDisplay -name Current -short-title true -display-type adams.flow.core.displaytype.Default -x -3 -cell-rendering-customizer adams.gui.core.spreadsheettable.DefaultCellRenderingCustomizer -allow-search true -writer adams.data.io.output.NullWriter
+  adams.flow.control.Tee -name "clear output"
+   adams.flow.control.ClearCallableDisplay -name "clear info" -callable Info
+   adams.flow.control.CloseCallableDisplay -name "close info" -callable Info
+   adams.flow.control.ClearCallableDisplay -name "clear errors" -callable Errors
+   adams.flow.control.CloseCallableDisplay -name "close errors" -callable Errors
+   adams.flow.control.CloseCallableDisplay -name "close progressbar" -callable ProgressBar
+   adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
+  adams.flow.control.Trigger -name "add files"
+   adams.flow.source.Start
+   adams.flow.control.Trigger -name "prompt user"
+    adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-add_files.props -value-type FILE_FORWARD_SLASHES -expand-value true
+    adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+    adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name input_dir -display \"Dir with sound files (wav/mp3)\" -type DIRECTORY_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name transcript_file_type -display \"File type of transcripts\" -value CSV -value TSV -default-value TSV" -value "adams.flow.source.valuedefinition.FileValueDefinition -name transcripts_csv -display \"CSV file with transcripts\" -help \"comma-separated file\" -file-chooser-title \"Select CSV file with transcripts\" -extension csv -use-forward-slashes true" -value "adams.flow.source.valuedefinition.FileValueDefinition -name transcripts_tsv -display \"TSV file with transcripts\" -help \"tab separated file (as used by common-voice)\" -file-chooser-title \"Select TSV file with transcripts\" -extension tsv -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name col_filename -display \"Column in CSV with filename\" -type INDEX -default-value 1" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name col_transcript -display \"Column in CSV with transcript\" -type INDEX -default-value 2" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+    adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+    adams.flow.transformer.MapToVariables
+   adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+   adams.flow.control.Trigger -name "load transcripts"
+    adams.flow.source.Variable -var-name transcript_file_type -conversion adams.data.conversion.StringToString
+    adams.flow.control.Switch -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"X\\\\\\\" = \\\\\\\"CSV\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"X\\\\\\\" = \\\\\\\"TSV\\\\\\\"\"" -condition adams.flow.condition.bool.True
+     adams.flow.control.Trigger -name "load csv"
+      adams.flow.source.Variable -var-name transcripts_csv -conversion adams.data.conversion.StringToString
+      adams.flow.transformer.SpreadSheetFileReader -reader "adams.data.io.input.CsvSpreadSheetReader -data-row-type adams.data.spreadsheet.DenseDataRow -spreadsheet-type adams.data.spreadsheet.DefaultSpreadSheet -parse-formulas false"
+      adams.flow.transformer.LookUpInit -storage-name transcripts -key-column @{col_filename} -value-column @{col_transcript}
+     adams.flow.control.Trigger -name "load tsv"
+      adams.flow.source.Variable -var-name transcripts_tsv -conversion adams.data.conversion.StringToString
+      adams.flow.transformer.SpreadSheetFileReader -reader "adams.data.io.input.CsvSpreadSheetReader -data-row-type adams.data.spreadsheet.DenseDataRow -spreadsheet-type adams.data.spreadsheet.DefaultSpreadSheet -separator \\t -parse-formulas false"
+      adams.flow.transformer.LookUpInit -storage-name transcripts -key-column @{col_filename} -value-column @{col_transcript}
+     adams.flow.control.Stop -stop-msg "Unknown transcript file type: @{transcript_file_type}"
+   adams.flow.control.Trigger -name "iterate files"
+    adams.flow.standalone.SetVariable -name reset -var-name count -var-value 0
+    adams.flow.source.FileSystemSearch -output-array true -search "adams.flow.source.filesystemsearch.LocalFileSearch -directory @{input_dir} -regexp .*\\\\.(mp3|MP3|wav|WAV) -sorting SORT_BY_NAME" -use-forward-slashes true
+    adams.flow.control.Tee -name "# files"
+     adams.flow.transformer.ArrayLength
+     adams.flow.transformer.SetVariable -var-name max
+    adams.flow.transformer.ArrayToSequence
+    adams.flow.control.Tee -name progress
+     adams.flow.transformer.IncVariable -var-name count -output-variable-value true
+     adams.flow.sink.CallableSink -callable ProgressBar
+    adams.flow.transformer.SetVariable -var-name file
+    adams.flow.control.Tee -name "get transcript"
+     adams.flow.transformer.SetVariable -name reset -var-name no_transcript -var-value true
+     adams.flow.transformer.BaseName
+     adams.flow.transformer.LookUp -storage-name transcripts -suppress-missing-key-warnings true
+     adams.flow.transformer.SetVariable -var-name transcript
+     adams.flow.transformer.SetVariable -name set -var-name no_transcript -var-value false
+    adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name no_transcript"
+    adams.flow.control.Trigger -name "add file"
+     adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+     adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddSpeechFile -file @{file} -transcript @{transcript}" -use-error-queue true
+    adams.flow.control.Trigger -name info
+     adams.flow.source.CombineVariables -expression "added: @{file}\\n  @{transcript}" -conversion adams.data.conversion.StringToString
+     adams.flow.sink.CallableSink -callable Info
+ adams.flow.standalone.UFDLConnection
+ adams.flow.standalone.SetVariable -name initialize -var-name show_main_menu -var-value true
+ adams.flow.standalone.QueueInit -storage-name errors
+ adams.flow.standalone.SetVariable -name "log file" -var-name logfile -var-value @{flow_filename_long}.log -value-type FILE_FORWARD_SLASHES -expand-value true
+ adams.flow.standalone.Rats
+  adams.flow.standalone.Rat -name errors -receiver "adams.flow.standalone.rats.input.DeQueue -storage-name errors" -transmitter adams.flow.standalone.rats.output.DummyOutput -log-generator adams.flow.standalone.rats.log.LogEntryGenerator -scope-handling-variables COPY -scope-handling-storage SHARE
+   adams.flow.control.Tee -name error
+    adams.flow.transformer.Convert -conversion adams.data.conversion.TextContainerToString
+    adams.flow.transformer.SetVariable -var-name error
+ adams.flow.source.Start
+ adams.flow.control.WhileLoop -name menu -condition "adams.flow.condition.bool.VariableFlagSet -variable-name show_main_menu"
+  adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+  adams.flow.source.Start
+  adams.flow.control.CloseCallableDisplay -name "close progressbar" -callable ProgressBar
+  adams.flow.control.Trigger -name "menu prompt"
+   adams.flow.source.EnterValue -name "Speech modelling" -message "Please select dataset operation" -selection-values Create -selection-values Update -selection-values View -selection-values Download -selection-values Delete -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
+   adams.flow.transformer.SetVariable -var-name choice
+   adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+  adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+  adams.flow.control.Switch -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Create\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"View\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Download\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Exit\\\\\\\"\"" -lenient true
+   adams.flow.control.Trigger -name Create
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name current
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListSpeechDatasets -state ANY" -use-error-queue true
+     adams.flow.sink.CallableSink -callable Current
+    adams.flow.control.Trigger -name "prompt user"
+     adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-create.props -value-type FILE_FORWARD_SLASHES -expand-value true
+     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+     adams.flow.source.EnterManyValues -name "Create dataset" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_name -display Name" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_description -display Description" -value "adams.flow.source.valuedefinition.UFDLProjectList -name dataset_project -display Project" -value "adams.flow.source.valuedefinition.UFDLLicenseList -name dataset_license -display License" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_public -display \"Public dataset?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_tags -display Tags" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+     adams.flow.transformer.MapToVariables
+     adams.flow.transformer.UFDLExtractAndTransferPK -name project_pk -source dataset_project -target project_pk
+     adams.flow.transformer.UFDLExtractAndTransferPK -name license_pk -source dataset_license -target license_pk
+    adams.flow.control.CloseCallableDisplay -callable Current
+    adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+    adams.flow.control.Trigger -name create
+     adams.flow.standalone.SetVariable -name reset -var-name created -var-value false
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateSpeechDataset -name @{dataset_name} -description @{dataset_description} -project @{project_pk} -licence @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}" -use-error-queue true
+     adams.flow.transformer.SetVariable -name set -var-name created -var-value true
+     adams.flow.transformer.SetStorageValue -storage-name dataset
+     adams.flow.sink.CallableSink -callable Info
+    adams.flow.control.Block -name "block if not created" -condition "adams.flow.condition.bool.Not -condition \"adams.flow.condition.bool.VariableFlagSet -variable-name created\""
+    adams.flow.transformer.CallableTransformer -callable "add files"
+   adams.flow.control.Trigger -name Update
+    adams.flow.source.Start
+   adams.flow.control.Trigger -name View
+    adams.flow.source.Start
+   adams.flow.control.Trigger -name Download
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name "prompt user"
+     adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-download.props -value-type FILE_FORWARD_SLASHES -expand-value true
+     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+     adams.flow.source.EnterManyValues -name "Download dataset" -value "adams.flow.source.valuedefinition.UFDLSpeechDatasetList -name dataset -display Dataset" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name parameters -display Parameters -help \"parameters for the wai.annotations library to customize the download\"" -value "adams.flow.source.valuedefinition.FileValueDefinition -name output_file -display \"Output file\" -help \"The file to save the downloaded dataset in.\" -file-chooser-title \"Select output file\" -extension zip -extension tar.gz -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name display_in_filebrowser -display \"Display in file browser?\" -type BOOLEAN -default-value false" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+     adams.flow.transformer.MapToVariables
+     adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+    adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+    adams.flow.control.Trigger -name download
+     adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+     adams.flow.sink.UFDLSink -action "adams.flow.sink.ufdl.DownloadSpeechDataset -parameters @{parameters} -output-file @{output_file}" -use-error-queue true
+    adams.flow.control.ConditionalTrigger -name display? -condition "adams.flow.condition.bool.VariableFlagSet -variable-name display_in_filebrowser"
+     adams.flow.source.Variable -var-name output_file -conversion adams.data.conversion.StringToString
+     adams.flow.sink.FileBrowser
+   adams.flow.control.Trigger -name Delete -annotation "TODO: allow hard delete"
+    adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListSpeechDatasets -state ANY" -use-error-queue true
+    adams.flow.transformer.SpreadSheetSelectSubset -message "Please select datasets to delete" -allow-search true
+    adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk -lenient true
+    adams.flow.control.Trigger -name "delete dataset"
+     adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
+     adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteSpeechDataset -use-error-queue true
+     adams.flow.transformer.SetVariable -var-name success
+     adams.flow.control.Trigger -name info
+      adams.flow.source.CombineVariables -expression "deleted @{pk}: @{success}" -conversion adams.data.conversion.StringToString
+      adams.flow.sink.CallableSink -callable Info
+   adams.flow.control.Tee -name "Clear output"
+    adams.flow.transformer.CallableTransformer -callable "clear output"
+   adams.flow.control.Tee -name Exit
+    adams.flow.control.Stop
