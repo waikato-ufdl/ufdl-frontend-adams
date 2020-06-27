@@ -76,6 +76,7 @@ public class UFDLImageClassificationDatasetToSpreadSheet
     row = result.getHeaderRow();
     row.addCell("pk").setContentAsString("pk");
     row.addCell("tn").setContentAsString("name");
+    row.addCell("de").setContentAsString("description");
     row.addCell("ci").setContentAsString("creator_id");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
@@ -108,6 +109,7 @@ public class UFDLImageClassificationDatasetToSpreadSheet
     row       = result.addRow();
     row.addCell("pk").setContent(dataset.getPK());
     row.addCell("tn").setContent(dataset.getName());
+    row.addCell("de").setContent(dataset.getDescription());
     row.addCell("ci").setContent(dataset.getCreatorID());
     if (dataset.getCreationTime() != null)
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(dataset.getCreationTime().toInstant(ZoneOffset.UTC))));
