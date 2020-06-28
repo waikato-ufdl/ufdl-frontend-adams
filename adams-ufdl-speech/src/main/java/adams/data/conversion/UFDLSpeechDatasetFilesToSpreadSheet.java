@@ -69,7 +69,7 @@ public class UFDLSpeechDatasetFilesToSpreadSheet
     result = new DefaultSpreadSheet();
 
     row = result.getHeaderRow();
-    row.addCell("f").setContentAsString("image");
+    row.addCell("f").setContentAsString("file");
     row.addCell("t").setContentAsString("transcript");
 
     return result;
