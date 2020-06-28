@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-28 14:27:13
+# Date: 2020-06-28 14:48:38
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-audio,adams-core,adams-event,adams-ffmpeg,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-speech
@@ -70,10 +70,26 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
  adams.flow.standalone.QueueInit -storage-name errors
  adams.flow.standalone.SetVariable -name "log file" -var-name logfile -var-value @{flow_filename_long}.log -value-type FILE_FORWARD_SLASHES -expand-value true
  adams.flow.standalone.Rats
-  adams.flow.standalone.Rat -name errors -receiver "adams.flow.standalone.rats.input.DeQueue -storage-name errors" -transmitter adams.flow.standalone.rats.output.DummyOutput -log-generator adams.flow.standalone.rats.log.LogEntryGenerator -scope-handling-variables COPY -scope-handling-storage SHARE
-   adams.flow.control.Tee -name error
+  adams.flow.standalone.Rat -name "error queue" -receiver "adams.flow.standalone.rats.input.DeQueue -storage-name errors" -transmitter adams.flow.standalone.rats.output.DummyOutput -log-generator adams.flow.standalone.rats.log.LogEntryGenerator -scope-handling-variables COPY -scope-handling-storage SHARE
+   adams.flow.control.Tee -name "get error"
     adams.flow.transformer.Convert -conversion adams.data.conversion.TextContainerToString
+    adams.flow.transformer.StringIndent -indentation " " -num-times 4
     adams.flow.transformer.SetVariable -var-name error
+   adams.flow.control.Tee -name "get actor"
+    adams.flow.transformer.GetReportValue -field Actor[S]
+    adams.flow.transformer.SetVariable -var-name actor
+   adams.flow.control.Tee -name "get action"
+    adams.flow.transformer.GetReportValue -field Action[S]
+    adams.flow.transformer.SetVariable -var-name action
+   adams.flow.control.Tee -name "get timestamp"
+    adams.flow.transformer.GetReportValue -field Timestamp[S]
+    adams.flow.transformer.SetVariable -var-name timestamp
+   adams.flow.control.Trigger -name "add to log file"
+    adams.flow.source.CombineVariables -expression "\\n@{timestamp}\\n  actor: @{actor}\\n  action: @{action}\\n  error: \\n@{error}" -conversion adams.data.conversion.StringToString
+    adams.flow.sink.DumpFile -output @{logfile} -append true
+   adams.flow.control.Trigger -name "display error"
+    adams.flow.source.CombineVariables -expression "@{timestamp}\\n  actor: @{actor}\\n  action: @{action}\\n  error: \\n@{error}" -conversion adams.data.conversion.StringToString
+    adams.flow.sink.CallableSink -callable Errors
  adams.flow.source.Start
  adams.flow.control.WhileLoop -name menu -condition "adams.flow.condition.bool.VariableFlagSet -variable-name show_main_menu"
   adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
