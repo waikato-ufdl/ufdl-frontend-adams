@@ -71,6 +71,7 @@ public class UFDLLicenseToSpreadSheet
     row = result.getHeaderRow();
     row.addCell("pk").setContentAsString("pk");
     row.addCell("n").setContentAsString("name");
+    row.addCell("u").setContentAsString("url");
     row.addCell("p").setContentAsString("permissions");
     row.addCell("c").setContentAsString("conditions");
     row.addCell("l").setContentAsString("limitations");
@@ -95,6 +96,7 @@ public class UFDLLicenseToSpreadSheet
     row     = result.addRow();
     row.addCell("pk").setContent(license.getPK());
     row.addCell("n").setContent(license.getName());
+    row.addCell("u").setContent(license.getURL());
     row.addCell("p").setContent(Utils.flatten(license.getPermissions().toArray(), ","));
     row.addCell("c").setContent(Utils.flatten(license.getConditions().toArray(), ","));
     row.addCell("l").setContent(Utils.flatten(license.getLimitations().toArray(), ","));
