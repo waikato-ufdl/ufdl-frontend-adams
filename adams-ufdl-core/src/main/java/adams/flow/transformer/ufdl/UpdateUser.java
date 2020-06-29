@@ -22,7 +22,6 @@ package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
-import adams.core.base.BasePassword;
 import adams.core.net.EmailAddress;
 import com.github.waikatoufdl.ufdl4j.action.Users.User;
 
@@ -38,9 +37,6 @@ public class UpdateUser
 
   /** the user name. */
   protected String m_UserName;
-
-  /** the password. */
-  protected BasePassword m_Password;
 
   /** the first name. */
   protected String m_FirstName;
@@ -58,7 +54,7 @@ public class UpdateUser
    */
   @Override
   public String globalInfo() {
-    return "Creates a user and forwards the user object.";
+    return "Updates a user and forwards the user object.";
   }
 
   /**
@@ -71,10 +67,6 @@ public class UpdateUser
     m_OptionManager.add(
       "user-name", "userName",
       "");
-
-    m_OptionManager.add(
-      "password", "password",
-      new BasePassword(), false);
 
     m_OptionManager.add(
       "first-name", "firstName",
@@ -116,35 +108,6 @@ public class UpdateUser
    */
   public String userNameTipText() {
     return "The new user name.";
-  }
-
-  /**
-   * Sets the user's password.
-   *
-   * @param value	the password
-   */
-  public void setPassword(BasePassword value) {
-    m_Password = value;
-    reset();
-  }
-
-  /**
-   * Returns the user's password.
-   *
-   * @return		the password
-   */
-  public BasePassword getPassword() {
-    return m_Password;
-  }
-
-  /**
-   * Returns the tip text for this property.
-   *
-   * @return 		tip text for this property suitable for
-   * 			displaying in the GUI or for listing the options.
-   */
-  public String passwordTipText() {
-    return "The new password.";
   }
 
   /**
@@ -266,10 +229,10 @@ public class UpdateUser
 
     result = null;
     try {
-      result = m_Client.users().update(user, m_UserName, m_Password.getValue(), m_FirstName, m_LastName, m_Email.strippedValue());
+      result = m_Client.users().partialUpdate(user, m_UserName, null, m_FirstName, m_LastName, m_Email.strippedValue());
     }
     catch (Exception e) {
-      errors.add("Failed to update user!", e);
+      errors.add("Failed to update user: " + user, e);
     }
 
     return result;
