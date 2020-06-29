@@ -62,7 +62,7 @@ public class UFDLExtractListItemPK
   /**
    * Sets how to list items were sorted.
    *
-   * @param value	true if to sort by ID
+   * @param value	the sorting
    */
   public void setSorting(UFDLListSorting value) {
     m_Sorting = value;
@@ -72,7 +72,7 @@ public class UFDLExtractListItemPK
   /**
    * Returns how to list items were sorted.
    *
-   * @return 		true if to sort by ID
+   * @return 		the sorting
    */
   public UFDLListSorting getSorting() {
     return m_Sorting;
