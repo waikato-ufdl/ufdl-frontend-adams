@@ -51,15 +51,6 @@ public class CreateUser
   /** the email. */
   protected EmailAddress m_Email;
 
-  /** whether the user is staff. */
-  protected boolean m_Staff;
-
-  /** whether the user is superuser. */
-  protected boolean m_Superuser;
-
-  /** whether the user is active. */
-  protected boolean m_Active;
-
   /**
    * Returns a string describing the object.
    *
@@ -96,18 +87,6 @@ public class CreateUser
     m_OptionManager.add(
       "email", "email",
       new EmailAddress());
-
-    m_OptionManager.add(
-      "staff", "staff",
-      false);
-
-    m_OptionManager.add(
-      "superuser", "superuser",
-      false);
-
-    m_OptionManager.add(
-      "active", "active",
-      false);
   }
 
   /**
@@ -256,93 +235,6 @@ public class CreateUser
   }
 
   /**
-   * Sets whether the user is to be flagged as staff.
-   *
-   * @param value	true if staff
-   */
-  public void setStaff(boolean value) {
-    m_Staff = value;
-    reset();
-  }
-
-  /**
-   * Returns whether the user is to be flagged as staff.
-   *
-   * @return		true if staff
-   */
-  public boolean getStaff() {
-    return m_Staff;
-  }
-
-  /**
-   * Returns the tip text for this property.
-   *
-   * @return 		tip text for this property suitable for
-   * 			displaying in the GUI or for listing the options.
-   */
-  public String staffTipText() {
-    return "Whether the user is to be flagged as staff.";
-  }
-
-  /**
-   * Sets whether the user is to be flagged as superuser.
-   *
-   * @param value	true if superuser
-   */
-  public void setSuperuser(boolean value) {
-    m_Superuser = value;
-    reset();
-  }
-
-  /**
-   * Returns whether the user is to be flagged as superuser.
-   *
-   * @return		true if superuser
-   */
-  public boolean getSuperuser() {
-    return m_Superuser;
-  }
-
-  /**
-   * Returns the tip text for this property.
-   *
-   * @return 		tip text for this property suitable for
-   * 			displaying in the GUI or for listing the options.
-   */
-  public String superuserTipText() {
-    return "Whether the user is to be flagged as superuser.";
-  }
-
-  /**
-   * Sets whether the user is to be flagged as active.
-   *
-   * @param value	true if active
-   */
-  public void setActive(boolean value) {
-    m_Active = value;
-    reset();
-  }
-
-  /**
-   * Returns whether the user is to be flagged as active.
-   *
-   * @return		true if active
-   */
-  public boolean getActive() {
-    return m_Active;
-  }
-
-  /**
-   * Returns the tip text for this property.
-   *
-   * @return 		tip text for this property suitable for
-   * 			displaying in the GUI or for listing the options.
-   */
-  public String activeTipText() {
-    return "Whether the user is to be flagged as active.";
-  }
-
-  /**
    * Returns a quick info about the actor, which will be displayed in the GUI.
    *
    * @return		null if no info available, otherwise short string
@@ -374,7 +266,7 @@ public class CreateUser
 
     result = null;
     try {
-      result = m_Client.users().create(m_UserName, m_Password.getValue(), m_FirstName, m_LastName, m_Email.strippedValue(), m_Staff, m_Superuser, m_Active);
+      result = m_Client.users().create(m_UserName, m_Password.getValue(), m_FirstName, m_LastName, m_Email.strippedValue());
     }
     catch (Exception e) {
       errors.add("Failed to create user!", e);
