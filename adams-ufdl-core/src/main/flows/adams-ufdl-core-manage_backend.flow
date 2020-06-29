@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-28 15:25:40
+# Date: 2020-06-29 17:25:15
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -77,13 +77,13 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-user-add.props -value-type FILE_FORWARD_SLASHES -expand-value true
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -name "Add user" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name username -display \"User name\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name password -display Password -type PASSWORD_PLAIN" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name first_name -display \"First name\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name last_name -display \"Last name\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name email -display Email" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name staff -display Staff? -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name superuser -display \"Super user?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name active -display Active? -type BOOLEAN -default-value true" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+        adams.flow.source.EnterManyValues -name "Add user" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name username -display \"User name\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name password -display Password -type PASSWORD_PLAIN" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name first_name -display \"First name\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name last_name -display \"Last name\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name email -display Email" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
        adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name add
-        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateUser -user-name @{username} -password @{password} -first-name @{first_name} -last-name @{last_name} -email @{email} -staff @{staff} -superuser @{superuser} -active @{active}" -use-error-queue true
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateUser -user-name @{username} -password @{password} -first-name @{first_name} -last-name @{last_name} -email @{email}" -use-error-queue true
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Delete
        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListUsers -active NOT_SET" -use-error-queue true
@@ -110,7 +110,79 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
    adams.flow.control.Trigger -name Projects
     adams.flow.source.Start
    adams.flow.control.Trigger -name Licenses
+    adams.flow.standalone.SetVariable -name initialize -var-name show_sub_menu -var-value true
     adams.flow.source.Start
+    adams.flow.control.CloseCallableDisplay -name "close progressbar" -callable ProgressBar
+    adams.flow.control.WhileLoop -name "sub menu" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name show_sub_menu"
+     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+     adams.flow.source.Start
+     adams.flow.control.Trigger -name "menu prompt"
+      adams.flow.source.EnterValue -name "License administration" -message "Please select operation" -selection-values View -selection-values Add -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
+      adams.flow.transformer.SetVariable -var-name choice
+      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+     adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"View\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
+      adams.flow.control.Trigger -name View
+       adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListLicenses -use-error-queue true
+       adams.flow.sink.CallableSink -callable Current
+      adams.flow.control.Trigger -name Add
+       adams.flow.source.Start
+       adams.flow.control.Trigger -name current
+        adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListLicenses -use-error-queue true
+        adams.flow.sink.CallableSink -callable Current
+       adams.flow.control.Trigger -name "prompt user"
+        adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-license-add.props -value-type FILE_FORWARD_SLASHES -expand-value true
+        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+        adams.flow.source.EnterManyValues -name "Add license" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name url -display URL" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+        adams.flow.transformer.MapToVariables
+        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+       adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
+       adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+       adams.flow.control.Trigger -name add
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateLicense -name @{name} -url @{url}" -use-error-queue true
+        adams.flow.transformer.SetStorageValue -storage-name license
+        adams.flow.control.Trigger -name permissions
+         adams.flow.source.SelectObjects -name "Select permissions" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Permission -short-title true
+         adams.flow.control.ArrayProcess
+          adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
+         adams.flow.transformer.StringJoin -glue " "
+         adams.flow.transformer.SetVariable -var-name permissions
+        adams.flow.control.Trigger -name conditions
+         adams.flow.source.SelectObjects -name "Select conditions" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Condition -short-title true
+         adams.flow.control.ArrayProcess
+          adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
+         adams.flow.transformer.StringJoin -glue " "
+         adams.flow.transformer.SetVariable -var-name conditions
+        adams.flow.control.Trigger -name limitations
+         adams.flow.source.SelectObjects -name "Select limitations" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Limitation -short-title true
+         adams.flow.control.ArrayProcess
+          adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
+         adams.flow.transformer.StringJoin -glue " "
+         adams.flow.transformer.SetVariable -var-name limitations
+        adams.flow.control.Trigger -name display
+         adams.flow.source.StorageValue -storage-name license -conversion adams.data.conversion.UnknownToUnknown
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UpdateLicenseSubDescriptors -permission @{permissions} -condition @{conditions} -limitation @{limitations}" -use-error-queue true
+         adams.flow.sink.CallableSink -callable Info
+      adams.flow.control.Trigger -name Delete
+       adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListLicenses -use-error-queue true
+       adams.flow.transformer.SpreadSheetSelectSubset -message "Please select users to delete" -allow-search true
+       adams.flow.control.Tee -name "# items"
+        adams.flow.transformer.SpreadSheetInfo
+        adams.flow.transformer.SetVariable -var-name num_items
+       adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_items} license(s)?\""
+        adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
+        adams.flow.control.Trigger -name delete
+         adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
+         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteLicense -use-error-queue true
+         adams.flow.transformer.SetVariable -var-name success
+         adams.flow.control.Trigger -name info
+          adams.flow.source.CombineVariables -expression "deleted license @{pk}: @{success}" -conversion adams.data.conversion.StringToString
+          adams.flow.sink.CallableSink -callable Info
+      adams.flow.control.Tee -name "Clear output"
+       adams.flow.transformer.CallableTransformer -callable "clear output"
+      adams.flow.control.Tee -name Return
+       adams.flow.transformer.CallableTransformer -callable "clear output"
+       adams.flow.transformer.SetVariable -var-name show_sub_menu -var-value false
    adams.flow.control.Tee -name "Clear output"
     adams.flow.transformer.CallableTransformer -callable "clear output"
    adams.flow.control.Tee -name Exit
