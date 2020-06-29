@@ -62,40 +62,16 @@ public abstract class AbstractUFDLListValueDefinition
     m_OptionManager.add(
       "sorting", "sorting",
       UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE);
-  }
 
-  /**
-   * Initializes the members.
-   */
-  @Override
-  protected void initialize() {
-    super.initialize();
-    updateDefaultValue();
-  }
-
-  /**
-   * Resets the scheme.
-   */
-  @Override
-  protected void reset() {
-    super.reset();
-    updateDefaultValue();
-  }
-
-  /**
-   * Updates the default value.
-   */
-  protected void updateDefaultValue() {
-    if (m_Sorting != null)
-      m_DefaultValue = m_Sorting.toString(new Struct2<>(NO_PK, NO_ENTRIES));
-    else
-      m_DefaultValue = "";
+    m_OptionManager.add(
+      "default-value", "defaultValue",
+      "");
   }
 
   /**
    * Sets how to sort the list items.
    *
-   * @param value	true if to sort by ID
+   * @param value	the sorting
    */
   public void setSorting(UFDLListSorting value) {
     m_Sorting = value;
@@ -105,7 +81,7 @@ public abstract class AbstractUFDLListValueDefinition
   /**
    * Returns how to sort the list items.
    *
-   * @return 		true if to sort by ID
+   * @return 		the sorting
    */
   public UFDLListSorting getSorting() {
     return m_Sorting;
@@ -119,6 +95,35 @@ public abstract class AbstractUFDLListValueDefinition
    */
   public String sortingTipText() {
     return "The sorting to apply to the list items.";
+  }
+
+  /**
+   * Sets how to sort the list items.
+   *
+   * @param value	the default value
+   */
+  public void setDefaultValue(String value) {
+    m_DefaultValue = value;
+    reset();
+  }
+
+  /**
+   * Returns the default value.
+   *
+   * @return 		the default value
+   */
+  public String getDefaultValue() {
+    return m_DefaultValue;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return		tip text for this property suitable for
+   *             	displaying in the GUI or for listing the options.
+   */
+  public String defaultValueTipText() {
+    return "The default value to use.";
   }
 
   /**
@@ -220,7 +225,10 @@ public abstract class AbstractUFDLListValueDefinition
    */
   @Override
   public String getDefaultValueAsString() {
-    return m_DefaultValue;
+    if (m_DefaultValue.isEmpty())
+      return m_Sorting.toString(new Struct2<>(NO_PK, NO_ENTRIES));
+    else
+      return m_DefaultValue;
   }
 
   /**
@@ -236,7 +244,6 @@ public abstract class AbstractUFDLListValueDefinition
       return false;
 
     itemsStr = toStringList(listItems());
-    updateDefaultValue();
 
     panel.addPropertyType(getName(), getType());
     panel.setList(getName(), itemsStr.toArray(new String[0]));
@@ -261,7 +268,6 @@ public abstract class AbstractUFDLListValueDefinition
       return null;
 
     itemsStr = toStringList(listItems());
-    updateDefaultValue();
 
     msg = "Available options:\n"
       + Utils.flatten(itemsStr, "\n")
