@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
+import adams.core.TriState;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.Users.User;
@@ -40,6 +41,9 @@ public class UFDLUserList
 
   private static final long serialVersionUID = 4093023607556720026L;
 
+  /** the active state of the users. */
+  protected TriState m_Active;
+
   /**
    * Returns a string describing the object.
    *
@@ -48,6 +52,47 @@ public class UFDLUserList
   @Override
   public String globalInfo() {
     return "For selecting a UFDL user.";
+  }
+
+  /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "active", "active",
+      TriState.TRUE);
+  }
+
+  /**
+   * Sets the state of the users to retrieve.
+   *
+   * @param value	the state
+   */
+  public void setActive(TriState value) {
+    m_Active = value;
+    reset();
+  }
+
+  /**
+   * Returns the state of the users to retriev.
+   *
+   * @return		the state
+   */
+  public TriState getActive() {
+    return m_Active;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String activeTipText() {
+    return "The active state of the users to retrieve.";
   }
 
   /**
@@ -72,8 +117,19 @@ public class UFDLUserList
     result = new ArrayList<>();
 
     try {
-      for (User user : m_Connection.getClient().users().list())
+      for (User user : m_Connection.getClient().users().list()) {
+        switch (m_Active) {
+	  case FALSE:
+	    if (user.isActive())
+	      continue;
+	    break;
+	  case TRUE:
+	    if (!user.isActive())
+	      continue;
+	    break;
+	}
         result.add(new Struct2<>(user.getPK(), user.getUserName()));
+      }
     }
     catch (Exception e) {
       getLogger().log(Level.SEVERE, "Failed to retrieve list of users!", e);
