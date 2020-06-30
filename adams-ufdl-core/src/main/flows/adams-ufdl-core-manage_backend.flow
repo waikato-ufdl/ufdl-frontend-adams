@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-30 14:27:13
+# Date: 2020-06-30 14:31:21
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -43,13 +43,14 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
     adams.flow.source.CombineVariables -expression "@{timestamp}\\n  actor: @{actor}\\n  action: @{action}\\n  error: \\n@{error}" -conversion adams.data.conversion.StringToString
     adams.flow.sink.CallableSink -callable Errors
  adams.flow.source.Start
+ adams.flow.transformer.SetVariable -name reset -var-name superuser -var-value false
  adams.flow.control.Trigger -name admin?
   adams.flow.source.UFDLSource -action adams.flow.source.ufdl.CurrentUser -use-error-queue true
   adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLUserToSpreadSheet
   adams.flow.transformer.SpreadSheetGetCell -col superuser
   adams.flow.transformer.SetVariable -var-name superuser
-  adams.flow.control.ConditionalTee -name "stop flow if not superuser" -condition "adams.flow.condition.bool.Expression -expression \"@{superuser} != true\""
-   adams.flow.control.Stop -stop-msg "Only a UFDL superuser can manage the backend!"
+ adams.flow.control.ConditionalTee -name "stop flow if not superuser" -condition "adams.flow.condition.bool.Expression -expression \"@{superuser} != true\""
+  adams.flow.control.Stop -stop-msg "Only a UFDL superuser can manage the backend!"
  adams.flow.control.WhileLoop -name menu -condition "adams.flow.condition.bool.VariableFlagSet -variable-name show_main_menu"
   adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
   adams.flow.source.Start
