@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-30 11:46:20
+# Date: 2020-06-30 13:05:59
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -93,7 +93,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.source.EnterManyValues -name "Select license to update" -value "adams.flow.source.valuedefinition.UFDLUserList -name user -display User" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.transformer.UFDLExtractAndTransferPK -name user_pk -source user -target user_pk
+        adams.flow.transformer.UFDLExtractAndTransfer -name user_pk -source user -target user_pk
        adams.flow.control.Trigger -name "current values to variables"
         adams.flow.source.Variable -var-name user_pk -conversion adams.data.conversion.StringToInt
         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadUser -use-error-queue true
@@ -117,7 +117,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.source.EnterManyValues -name "Select license to update" -value "adams.flow.source.valuedefinition.UFDLUserList -name user -display User" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.transformer.UFDLExtractAndTransferPK -name user_pk -source user -target user_pk
+        adams.flow.transformer.UFDLExtractAndTransfer -name user_pk -source user -target user_pk
        adams.flow.control.Trigger -name "new values"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
         adams.flow.source.EnterManyValues -name "Update user" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name password -display \"New password\" -type PASSWORD_PLAIN" -output-type MAP
@@ -178,6 +178,25 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name add
         adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateTeam -name @{name}" -use-error-queue true
+        adams.flow.transformer.SetStorageValue -storage-name team
+        adams.flow.sink.CallableSink -callable Info
+       adams.flow.control.Trigger -name "add members" -annotation "adds team members to the team \\\"team\\\" in storage"
+        adams.flow.source.Start
+        adams.flow.transformer.SetVariable -var-name add_members -var-value true
+        adams.flow.control.WhileLoop -condition "adams.flow.condition.bool.VariableFlagSet -variable-name add_members"
+         adams.flow.standalone.SetVariable -var-name add_members -var-value false
+         adams.flow.source.EnterManyValues -name "Add team member" -value "adams.flow.source.valuedefinition.UFDLUserList -name member -display Member" -value "adams.flow.source.valuedefinition.EnumValueDefinition -name permission -display Permission -help \"The permissions to give to the team member (read/write/admin)\" -enum-class com.github.waikatoufdl.ufdl4j.action.Permissions" -output-type MAP
+         adams.flow.transformer.MapToVariables
+         adams.flow.transformer.UFDLExtractAndTransfer -name member_pk -source member -target member_pk
+         adams.flow.control.Trigger -name add
+          adams.flow.source.StorageValue -storage-name team -conversion adams.data.conversion.UnknownToUnknown
+          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddTeamMember -member @{member_pk} -permissions @{permission}" -use-error-queue true
+          adams.flow.sink.CallableSink -callable Info
+         adams.flow.control.IfThenElse -name "add more?" -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to add more team members?\""
+          adams.flow.transformer.SetVariable -name then -var-name add_members -var-value true
+          adams.flow.transformer.SetVariable -name else -var-name add_members -var-value false
+       adams.flow.control.Trigger -name display
+        adams.flow.source.StorageValue -storage-name team -conversion adams.data.conversion.UnknownToUnknown
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Update
        adams.flow.source.Start
@@ -249,7 +268,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.source.EnterManyValues -name "Add project" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name" -value "adams.flow.source.valuedefinition.UFDLTeamList -name team -display Team -help \"the team that the project will belong to\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.transformer.UFDLExtractAndTransferPK -name team_pk -source team -target team_pk
+        adams.flow.transformer.UFDLExtractAndTransfer -name team_pk -source team -target team_pk
        adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name add
@@ -263,7 +282,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.source.EnterManyValues -name "Select project to update" -value "adams.flow.source.valuedefinition.UFDLProjectList -name project -display Project" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.transformer.UFDLExtractAndTransferPK -name project_pk -source project -target project_pk
+        adams.flow.transformer.UFDLExtractAndTransfer -name project_pk -source project -target project_pk
        adams.flow.control.Trigger -name "current values to variables"
         adams.flow.source.Variable -var-name project_pk -conversion adams.data.conversion.StringToInt
         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadProject -use-error-queue true
@@ -280,7 +299,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.source.EnterManyValues -name "Update project" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display \"New name\" -default-value @{name}" -value "adams.flow.source.valuedefinition.UFDLTeamList -name team -display Team -sorting BY_DESCRIPTION_CASE_SENSITIVE -default-value @{team}" -output-type MAP
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.transformer.UFDLExtractAndTransferPK -name team_pk -source team -target team_pk
+        adams.flow.transformer.UFDLExtractAndTransfer -name team_pk -source team -target team_pk
        adams.flow.control.Trigger -name "update and display"
         adams.flow.source.StorageValue -storage-name license -conversion adams.data.conversion.UnknownToUnknown
         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UpdateProject -name @{name} -team @{team_pk}" -use-error-queue true
@@ -367,7 +386,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.source.EnterManyValues -name "Select license to update" -value "adams.flow.source.valuedefinition.UFDLLicenseList -name license -display License" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.transformer.UFDLExtractAndTransferPK -name license_pk -source license -target license_pk
+        adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source license -target license_pk
        adams.flow.control.Trigger -name "current values to variables"
         adams.flow.source.Variable -var-name license_pk -conversion adams.data.conversion.StringToInt
         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadLicense -use-error-queue true
@@ -380,7 +399,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.source.EnterManyValues -name "Update license" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display \"New name\" -default-value @{name}" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name url -display \"New URL\" -default-value @{url}" -output-type MAP
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.transformer.UFDLExtractAndTransferPK -name license_pk -source license -target license_pk
+        adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source license -target license_pk
        adams.flow.control.Trigger -name permissions
         adams.flow.source.SelectObjects -name "Select permissions" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Permission -initial-objects @{permissions} -short-title true
         adams.flow.control.ArrayProcess

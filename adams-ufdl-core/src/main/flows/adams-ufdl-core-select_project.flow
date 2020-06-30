@@ -8,7 +8,7 @@ adams.flow.control.Flow -annotation "Lets the user select a project and then dis
  adams.flow.standalone.UFDLConnection
  adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLProjectList -name project -display Project" -output-type MAP
  adams.flow.transformer.MapToVariables
- adams.flow.transformer.UFDLExtractAndTransferPK -name project_pk -source project -target project_pk
+ adams.flow.transformer.UFDLExtractAndTransfer -name project_pk -source project -target project_pk
  adams.flow.control.Trigger -name output
   adams.flow.source.Variable -var-name project_pk -conversion adams.data.conversion.StringToString
   adams.flow.sink.Display -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter

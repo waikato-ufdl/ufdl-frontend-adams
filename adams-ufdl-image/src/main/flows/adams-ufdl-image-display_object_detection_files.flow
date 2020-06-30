@@ -12,7 +12,7 @@ adams.flow.control.Flow -annotation "Let\\\'s the user select files from a user-
  adams.flow.control.Trigger -name "select dataset"
   adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.UFDLObjectDetectionDatasetList -name dataset -display Dataset" -output-type MAP
   adams.flow.transformer.MapToVariables
-  adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+  adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
  adams.flow.control.Trigger -name "list files"
   adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
   adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListObjectDetectionFiles

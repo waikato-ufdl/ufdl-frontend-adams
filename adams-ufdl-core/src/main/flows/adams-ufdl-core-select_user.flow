@@ -8,7 +8,7 @@ adams.flow.control.Flow -annotation "Lets the user select a user and then displa
  adams.flow.standalone.UFDLConnection
  adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLUserList -name user -display User" -output-type MAP
  adams.flow.transformer.MapToVariables
- adams.flow.transformer.UFDLExtractAndTransferPK -name user_pk -source user -target user_pk
+ adams.flow.transformer.UFDLExtractAndTransfer -name user_pk -source user -target user_pk
  adams.flow.control.Trigger -name output
   adams.flow.source.Variable -var-name user_pk -conversion adams.data.conversion.StringToString
   adams.flow.sink.Display -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter

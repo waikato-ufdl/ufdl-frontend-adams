@@ -112,8 +112,8 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
      adams.flow.source.EnterManyValues -name "Create dataset" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_name -display Name" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_description -display Description" -value "adams.flow.source.valuedefinition.UFDLProjectList -name dataset_project -display Project" -value "adams.flow.source.valuedefinition.UFDLLicenseList -name dataset_license -display License" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_public -display \"Public dataset?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_tags -display Tags" -output-type MAP -restoration-enabled true -restoration-file @{restore}
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.transformer.MapToVariables
-     adams.flow.transformer.UFDLExtractAndTransferPK -name project_pk -source dataset_project -target project_pk
-     adams.flow.transformer.UFDLExtractAndTransferPK -name license_pk -source dataset_license -target license_pk
+     adams.flow.transformer.UFDLExtractAndTransfer -name project_pk -source dataset_project -target project_pk
+     adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source dataset_license -target license_pk
     adams.flow.control.CloseCallableDisplay -callable Current
     adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
     adams.flow.control.Trigger -name create
@@ -133,7 +133,7 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
      adams.flow.source.EnterManyValues -name "Update dataset" -stop-if-canceled true -value "adams.flow.source.valuedefinition.UFDLSpeechDatasetList -name dataset -display Dataset" -output-type MAP -restoration-enabled true -restoration-file @{restore}
      adams.flow.transformer.MapToVariables
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-     adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+     adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
     adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
     adams.flow.control.WhileLoop -name "update menu" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name show_update_menu"
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
@@ -198,7 +198,7 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
    adams.flow.control.Trigger -name View
     adams.flow.source.EnterManyValues -name "View dataset" -value "adams.flow.source.valuedefinition.UFDLSpeechDatasetList -name dataset -display Dataset" -output-type MAP
     adams.flow.transformer.MapToVariables
-    adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+    adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
     adams.flow.control.Trigger -name view
      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
      adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListSpeechFiles -use-error-queue true
@@ -244,7 +244,7 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
      adams.flow.source.EnterManyValues -name "Download dataset" -value "adams.flow.source.valuedefinition.UFDLSpeechDatasetList -name dataset -display Dataset" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name parameters -display Parameters -help \"parameters for the wai.annotations library to customize the download\"" -value "adams.flow.source.valuedefinition.FileValueDefinition -name output_file -display \"Output file\" -help \"The file to save the downloaded dataset in.\" -file-chooser-title \"Select output file\" -extension zip -extension tar.gz -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name display_in_filebrowser -display \"Display in file browser?\" -type BOOLEAN -default-value false" -output-type MAP -restoration-enabled true -restoration-file @{restore}
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.transformer.MapToVariables
-     adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+     adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
     adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
     adams.flow.control.Trigger -name download
      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt

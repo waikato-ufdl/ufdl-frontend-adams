@@ -21,7 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
-import adams.flow.transformer.UFDLExtractAndTransferPK;
+import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
@@ -58,7 +58,7 @@ public class UFDLImageClassificationDatasetList
    */
   @Override
   public Class[] getClassCrossReferences() {
-    return new Class[]{UFDLExtractAndTransferPK.class};
+    return new Class[]{UFDLExtractAndTransfer.class};
   }
 
   /**

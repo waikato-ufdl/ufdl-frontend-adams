@@ -13,8 +13,8 @@ adams.flow.control.Flow -annotation "Creates an image classification dataset fro
   adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
   adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_name -display \"Dataset name\"" -value "adams.flow.source.valuedefinition.UFDLLicenseList -name dataset_license -display License" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_public -display \"Public dataset?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_tags -display Tags" -value "adams.flow.source.valuedefinition.UFDLProjectList -name dataset_project -display Project" -output-type MAP -restoration-enabled true -restoration-file @{restore}
   adams.flow.transformer.MapToVariables
-  adams.flow.transformer.UFDLExtractAndTransferPK -name project_pk -source dataset_project -target project_pk
-  adams.flow.transformer.UFDLExtractAndTransferPK -name license_pk -source dataset_license -target license_pk
+  adams.flow.transformer.UFDLExtractAndTransfer -name project_pk -source dataset_project -target project_pk
+  adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source dataset_license -target license_pk
  adams.flow.control.Trigger -name "create dataset"
   adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateImageClassificationDataset -name @{dataset_name} -project @{project_pk} -licence @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}"
   adams.flow.transformer.SetStorageValue -storage-name dataset

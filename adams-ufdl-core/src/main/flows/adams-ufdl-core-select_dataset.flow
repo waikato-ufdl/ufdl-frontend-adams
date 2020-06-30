@@ -8,7 +8,7 @@ adams.flow.control.Flow -annotation "Lets the user select a dataset and then dis
  adams.flow.standalone.UFDLConnection
  adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLDatasetList -name dataset -display Dataset" -output-type MAP
  adams.flow.transformer.MapToVariables
- adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+ adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
  adams.flow.control.Trigger -name output
   adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToString
   adams.flow.sink.Display -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter

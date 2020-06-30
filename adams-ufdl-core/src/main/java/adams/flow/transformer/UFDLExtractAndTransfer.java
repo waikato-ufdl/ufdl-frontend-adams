@@ -14,7 +14,7 @@
  */
 
 /*
- * UFDLExtractAndTransferPK.java
+ * UFDLExtractAndTransfer.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
@@ -28,7 +28,7 @@ import com.github.fracpete.javautils.struct.Struct2;
 
 /**
  <!-- globalinfo-start -->
- * Extracts the primary key (PK) of a list item from the source variable and transfer it into the target variable.
+ * Extracts the primary key (PK) or description of a list item from the source variable and transfer it into the target variable.
  * <br><br>
  <!-- globalinfo-end -->
  *
@@ -49,7 +49,7 @@ import com.github.fracpete.javautils.struct.Struct2;
  *
  * <pre>-name &lt;java.lang.String&gt; (property: name)
  * &nbsp;&nbsp;&nbsp;The name of the actor.
- * &nbsp;&nbsp;&nbsp;default: UFDLExtractAndTransferPK
+ * &nbsp;&nbsp;&nbsp;default: UFDLExtractAndTransfer
  * </pre>
  *
  * <pre>-annotation &lt;adams.core.base.BaseAnnotation&gt; (property: annotations)
@@ -86,6 +86,11 @@ import com.github.fracpete.javautils.struct.Struct2;
  * &nbsp;&nbsp;&nbsp;default: BY_DESCRIPTION_CASE_INSENSITIVE
  * </pre>
  *
+ * <pre>-type &lt;PK|DESCRIPTION&gt; (property: type)
+ * &nbsp;&nbsp;&nbsp;The type of data to extract and transfer.
+ * &nbsp;&nbsp;&nbsp;default: PK
+ * </pre>
+ *
  * <pre>-target &lt;adams.core.VariableName&gt; (property: target)
  * &nbsp;&nbsp;&nbsp;The target variable to obtain the list item string from.
  * &nbsp;&nbsp;&nbsp;default: variable
@@ -95,10 +100,18 @@ import com.github.fracpete.javautils.struct.Struct2;
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class UFDLExtractAndTransferPK
+public class UFDLExtractAndTransfer
   extends AbstractTransformer {
 
   private static final long serialVersionUID = -4112175976999577551L;
+
+  /**
+   * Enum for what to extract.
+   */
+  public enum ExtractionType {
+    PK,
+    DESCRIPTION
+  }
 
   /** the source variable. */
   protected VariableName m_Source;
@@ -106,6 +119,9 @@ public class UFDLExtractAndTransferPK
   /** how to the list items were sorted. */
   protected UFDLListSorting m_Sorting;
 
+  /** what to extract. */
+  protected ExtractionType m_Type;
+  
   /** the target variable. */
   protected VariableName m_Target;
 
@@ -116,7 +132,7 @@ public class UFDLExtractAndTransferPK
    */
   @Override
   public String globalInfo() {
-    return "Extracts the primary key (PK) of a list item from the source variable and transfer it into the target variable.";
+    return "Extracts the primary key (PK) or description of a list item from the source variable and transfer it into the target variable.";
   }
 
   /**
@@ -135,6 +151,10 @@ public class UFDLExtractAndTransferPK
       UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE);
 
     m_OptionManager.add(
+      "type", "type",
+      ExtractionType.PK);
+
+    m_OptionManager.add(
       "target", "target",
       new VariableName());
   }
@@ -150,6 +170,7 @@ public class UFDLExtractAndTransferPK
 
     result = QuickInfoHelper.toString(this, "source", m_Source);
     result += QuickInfoHelper.toString(this, "sorting", m_Sorting, " -> ");
+    result += QuickInfoHelper.toString(this, "type", m_Type, " / ");
     result += QuickInfoHelper.toString(this, "target", m_Target, " -> ");
 
     return result;
@@ -211,6 +232,35 @@ public class UFDLExtractAndTransferPK
    */
   public String sortingTipText() {
     return "The sorting that was applied to the list items.";
+  }
+
+  /**
+   * Sets the type of data to extract and transfer.
+   *
+   * @param value	the type
+   */
+  public void setType(ExtractionType value) {
+    m_Type = value;
+    reset();
+  }
+
+  /**
+   * Returns the type of data to extract and transfer.
+   *
+   * @return 		the type
+   */
+  public ExtractionType getType() {
+    return m_Type;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return		tip text for this property suitable for
+   *             	displaying in the GUI or for listing the options.
+   */
+  public String typeTipText() {
+    return "The type of data to extract and transfer.";
   }
 
   /**
@@ -282,10 +332,21 @@ public class UFDLExtractAndTransferPK
       itemStr = getVariables().get(m_Source.getValue());
       try {
 	item = m_Sorting.fromString(itemStr);
-	if (item == null)
-	  result = "Failed to extract PK from: " + itemStr;
-	else
-	  getVariables().set(m_Target.getValue(), "" + item.value1);
+	if (item == null) {
+          result = "Failed to extract PK from: " + itemStr;
+        }
+	else {
+	  switch (m_Type) {
+            case PK:
+              getVariables().set(m_Target.getValue(), "" + item.value1);
+              break;
+            case DESCRIPTION:
+              getVariables().set(m_Target.getValue(), item.value2);
+              break;
+            default:
+              throw new IllegalStateException("Unhandled extraction type: " + m_Type);
+          }
+        }
       }
       catch (Exception e) {
         result = handleException("Failed to extract PK from: " + itemStr, e);

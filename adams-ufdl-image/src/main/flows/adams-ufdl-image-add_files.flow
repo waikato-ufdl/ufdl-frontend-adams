@@ -12,7 +12,7 @@ adams.flow.control.Flow -annotation "Adds the sepcified files to a dataset that 
  adams.flow.control.Trigger -name "select dataset"
   adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.UFDLDatasetList -name dataset -display Dataset" -output-type MAP
   adams.flow.transformer.MapToVariables
-  adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+  adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
  adams.flow.control.Trigger -name "add files"
   adams.flow.source.SelectFile -output-array true -file-chooser-title "Select images to add" -initial-dir ${FLOWS}/data -extension jpg,png
   adams.flow.transformer.Convert -conversion adams.data.conversion.JoinOptions

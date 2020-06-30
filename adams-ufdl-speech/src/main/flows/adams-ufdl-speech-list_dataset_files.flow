@@ -13,7 +13,7 @@ adams.flow.control.Flow -annotation "Lists the files/transcripts in a dataset.\\
   adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
   adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.UFDLSpeechDatasetList -name dataset -display Dataset -state ANY" -output-type MAP -restoration-enabled true -restoration-file @{restore}
   adams.flow.transformer.MapToVariables
-  adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+  adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
  adams.flow.control.Trigger -name list
   adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
   adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListSpeechFiles

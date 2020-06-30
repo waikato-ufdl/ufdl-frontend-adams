@@ -8,7 +8,7 @@ adams.flow.control.Flow -annotation "Lets the user select a license and then dis
  adams.flow.standalone.UFDLConnection
  adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLLicenseList -name license -display License -sorting BY_ID" -output-type MAP
  adams.flow.transformer.MapToVariables
- adams.flow.transformer.UFDLExtractAndTransferPK -name license_pk -source license -sorting BY_ID -target license_pk
+ adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source license -sorting BY_ID -target license_pk
  adams.flow.control.Trigger -name output
   adams.flow.source.Variable -var-name license_pk -conversion adams.data.conversion.StringToString
   adams.flow.sink.Display -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter

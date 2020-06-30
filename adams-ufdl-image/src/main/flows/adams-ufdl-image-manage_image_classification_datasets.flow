@@ -100,8 +100,8 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.source.EnterManyValues -name "Create dataset" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_name -display \"Dataset name\"" -value "adams.flow.source.valuedefinition.UFDLLicenseList -name dataset_license -display License" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_public -display \"Public dataset?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_tags -display Tags" -value "adams.flow.source.valuedefinition.UFDLProjectList -name dataset_project -display Project" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name image_dir -display \"Directory with images\" -type DIRECTORY_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name categories -display \"Image categories (blank-separated list)\" -default-value \"cat1 cat2\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.transformer.MapToVariables
-     adams.flow.transformer.UFDLExtractAndTransferPK -name project_pk -source dataset_project -target project_pk
-     adams.flow.transformer.UFDLExtractAndTransferPK -name license_pk -source dataset_license -target license_pk
+     adams.flow.transformer.UFDLExtractAndTransfer -name project_pk -source dataset_project -target project_pk
+     adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source dataset_license -target license_pk
      adams.flow.transformer.CallableTransformer -callable "buttons or combobox for categories?"
     adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
     adams.flow.control.CloseCallableDisplay -callable Current
@@ -128,7 +128,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.source.EnterManyValues -name "Update dataset" -value "adams.flow.source.valuedefinition.UFDLImageClassificationDatasetList -name dataset -display Dataset" -output-type MAP -restoration-enabled true -restoration-file @{restore}
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.transformer.MapToVariables
-     adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+     adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
     adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
     adams.flow.control.WhileLoop -name "update menu loop" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name show_update_menu"
      adams.flow.source.Start
@@ -226,7 +226,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.source.EnterManyValues -name "View dataset" -value "adams.flow.source.valuedefinition.UFDLImageClassificationDatasetList -name dataset -display Dataset" -output-type MAP -restoration-enabled true -restoration-file @{restore}
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.transformer.MapToVariables
-     adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+     adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
     adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
     adams.flow.control.Trigger -name "view selected dataset"
      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
@@ -277,7 +277,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.source.EnterManyValues -name "Download dataset" -value "adams.flow.source.valuedefinition.UFDLImageClassificationDatasetList -name dataset" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name parameters -display \"Export parameters\" -help \"command-line options passed on to wai.annotations\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name output_file -display \"Output file\" -help \"extension must be zip or tar.gz\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name display_in_filebrowser -display \"Display in file browser?\" -type BOOLEAN -default-value false" -output-type MAP -restoration-enabled true -restoration-file @{restore}
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.transformer.MapToVariables
-     adams.flow.transformer.UFDLExtractAndTransferPK -name dataset_pk -source dataset -target dataset_pk
+     adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
     adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
     adams.flow.control.Trigger -name "download selected dataset"
      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
