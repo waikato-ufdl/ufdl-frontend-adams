@@ -118,7 +118,7 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
     adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
     adams.flow.control.Trigger -name create
      adams.flow.standalone.SetVariable -name reset -var-name created -var-value false
-     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateSpeechDataset -name @{dataset_name} -description @{dataset_description} -project @{project_pk} -licence @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}" -use-error-queue true
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateSpeechDataset -name @{dataset_name} -description @{dataset_description} -project @{project_pk} -license @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}" -use-error-queue true
      adams.flow.transformer.SetVariable -name set -var-name created -var-value true
      adams.flow.transformer.SetStorageValue -storage-name dataset
      adams.flow.sink.CallableSink -callable Info

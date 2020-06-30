@@ -16,7 +16,7 @@ adams.flow.control.Flow -annotation "Creates an object detection dataset from th
   adams.flow.transformer.UFDLExtractAndTransfer -name project_pk -source dataset_project -target project_pk
   adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source dataset_license -target license_pk
  adams.flow.control.Trigger -name "create dataset"
-  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateObjectDetectionDataset -name @{dataset_name} -project @{project_pk} -licence @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}"
+  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateObjectDetectionDataset -name @{dataset_name} -project @{project_pk} -license @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}"
   adams.flow.transformer.SetStorageValue -storage-name dataset
  adams.flow.control.Trigger -name "add files"
   adams.flow.source.SelectFile -file-chooser-title "Select images to add" -initial-dir ${FLOWS}/data -extension jpg,png

@@ -51,6 +51,6 @@ public class CreateImageClassificationDataset
   @Override
   protected Dataset createDataset() throws Exception {
       return m_Client.action(ImageClassificationDatasets.class).create(
-        m_Name, m_Description, m_Project, m_Licence, m_IsPublic, m_Tags);
+        m_Name, m_Description, m_Project, m_License, m_IsPublic, m_Tags);
   }
 }

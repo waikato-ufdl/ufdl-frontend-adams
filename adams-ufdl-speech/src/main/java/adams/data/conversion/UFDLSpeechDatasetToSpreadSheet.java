@@ -80,7 +80,7 @@ public class UFDLSpeechDatasetToSpreadSheet
     row.addCell("ci").setContentAsString("creator_id");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
-    row.addCell("li").setContentAsString("licence");
+    row.addCell("li").setContentAsString("license");
     row.addCell("pi").setContentAsString("project_id");
     row.addCell("ve").setContentAsString("version");
     row.addCell("ta").setContentAsString("tags");

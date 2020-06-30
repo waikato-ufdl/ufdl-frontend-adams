@@ -44,7 +44,7 @@ public abstract class AbstractCreateDataset
   protected int m_Project;
 
   /** the license. */
-  protected int m_Licence;
+  protected int m_License;
 
   /** whether it is public. */
   protected boolean m_IsPublic;
@@ -72,7 +72,7 @@ public abstract class AbstractCreateDataset
       -1, -1, null);
 
     m_OptionManager.add(
-      "licence", "licence",
+      "license", "license",
       -1, -1, null);
 
     m_OptionManager.add(
@@ -172,22 +172,22 @@ public abstract class AbstractCreateDataset
   }
 
   /**
-   * Sets the PK of the licence.
+   * Sets the PK of the license.
    *
-   * @param value	the licence
+   * @param value	the license
    */
-  public void setLicence(int value) {
-    m_Licence = value;
+  public void setLicense(int value) {
+    m_License = value;
     reset();
   }
 
   /**
-   * Returns the PK of the licence.
+   * Returns the PK of the license.
    *
-   * @return		the licence
+   * @return		the license
    */
-  public int getLicence() {
-    return m_Licence;
+  public int getLicense() {
+    return m_License;
   }
 
   /**
@@ -196,8 +196,8 @@ public abstract class AbstractCreateDataset
    * @return 		tip text for this property suitable for
    * 			displaying in the GUI or for listing the options.
    */
-  public String licenceTipText() {
-    return "The dataset licence.";
+  public String licenseTipText() {
+    return "The dataset license.";
   }
 
   /**
@@ -269,7 +269,7 @@ public abstract class AbstractCreateDataset
 
     result = QuickInfoHelper.toString(this, "name", m_Name);
     result += QuickInfoHelper.toString(this, "project", m_Project, ", project: ");
-    result += QuickInfoHelper.toString(this, "licence", m_LoggingIsEnabled, ", licence: ");
+    result += QuickInfoHelper.toString(this, "license", m_LoggingIsEnabled, ", license: ");
     result += QuickInfoHelper.toString(this, "isPublic", m_IsPublic, "public", ", ");
 
     return result;

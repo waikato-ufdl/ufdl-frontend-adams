@@ -26,7 +26,7 @@ adams.flow.control.Flow -annotation "Creates a speech dataset and lets the user 
    adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractListItemPK
    adams.flow.transformer.SetVariable -var-name license_pk
  adams.flow.control.Trigger -name "create dataset"
-  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateSpeechDataset -name @{dataset_name} -description @{dataset_description} -project @{project_pk} -licence @{license_pk} -is-public true -tags @{dataset_tags}"
+  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateSpeechDataset -name @{dataset_name} -description @{dataset_description} -project @{project_pk} -license @{license_pk} -is-public true -tags @{dataset_tags}"
   adams.flow.transformer.SetStorageValue -storage-name dataset
   adams.flow.control.Tee -name info
    adams.flow.sink.CallableSink -callable Info

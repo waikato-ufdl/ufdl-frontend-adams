@@ -78,7 +78,7 @@ public class UFDLDatasetToSpreadSheet
     row.addCell("ci").setContentAsString("creator_id");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
-    row.addCell("li").setContentAsString("licence_id");
+    row.addCell("li").setContentAsString("license_id");
     row.addCell("pi").setContentAsString("project_id");
     row.addCell("ve").setContentAsString("version");
     row.addCell("ta").setContentAsString("tags");

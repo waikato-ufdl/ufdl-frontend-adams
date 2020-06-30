@@ -51,6 +51,6 @@ public class CreateObjectDetectionDataset
   @Override
   protected Dataset createDataset() throws Exception {
       return m_Client.action(ObjectDetectionDatasets.class).create(
-        m_Name, m_Description, m_Project, m_Licence, m_IsPublic, m_Tags);
+        m_Name, m_Description, m_Project, m_License, m_IsPublic, m_Tags);
   }
 }
