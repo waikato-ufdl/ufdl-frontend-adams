@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-28 14:48:38
+# Date: 2020-07-01 20:52:20
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-audio,adams-core,adams-event,adams-ffmpeg,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-speech
@@ -96,11 +96,21 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
   adams.flow.source.Start
   adams.flow.control.CloseCallableDisplay -name "close progressbar" -callable ProgressBar
   adams.flow.control.Trigger -name "menu prompt"
-   adams.flow.source.EnterValue -name "Speech modelling" -message "Please select dataset operation" -selection-values Create -selection-values Update -selection-values View -selection-values Download -selection-values Delete -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
+   adams.flow.source.EnterValue -name "Speech modelling" -message "Please select dataset operation" -selection-values List -selection-values Create -selection-values Update -selection-values View -selection-values Download -selection-values Delete -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
    adams.flow.transformer.SetVariable -var-name choice
    adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
   adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
-  adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Create\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"View\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Download\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Exit\\\\\\\"\"" -lenient true
+  adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Create\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"View\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Download\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Exit\\\\\\\"\"" -lenient true
+   adams.flow.control.Trigger -name List
+    adams.flow.standalone.SetVariable -name reset -var-name no_datasets -var-value true
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name display
+     adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListSpeechDatasets -use-error-queue true
+     adams.flow.transformer.SetVariable -var-name no_datasets -var-value false
+     adams.flow.sink.CallableSink -callable Current
+    adams.flow.control.ConditionalTrigger -name "no datasets?" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name no_datasets"
+     adams.flow.source.CombineVariables -expression "No datasets to list!" -conversion adams.data.conversion.StringToString
+     adams.flow.sink.InformationDialog
    adams.flow.control.Trigger -name Create
     adams.flow.source.Start
     adams.flow.control.Trigger -name current
