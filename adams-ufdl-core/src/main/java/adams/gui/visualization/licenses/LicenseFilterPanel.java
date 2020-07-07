@@ -447,6 +447,28 @@ public class LicenseFilterPanel
   }
 
   /**
+   * Sets the licenses to select initially.
+   *
+   * @param value	the licenses
+   */
+  public void setSelectedLicenses(License[] value) {
+    TIntList	sel;
+    int		i;
+
+    sel = new TIntArrayList();
+    for (License l: value) {
+      for (i = 0; i < m_Licenses.length; i++) {
+        if (l.getName().equals(m_Licenses[i].getName())) {
+	  sel.add(i);
+	  break;
+	}
+      }
+    }
+
+    m_ListMatches.setSelectedIndices(sel.toArray());
+  }
+
+  /**
    * Returns all the currently selected licenses.
    *
    * @return		the licenses
