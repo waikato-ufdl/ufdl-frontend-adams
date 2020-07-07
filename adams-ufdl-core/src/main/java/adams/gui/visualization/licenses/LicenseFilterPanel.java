@@ -390,6 +390,15 @@ public class LicenseFilterPanel
   }
 
   /**
+   * Clears all the filters.
+   */
+  public void clearFilters() {
+    setSelectedPermissions(null);
+    setSelectedLimitations(null);
+    setSelectedConditions(null);
+  }
+
+  /**
    * Selects the permissions.
    * 
    * @param value	the permissions

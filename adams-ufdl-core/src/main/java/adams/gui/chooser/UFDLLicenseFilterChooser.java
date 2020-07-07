@@ -166,6 +166,7 @@ public class UFDLLicenseFilterChooser
     catch (Exception e) {
       ConsolePanel.getSingleton().append("Failed to list licenses!", e);
     }
+    m_PanelFilter.clearFilters();
     if (result != null)
       m_PanelFilter.setSelectedLicenses(new License[]{result});
     m_Dialog.setVisible(true);
