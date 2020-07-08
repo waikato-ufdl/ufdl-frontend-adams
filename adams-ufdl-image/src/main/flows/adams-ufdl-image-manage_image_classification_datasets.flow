@@ -226,8 +226,8 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
           adams.flow.transformer.SetVariable -var-name category
          adams.flow.control.Trigger -name "update labels"
           adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
-          adams.flow.transformer.UFDLTransformer -name "remove old" -action "adams.flow.transformer.ufdl.DeleteImageClassificationCategories -name @{image} -category @{current_categories}"
-          adams.flow.transformer.UFDLTransformer -name "add new" -action "adams.flow.transformer.ufdl.AddImageClassificationCategories -name @{image} -category @{category}"
+          adams.flow.transformer.UFDLTransformer -name "remove old" -action "adams.flow.transformer.ufdl.DeleteImageClassificationCategoriesForFile -name @{image} -category @{current_categories}"
+          adams.flow.transformer.UFDLTransformer -name "add new" -action "adams.flow.transformer.ufdl.AddImageClassificationCategoriesForFile -name @{image} -category @{category}"
          adams.flow.control.Tee -name "get interaction"
           adams.flow.transformer.GetReportValue -field interaction-log[S]
           adams.flow.transformer.SetStorageValue -storage-name metadata

@@ -14,7 +14,7 @@
  */
 
 /*
- * DeleteImageClassificationCategories.java
+ * AddImageClassificationCategoriesForFile.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
@@ -29,11 +29,11 @@ import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 import java.util.Arrays;
 
 /**
- * Removes the specified categories from the named images for the dataset passing through.
+ * Assigns the specified categories to the named images for the dataset passing through.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class DeleteImageClassificationCategories
+public class AddImageClassificationCategoriesForFile
   extends AbstractImageClassificationDatasetTransformerAction {
 
   private static final long serialVersionUID = -1421130988687306299L;
@@ -51,7 +51,7 @@ public class DeleteImageClassificationCategories
    */
   @Override
   public String globalInfo() {
-    return "Removes the specified categories from the named images for the dataset passing through.";
+    return "Assigns the specified categories to the named images for the dataset passing through.";
   }
 
   /**
@@ -100,7 +100,7 @@ public class DeleteImageClassificationCategories
   }
 
   /**
-   * Sets the categories to remove from each image.
+   * Sets the categories to add to each image.
    *
    * @param value	the categories
    */
@@ -110,7 +110,7 @@ public class DeleteImageClassificationCategories
   }
 
   /**
-   * Returns the categories to remove from each image.
+   * Returns the categories to add to each image.
    *
    * @return		the categories
    */
@@ -125,7 +125,17 @@ public class DeleteImageClassificationCategories
    * 			displaying in the GUI or for listing the options.
    */
   public String categoriesTipText() {
-    return "The categories to remove from each image.";
+    return "The categories to assign to each image.";
+  }
+
+  /**
+   * Returns the classes that the transformer generates.
+   *
+   * @return		the classes
+   */
+  @Override
+  public Class[] generates() {
+    return new Class[]{Dataset.class};
   }
 
   /**
@@ -144,16 +154,6 @@ public class DeleteImageClassificationCategories
   }
 
   /**
-   * Returns the classes that the transformer generates.
-   *
-   * @return		the classes
-   */
-  @Override
-  public Class[] generates() {
-    return new Class[]{Dataset.class};
-  }
-
-  /**
    * Transforms the input data.
    *
    * @param dataset	the input data
@@ -163,14 +163,14 @@ public class DeleteImageClassificationCategories
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
     try {
-      if (!getDatasetsAction().removeCategories(
+      if (!getDatasetsAction().addCategories(
         dataset,
 	Arrays.asList(BaseObject.toStringArray(m_Names)),
 	Arrays.asList(BaseObject.toStringArray(m_Categories))))
-	errors.add("Failed to removes categories from dataset: " + dataset);
+	errors.add("Failed to add categories for dataset: " + dataset);
     }
     catch (Exception e) {
-      errors.add("Failed to removes categories from dataset: " + dataset, e);
+      errors.add("Failed to add categories for dataset: " + dataset, e);
     }
 
     return dataset;
