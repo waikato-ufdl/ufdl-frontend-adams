@@ -32,6 +32,7 @@ import com.github.waikatoufdl.ufdl4j.action.Licenses.Condition;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.Limitation;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.Permission;
+import com.github.waikatoufdl.ufdl4j.core.CustomDisplayEnum;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 
@@ -67,6 +68,54 @@ public class LicenseFilterPanel
   extends BasePanel {
 
   private static final long serialVersionUID = -775575078142364656L;
+
+  /**
+   * The cell renderer.
+   */
+  public static class EnumRenderer
+    extends DefaultListCellRenderer {
+
+    private static final long serialVersionUID = 662711521384106051L;
+
+    /** the border for no focus. */
+    protected Border m_BorderNoFocus;
+
+    /** the border for focused. */
+    protected Border m_BorderFocused;
+
+    /**
+     * Returns the rendering component.
+     *
+     * @param list		the list this renderer is for
+     * @param value		the current list value
+     * @param index		the index of the value
+     * @param isSelected	whether the item is selected
+     * @param cellHasFocus	whether the cell has the focus
+     * @return			the rendering component
+     */
+    @Override
+    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+      Component		result;
+      JLabel 		label;
+      CustomDisplayEnum item;
+
+      if (m_BorderNoFocus == null) {
+        m_BorderNoFocus = BorderFactory.createEmptyBorder(1, 1, 1, 1);
+        m_BorderFocused = BorderFactory.createLineBorder(list.getSelectionBackground().darker(), 1);
+      }
+
+      result = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+      label  = (JLabel) result;
+      if (cellHasFocus)
+        label.setBorder(m_BorderFocused);
+      else
+        label.setBorder(m_BorderNoFocus);
+      item = (CustomDisplayEnum) list.getModel().getElementAt(index);
+      label.setText(item.toDisplay());
+
+      return result;
+    }
+  }
 
   /**
    * For selecting items.
@@ -117,6 +166,7 @@ public class LicenseFilterPanel
 
       m_ListItems = new BaseList(m_ModelItems);
       m_ListItems.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+      m_ListItems.setCellRenderer(new EnumRenderer());
       add(new BaseScrollPane(m_ListItems));
     }
 
