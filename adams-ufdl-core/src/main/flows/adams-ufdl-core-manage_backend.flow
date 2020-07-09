@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-06-30 15:08:13
+# Date: 2020-07-09 13:59:22
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -420,6 +420,12 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
        adams.flow.control.Trigger -name add
         adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateLicense -name @{name} -url @{url}" -use-error-queue true
         adams.flow.transformer.SetStorageValue -storage-name license
+        adams.flow.control.Trigger -name domains
+         adams.flow.source.SelectObjects -name "Select domains" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Domain -short-title true
+         adams.flow.control.ArrayProcess
+          adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
+         adams.flow.transformer.StringJoin -glue " "
+         adams.flow.transformer.SetVariable -var-name domains
         adams.flow.control.Trigger -name permissions
          adams.flow.source.SelectObjects -name "Select permissions" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Permission -short-title true
          adams.flow.control.ArrayProcess
@@ -440,7 +446,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
          adams.flow.transformer.SetVariable -var-name limitations
         adams.flow.control.Trigger -name display
          adams.flow.source.StorageValue -storage-name license -conversion adams.data.conversion.UnknownToUnknown
-         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UpdateLicenseSubDescriptors -permission @{permissions} -condition @{conditions} -limitation @{limitations}" -use-error-queue true
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UpdateLicenseSubDescriptors -domain @{domains} -permission @{permissions} -condition @{conditions} -limitation @{limitations}" -use-error-queue true
          adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Update
        adams.flow.source.Start
@@ -456,7 +462,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadLicense -use-error-queue true
         adams.flow.transformer.SetStorageValue -storage-name license
         adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLLicenseToSpreadSheet
-        adams.flow.transformer.SpreadSheetConvertCells -finder "adams.data.spreadsheet.cellfinder.CellRange -columns permissions,conditions,limitations" -conversion "adams.data.conversion.StringExpression -expression \"substitute(X, \\\\\\\",\\\\\\\", \\\\\\\" \\\\\\\")\""
+        adams.flow.transformer.SpreadSheetConvertCells -finder "adams.data.spreadsheet.cellfinder.CellRange -columns domains,permissions,conditions,limitations" -conversion "adams.data.conversion.StringExpression -expression \"substitute(X, \\\\\\\",\\\\\\\", \\\\\\\" \\\\\\\")\""
         adams.flow.transformer.SpreadSheetVariableRowIterator
        adams.flow.control.Trigger -name "prompt for new values"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
@@ -464,6 +470,12 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source license -target license_pk
+       adams.flow.control.Trigger -name domains
+        adams.flow.source.SelectObjects -name "Select domains" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Domain -initial-objects @{domains} -short-title true
+        adams.flow.control.ArrayProcess
+         adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
+        adams.flow.transformer.StringJoin -glue " "
+        adams.flow.transformer.SetVariable -var-name domains
        adams.flow.control.Trigger -name permissions
         adams.flow.source.SelectObjects -name "Select permissions" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Permission -initial-objects @{permissions} -short-title true
         adams.flow.control.ArrayProcess
@@ -485,7 +497,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
        adams.flow.control.Trigger -name "update and display"
         adams.flow.source.StorageValue -storage-name license -conversion adams.data.conversion.UnknownToUnknown
         adams.flow.transformer.UFDLTransformer -name "UFDLTransformer (2)" -action "adams.flow.transformer.ufdl.UpdateLicense -name @{name} -url @{url}" -use-error-queue true
-        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UpdateLicenseSubDescriptors -permission @{permissions} -condition @{conditions} -limitation @{limitations}" -use-error-queue true
+        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UpdateLicenseSubDescriptors -domain @{domains} -permission @{permissions} -condition @{conditions} -limitation @{limitations}" -use-error-queue true
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Delete
        adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListLicenses -use-error-queue true

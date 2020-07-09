@@ -23,6 +23,7 @@ package adams.flow.transformer.ufdl;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.Condition;
+import com.github.waikatoufdl.ufdl4j.action.Licenses.Domain;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.Limitation;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.Permission;
@@ -41,6 +42,9 @@ public class UpdateLicenseSubDescriptors
 
   private static final long serialVersionUID = 2444931814949354710L;
 
+  /** the domains. */
+  protected Domain[] m_Domains;
+  
   /** the permissions. */
   protected Permission[] m_Permissions;
 
@@ -57,7 +61,7 @@ public class UpdateLicenseSubDescriptors
    */
   @Override
   public String globalInfo() {
-    return "Updates the permissions, conditions and limitations of a license and forwards the license object.";
+    return "Updates the domains, permissions, conditions and limitations of a license and forwards the license object.";
   }
 
   /**
@@ -66,6 +70,10 @@ public class UpdateLicenseSubDescriptors
   @Override
   public void defineOptions() {
     super.defineOptions();
+
+    m_OptionManager.add(
+      "domain", "domains",
+      new Domain[0]);
 
     m_OptionManager.add(
       "permission", "permissions",
@@ -78,6 +86,35 @@ public class UpdateLicenseSubDescriptors
     m_OptionManager.add(
       "limitation", "limitations",
       new Limitation[0]);
+  }
+
+  /**
+   * Sets the new domains.
+   *
+   * @param value	the domains
+   */
+  public void setDomains(Domain[] value) {
+    m_Domains = value;
+    reset();
+  }
+
+  /**
+   * Returns the new domains.
+   *
+   * @return		the domains
+   */
+  public Domain[] getDomains() {
+    return m_Domains;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String domainsTipText() {
+    return "The new domains.";
   }
 
   /**
@@ -176,7 +213,8 @@ public class UpdateLicenseSubDescriptors
   public String getQuickInfo() {
     String	result;
 
-    result = QuickInfoHelper.toString(this, "permissions", m_Permissions, "permissions: ");
+    result = QuickInfoHelper.toString(this, "domains", m_Domains, "domains: ");
+    result += QuickInfoHelper.toString(this, "permissions", m_Permissions, ", permissions: ");
     result += QuickInfoHelper.toString(this, "conditions", m_Conditions, ", conditions: ");
     result += QuickInfoHelper.toString(this, "limitations", m_Limitations, ", limitations: ");
 
@@ -202,6 +240,8 @@ public class UpdateLicenseSubDescriptors
   @Override
   protected Object doTransform(License license, MessageCollection errors) {
     License    		result;
+    Set<Domain>		domAdd;
+    Set<Domain>		domRem;
     Set<Permission>	permAdd;
     Set<Permission>	permRem;
     Set<Condition>	condAdd;
@@ -211,6 +251,12 @@ public class UpdateLicenseSubDescriptors
     boolean		success;
 
     result = null;
+    
+    // domains
+    domAdd = new HashSet<>(Arrays.asList(m_Domains));
+    domAdd.removeAll(license.getDomains());
+    domRem = new HashSet<>(license.getDomains());
+    domRem.removeAll(Arrays.asList(m_Domains));
     
     // permissions
     permAdd = new HashSet<>(Arrays.asList(m_Permissions));
@@ -231,31 +277,41 @@ public class UpdateLicenseSubDescriptors
     limRem.removeAll(Arrays.asList(m_Limitations));
 
     if (isLoggingEnabled()) {
-      getLogger().info("Remove: perm=" + permRem + ", cond=" + condRem + ", lim=" + limRem);
-      getLogger().info("Add: perm=" + permAdd + ", cond=" + condAdd + ", lim=" + limAdd);
+      getLogger().info("Remove: dom=" + domRem + ", perm=" + permRem + ", cond=" + condRem + ", lim=" + limRem);
+      getLogger().info("Add: dom=" + domAdd + ", perm=" + permAdd + ", cond=" + condAdd + ", lim=" + limAdd);
     }
     
     success = true;
-    if ((permRem.size() > 0) || (condRem.size() > 0) || (limRem.size() > 0)) {
+    if (!domRem.isEmpty() || !permRem.isEmpty() || !condRem.isEmpty() || !limRem.isEmpty()) {
       try {
-	success = m_Client.licenses().removeSubDescriptors(license, permRem.toArray(new Permission[0]), condRem.toArray(new Condition[0]), limRem.toArray(new Limitation[0]));
+	success = m_Client.licenses().removeSubDescriptors(
+	  license,
+	  domRem.toArray(new Domain[0]),
+	  permRem.toArray(new Permission[0]),
+	  condRem.toArray(new Condition[0]),
+	  limRem.toArray(new Limitation[0]));
 	if (!success)
-	  errors.add("Failed to remove sub-descriptors from license (perm=" + permRem + ", cond=" + condRem + ", lim=" + limRem + "): " + license);
+	  errors.add("Failed to remove sub-descriptors from license (dom=" + domRem + ", perm=" + permRem + ", cond=" + condRem + ", lim=" + limRem + "): " + license);
       }
       catch (Exception e) {
-	errors.add("Failed to remove sub-descriptors from license (perm=" + permRem + ", cond=" + condRem + ", lim=" + limRem + "): " + license, e);
+	errors.add("Failed to remove sub-descriptors from license (dom=" + domRem + ", perm=" + permRem + ", cond=" + condRem + ", lim=" + limRem + "): " + license, e);
       }
     }
     
     if (success) {
-      if ((permAdd.size() > 0) || (condAdd.size() > 0) || (limAdd.size() > 0)) {
+      if (!domAdd.isEmpty() || !permAdd.isEmpty() || !condAdd.isEmpty() || !limAdd.isEmpty()) {
 	try {
-	  success = m_Client.licenses().addSubDescriptors(license, permAdd.toArray(new Permission[0]), condAdd.toArray(new Condition[0]), limAdd.toArray(new Limitation[0]));
+	  success = m_Client.licenses().addSubDescriptors(
+	    license,
+	    domAdd.toArray(new Domain[0]),
+	    permAdd.toArray(new Permission[0]),
+	    condAdd.toArray(new Condition[0]),
+	    limAdd.toArray(new Limitation[0]));
 	  if (!success)
-	    errors.add("Failed to add sub-descriptors from license (perm=" + permAdd + ", cond=" + condAdd + ", lim=" + limAdd + "): " + license);
+	    errors.add("Failed to add sub-descriptors from license (dom=" + domAdd + ", perm=" + permAdd + ", cond=" + condAdd + ", lim=" + limAdd + "): " + license);
 	}
 	catch (Exception e) {
-	  errors.add("Failed to add sub-descriptors from license (perm=" + permAdd + ", cond=" + condAdd + ", lim=" + limAdd + "): " + license, e);
+	  errors.add("Failed to add sub-descriptors from license (dom=" + domAdd + ", perm=" + permAdd + ", cond=" + condAdd + ", lim=" + limAdd + "): " + license, e);
 	}
       }
     }

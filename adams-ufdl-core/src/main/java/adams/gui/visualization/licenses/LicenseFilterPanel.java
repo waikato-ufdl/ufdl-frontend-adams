@@ -29,6 +29,7 @@ import adams.gui.core.BasePanel;
 import adams.gui.core.BaseScrollPane;
 import adams.gui.help.HelpFrame;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.Condition;
+import com.github.waikatoufdl.ufdl4j.action.Licenses.Domain;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.Limitation;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.Permission;
@@ -321,6 +322,9 @@ public class LicenseFilterPanel
     }
   }
 
+  /** the domains. */
+  protected SelectionPanel<Domain> m_PanelDomains;
+
   /** the permissions. */
   protected SelectionPanel<Permission> m_PanelPermissions;
 
@@ -374,8 +378,14 @@ public class LicenseFilterPanel
     setLayout(new BorderLayout());
 
     // permissions/limitations/conditions
-    panel = new JPanel(new GridLayout(1, 3));
+    panel = new JPanel(new GridLayout(1, 4));
     add(panel, BorderLayout.NORTH);
+
+    m_PanelDomains = new SelectionPanel<>();
+    m_PanelDomains.setItems(Domain.values());
+    m_PanelDomains.setInfoText("Domain");
+    m_PanelDomains.addListSelectionListener((ListSelectionEvent e) -> apply());
+    panel.add(m_PanelDomains);
 
     m_PanelPermissions = new SelectionPanel<>();
     m_PanelPermissions.setItems(Permission.values());
@@ -443,9 +453,29 @@ public class LicenseFilterPanel
    * Clears all the filters.
    */
   public void clearFilters() {
+    setSelectedDomains(null);
     setSelectedPermissions(null);
     setSelectedLimitations(null);
     setSelectedConditions(null);
+  }
+
+  /**
+   * Selects the domains.
+   * 
+   * @param value	the domains
+   */
+  public void setSelectedDomains(Domain[] value) {
+    m_PanelDomains.setSelectedItems(value);
+    apply();
+  }
+
+  /**
+   * Returns the selected domains.
+   * 
+   * @return		the domains
+   */
+  public Domain[] getSelectedDomains() {
+    return m_PanelDomains.getSelectedItems();
   }
 
   /**
@@ -558,6 +588,10 @@ public class LicenseFilterPanel
     content = new StringBuilder();
     content.append(selected.getName()).append("\n");
     content.append("\n");
+    content.append("Domains:\n");
+    for (Domain p: selected.getDomains())
+      content.append("- ").append(p.toDisplay()).append("\n");
+    content.append("\n");
     content.append("Permissions:\n");
     for (Permission p: selected.getPermissions())
       content.append("- ").append(p.toDisplay()).append("\n");
@@ -597,12 +631,15 @@ public class LicenseFilterPanel
    * Returns whether the license is matching the selected permissions/limitations/conditions.
    *
    * @param license	the license to check
+   * @param domains 	the domains that the license must meet
    * @param permissions	the permissions that the license must meet
    * @param limitations	the limitations that the license must meet
    * @param conditions	the conditions that the license must meet
    * @return		true if a match
    */
-  protected boolean isMatch(License license, Set<Permission> permissions, Set<Limitation> limitations, Set<Condition> conditions) {
+  protected boolean isMatch(License license, Set<Domain> domains, Set<Permission> permissions, Set<Limitation> limitations, Set<Condition> conditions) {
+    if (!license.getDomains().containsAll(domains))
+      return false;
     if (!license.getPermissions().containsAll(permissions))
       return false;
     if (!license.getLimitations().containsAll(limitations))
@@ -619,17 +656,19 @@ public class LicenseFilterPanel
    */
   protected void apply() {
     List<License>	matches;
+    Set<Domain>		domains;
     Set<Permission> 	permissions;
     Set<Limitation>	limitations;
     Set<Condition>	conditions;
 
+    domains     = new HashSet<>(Arrays.asList(m_PanelDomains.getSelectedItems()));
     permissions = new HashSet<>(Arrays.asList(m_PanelPermissions.getSelectedItems()));
     limitations = new HashSet<>(Arrays.asList(m_PanelLimitations.getSelectedItems()));
     conditions  = new HashSet<>(Arrays.asList(m_PanelConditions.getSelectedItems()));
 
     matches = new ArrayList<>();
     for (License license: m_Licenses) {
-      if (isMatch(license, permissions, limitations, conditions))
+      if (isMatch(license, domains, permissions, limitations, conditions))
         matches.add(license);
     }
 
