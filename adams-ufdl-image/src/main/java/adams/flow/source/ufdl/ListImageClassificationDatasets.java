@@ -47,6 +47,9 @@ public class ListImageClassificationDatasets
   /** the state of the datasets to list. */
   protected UFDLSoftDeleteObjectState m_State;
 
+  /** whether to resolve IDs to names. */
+  protected boolean m_ResolveIDs;
+
   /**
    * Returns a string describing the object.
    *
@@ -67,6 +70,10 @@ public class ListImageClassificationDatasets
     m_OptionManager.add(
       "state", "state",
       UFDLSoftDeleteObjectState.ACTIVE);
+
+    m_OptionManager.add(
+      "resolve-ids", "resolveIDs",
+      false);
   }
 
   /**
@@ -102,13 +109,47 @@ public class ListImageClassificationDatasets
   }
 
   /**
+   * Sets whether to resolve any IDs.
+   *
+   * @param value	true if to resolve
+   */
+  public void setResolveIDs(boolean value) {
+    m_ResolveIDs = value;
+    reset();
+  }
+
+  /**
+   * Returns whether to resolve any IDs.
+   *
+   * @return 		true if to resolve
+   */
+  public boolean getResolveIDs() {
+    return m_ResolveIDs;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return		tip text for this property suitable for
+   *             	displaying in the GUI or for listing the options.
+   */
+  public String resolveIDsTipText() {
+    return "If enabled, any IDs get resolved (e.g., outputting license name instead of license ID).";
+  }
+
+  /**
    * Returns a quick info about the object, which can be displayed in the GUI.
    *
    * @return		null if no info available, otherwise short string
    */
   @Override
   public String getQuickInfo() {
-    return QuickInfoHelper.toString(this, "state", m_State, "state: ");
+    String	result;
+
+    result = QuickInfoHelper.toString(this, "state", m_State, "state: ");
+    result += QuickInfoHelper.toString(this, "resolveIDs", m_ResolveIDs, "resolve IDs", ", ");
+
+    return result;
   }
 
   /**
@@ -151,6 +192,8 @@ public class ListImageClassificationDatasets
       action   = m_Client.action(ImageClassificationDatasets.class);
       datasets = action.list();
       conv  = new UFDLImageClassificationDatasetToSpreadSheet();
+      conv.setFlowContext(m_FlowContext);
+      conv.setResolveIDs(m_ResolveIDs);
       for (Dataset dataset : datasets) {
         if (!m_State.accept(dataset))
           continue;

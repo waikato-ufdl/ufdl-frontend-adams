@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-09 13:59:22
+# Date: 2020-07-09 15:17:42
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -184,7 +184,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
      adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
      adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add team members\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Remove team members\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
       adams.flow.control.Trigger -name List
-       adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListTeams -state ANY" -use-error-queue true
+       adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListTeams -state ANY -resolve-ids true" -use-error-queue true
        adams.flow.sink.CallableSink -callable Current
       adams.flow.control.Trigger -name Add
        adams.flow.source.Start
@@ -215,6 +215,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.source.EnterManyValues -name "Select team to update" -value "adams.flow.source.valuedefinition.UFDLTeamList -name team -display Team -state ANY" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+        adams.flow.transformer.UFDLExtractAndTransfer -name team_pk -source team -target team_pk
        adams.flow.control.Trigger -name "current values to variables"
         adams.flow.source.Variable -var-name team_pk -conversion adams.data.conversion.StringToInt
         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadTeam -use-error-queue true
@@ -227,7 +228,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
        adams.flow.control.Trigger -name "update and display"
-        adams.flow.source.StorageValue -storage-name license -conversion adams.data.conversion.UnknownToUnknown
+        adams.flow.source.StorageValue -storage-name team -conversion adams.data.conversion.UnknownToUnknown
         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UpdateTeam -name @{name}" -use-error-queue true
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name "Add team members"
@@ -319,7 +320,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
      adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
      adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
       adams.flow.control.Trigger -name List
-       adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListProjects -state ANY" -use-error-queue true
+       adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListProjects -state ANY -resolve-ids true" -use-error-queue true
        adams.flow.sink.CallableSink -callable Current
       adams.flow.control.Trigger -name Add
        adams.flow.source.Start
@@ -354,7 +355,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLProjectToSpreadSheet
         adams.flow.transformer.SpreadSheetVariableRowIterator
         adams.flow.control.Trigger -name team
-         adams.flow.source.Variable -var-name team_id -conversion adams.data.conversion.StringToInt
+         adams.flow.source.Variable -var-name team -conversion adams.data.conversion.StringToInt
          adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadTeam -use-error-queue true
          adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLTeamToListItem
          adams.flow.transformer.SetVariable -var-name team

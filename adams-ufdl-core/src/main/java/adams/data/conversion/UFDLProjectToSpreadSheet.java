@@ -50,6 +50,18 @@ public class UFDLProjectToSpreadSheet
   }
 
   /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "resolve-ids", "resolveIDs",
+      false);
+  }
+
+  /**
    * Returns the class that is accepted as input.
    *
    * @return		the class
@@ -73,10 +85,10 @@ public class UFDLProjectToSpreadSheet
     row    = result.getHeaderRow();
     row.addCell("pk").setContentAsString("pk");
     row.addCell("tn").setContentAsString("name");
-    row.addCell("ci").setContentAsString("creator_id");
+    row.addCell("ci").setContentAsString("creator");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
-    row.addCell("ti").setContentAsString("team_id");
+    row.addCell("ti").setContentAsString("team");
 
     return result;
   }
@@ -98,12 +110,12 @@ public class UFDLProjectToSpreadSheet
     row     = result.addRow();
     row.addCell("pk").setContent(project.getPK());
     row.addCell("tn").setContent(project.getName());
-    row.addCell("ci").setContent(project.getCreatorID());
+    row.addCell("ci").setContent(getUser(project.getCreatorID()));
     if (project.getCreationTime() != null)
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(project.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (project.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(project.getDeletionTime().toInstant(ZoneOffset.UTC))));
-    row.addCell("ti").setContent(project.getTeamID());
+    row.addCell("ti").setContent(getProject(project.getTeamID()));
 
     return result;
   }

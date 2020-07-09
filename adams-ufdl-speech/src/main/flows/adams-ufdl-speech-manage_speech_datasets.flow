@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-01 20:52:20
+# Date: 2020-07-09 15:19:12
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-audio,adams-core,adams-event,adams-ffmpeg,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-speech
@@ -105,7 +105,7 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
     adams.flow.standalone.SetVariable -name reset -var-name no_datasets -var-value true
     adams.flow.source.Start
     adams.flow.control.Trigger -name display
-     adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListSpeechDatasets -use-error-queue true
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListSpeechDatasets -resolve-ids true" -use-error-queue true
      adams.flow.transformer.SetVariable -var-name no_datasets -var-value false
      adams.flow.sink.CallableSink -callable Current
     adams.flow.control.ConditionalTrigger -name "no datasets?" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name no_datasets"
@@ -114,7 +114,7 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
    adams.flow.control.Trigger -name Create
     adams.flow.source.Start
     adams.flow.control.Trigger -name current
-     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListSpeechDatasets -state ANY" -use-error-queue true
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListSpeechDatasets -state ANY -resolve-ids true" -use-error-queue true
      adams.flow.sink.CallableSink -callable Current
     adams.flow.control.Trigger -name "prompt user"
      adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-create.props -value-type FILE_FORWARD_SLASHES -expand-value true
@@ -263,7 +263,7 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
      adams.flow.source.Variable -var-name output_file -conversion adams.data.conversion.StringToString
      adams.flow.sink.FileBrowser
    adams.flow.control.Trigger -name Delete -annotation "TODO: allow hard delete"
-    adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListSpeechDatasets -state ANY" -use-error-queue true
+    adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListSpeechDatasets -state ANY -resolve-ids true" -use-error-queue true
     adams.flow.transformer.SpreadSheetSelectSubset -message "Please select datasets to delete" -allow-search true
     adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk -lenient true
     adams.flow.control.Trigger -name "delete dataset"

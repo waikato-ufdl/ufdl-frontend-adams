@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-08 15:46:05
+# Date: 2020-07-09 15:30:07
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -89,13 +89,23 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
   adams.flow.source.Start
   adams.flow.control.CloseCallableDisplay -callable ProgressBar
   adams.flow.control.Trigger -name "menu prompt"
-   adams.flow.source.EnterValue -name "Object detection" -message "Please select dataset operation" -selection-values Create -selection-values Update -selection-values View -selection-values Delete -selection-values Download -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
+   adams.flow.source.EnterValue -name "Object detection" -message "Please select dataset operation" -selection-values List -selection-values Create -selection-values Update -selection-values View -selection-values Delete -selection-values Download -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
    adams.flow.transformer.SetVariable -var-name choice
-  adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Create\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"View\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Download\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Exit\\\\\\\"\"" -lenient true
+  adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Create\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"View\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Download\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Exit\\\\\\\"\"" -lenient true
+   adams.flow.control.Trigger -name list
+    adams.flow.standalone.SetVariable -name reset -var-name no_datasets -var-value true
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name display
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListObjectDetectionDatasets -resolve-ids true" -use-error-queue true
+     adams.flow.transformer.SetVariable -var-name no_datasets -var-value false
+     adams.flow.sink.CallableSink -callable Current
+    adams.flow.control.ConditionalTrigger -name "no datasets?" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name no_datasets"
+     adams.flow.source.CombineVariables -expression "No datasets to list!" -conversion adams.data.conversion.StringToString
+     adams.flow.sink.InformationDialog
    adams.flow.control.Trigger -name create
     adams.flow.source.Start
     adams.flow.control.Trigger -name "list current datasets"
-     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListObjectDetectionDatasets -state ANY" -use-error-queue true
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListObjectDetectionDatasets -state ANY -resolve-ids true" -use-error-queue true
      adams.flow.sink.CallableSink -callable Current
     adams.flow.control.Trigger -name "prompt user"
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
@@ -261,7 +271,7 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
        adams.flow.control.Cast
        adams.flow.sink.CallableSink -callable Images
    adams.flow.control.Trigger -name delete -annotation "TODO: allow hard delete"
-    adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListObjectDetectionDatasets -use-error-queue true
+    adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListObjectDetectionDatasets -resolve-ids true" -use-error-queue true
     adams.flow.transformer.SpreadSheetSelectSubset -message "Please select dataset(s) to delete" -allow-search true
     adams.flow.control.ConditionalTee -name "delete datasets" -condition adams.flow.condition.bool.HasRows
      adams.flow.control.Tee -name "# datasets"

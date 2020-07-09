@@ -51,6 +51,18 @@ public class UFDLTeamToSpreadSheet
   }
 
   /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "resolve-ids", "resolveIDs",
+      false);
+  }
+
+  /**
    * Returns the class that is accepted as input.
    *
    * @return		the class
@@ -74,7 +86,7 @@ public class UFDLTeamToSpreadSheet
     row    = result.getHeaderRow();
     row.addCell("pk").setContentAsString("pk");
     row.addCell("tn").setContentAsString("name");
-    row.addCell("ci").setContentAsString("creator_id");
+    row.addCell("ci").setContentAsString("creator");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
     row.addCell("me").setContentAsString("members");
@@ -99,7 +111,7 @@ public class UFDLTeamToSpreadSheet
     row    = result.addRow();
     row.addCell("pk").setContent(team.getPK());
     row.addCell("tn").setContent(team.getName());
-    row.addCell("ci").setContent(team.getCreatorID());
+    row.addCell("ci").setContent(getUser(team.getCreatorID()));
     if (team.getCreationTime() != null)
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(team.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (team.getDeletionTime() != null)

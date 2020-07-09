@@ -52,6 +52,18 @@ public class UFDLImageClassificationDatasetToSpreadSheet
   }
 
   /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "resolve-ids", "resolveIDs",
+      false);
+  }
+
+  /**
    * Returns the class that is accepted as input.
    *
    * @return		the class
@@ -77,11 +89,11 @@ public class UFDLImageClassificationDatasetToSpreadSheet
     row.addCell("pk").setContentAsString("pk");
     row.addCell("tn").setContentAsString("name");
     row.addCell("de").setContentAsString("description");
-    row.addCell("ci").setContentAsString("creator_id");
+    row.addCell("ci").setContentAsString("creator");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
     row.addCell("li").setContentAsString("license");
-    row.addCell("pi").setContentAsString("project_id");
+    row.addCell("pi").setContentAsString("project");
     row.addCell("ve").setContentAsString("version");
     row.addCell("ta").setContentAsString("tags");
     row.addCell("pu").setContentAsString("public");
@@ -110,13 +122,13 @@ public class UFDLImageClassificationDatasetToSpreadSheet
     row.addCell("pk").setContent(dataset.getPK());
     row.addCell("tn").setContent(dataset.getName());
     row.addCell("de").setContent(dataset.getDescription());
-    row.addCell("ci").setContent(dataset.getCreatorID());
+    row.addCell("ci").setContent(getUser(dataset.getCreatorID()));
     if (dataset.getCreationTime() != null)
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(dataset.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (dataset.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(dataset.getDeletionTime().toInstant(ZoneOffset.UTC))));
-    row.addCell("li").setContent(dataset.getLicense());
-    row.addCell("pi").setContent(dataset.getProjectID());
+    row.addCell("li").setContent(getLicense(dataset.getLicense()));
+    row.addCell("pi").setContent(getProject(dataset.getProjectID()));
     row.addCell("ve").setContent(dataset.getVersion());
     row.addCell("ta").setContent(dataset.getTags());
     row.addCell("pu").setContent(dataset.isPublic());
