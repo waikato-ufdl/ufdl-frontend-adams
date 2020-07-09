@@ -110,12 +110,12 @@ public class UFDLProjectToSpreadSheet
     row     = result.addRow();
     row.addCell("pk").setContent(project.getPK());
     row.addCell("tn").setContent(project.getName());
-    row.addCell("ci").setContent(getUser(project.getCreatorID()));
+    row.addCell("ci").setContent(getUser(project.getCreator()));
     if (project.getCreationTime() != null)
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(project.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (project.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(project.getDeletionTime().toInstant(ZoneOffset.UTC))));
-    row.addCell("ti").setContent(getProject(project.getTeamID()));
+    row.addCell("ti").setContent(getProject(project.getTeam()));
 
     return result;
   }

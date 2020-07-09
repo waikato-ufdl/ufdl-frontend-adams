@@ -122,13 +122,13 @@ public class UFDLImageClassificationDatasetToSpreadSheet
     row.addCell("pk").setContent(dataset.getPK());
     row.addCell("tn").setContent(dataset.getName());
     row.addCell("de").setContent(dataset.getDescription());
-    row.addCell("ci").setContent(getUser(dataset.getCreatorID()));
+    row.addCell("ci").setContent(getUser(dataset.getCreator()));
     if (dataset.getCreationTime() != null)
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(dataset.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (dataset.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(dataset.getDeletionTime().toInstant(ZoneOffset.UTC))));
     row.addCell("li").setContent(getLicense(dataset.getLicense()));
-    row.addCell("pi").setContent(getProject(dataset.getProjectID()));
+    row.addCell("pi").setContent(getProject(dataset.getProject()));
     row.addCell("ve").setContent(dataset.getVersion());
     row.addCell("ta").setContent(dataset.getTags());
     row.addCell("pu").setContent(dataset.isPublic());

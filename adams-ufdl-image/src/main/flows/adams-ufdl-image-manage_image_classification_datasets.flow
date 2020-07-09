@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-09 15:29:28
+# Date: 2020-07-09 15:47:32
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -46,6 +46,8 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.sink.CallableSink -callable Info
    adams.flow.control.Trigger -name "add interaction as metadata"
     adams.flow.source.Variable -var-name file -conversion adams.data.conversion.StringToString
+    adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractFileNameFromFile
+    adams.flow.transformer.SetVariable -var-name image
     adams.flow.control.Trigger -name "add metadata to file"
      adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageClassificationMetadataForImage -name @{image}"

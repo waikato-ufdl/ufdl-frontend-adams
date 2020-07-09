@@ -111,7 +111,7 @@ public class UFDLTeamToSpreadSheet
     row    = result.addRow();
     row.addCell("pk").setContent(team.getPK());
     row.addCell("tn").setContent(team.getName());
-    row.addCell("ci").setContent(getUser(team.getCreatorID()));
+    row.addCell("ci").setContent(getUser(team.getCreator()));
     if (team.getCreationTime() != null)
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(team.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (team.getDeletionTime() != null)
