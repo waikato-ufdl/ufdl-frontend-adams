@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-09 15:47:32
+# Date: 2020-07-09 16:07:03
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -62,8 +62,8 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.source.EnterManyValues -name "Category for images" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name category -display Category -value @{categories}" -output-type MAP
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.transformer.MapToVariables
-    adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
     adams.flow.control.Tee -name "add files"
+     adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
      adams.flow.control.Tee -name "# images"
       adams.flow.transformer.ArrayLength
       adams.flow.transformer.SetVariable -var-name max
@@ -76,7 +76,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
       adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{file} -category @{category}"
       adams.flow.control.Trigger -name info
-       adams.flow.source.CombineVariables -expression "added to dataset @{dataset_pk}: @{file}" -conversion adams.data.conversion.StringToString
+       adams.flow.source.CombineVariables -expression "added to dataset @{dataset_pk}: @{file} / @{category}" -conversion adams.data.conversion.StringToString
        adams.flow.sink.CallableSink -callable Info
     adams.flow.control.Tee -name "continue adding?"
      adams.flow.transformer.SetVariable -name reset -var-name keep_adding_files -var-value false
@@ -163,7 +163,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.transformer.SetStorageValue -storage-name dataset
      adams.flow.control.Switch -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{process_type}\\\\\\\" = \\\\\\\"one-by-one\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{process_type}\\\\\\\" = \\\\\\\"by category\\\\\\\"\"" -lenient true
       adams.flow.transformer.CallableTransformer -name one-by-one -callable "add files - one-by-one"
-      adams.flow.transformer.CallableTransformer -name "by category" -callable "add files - one-by-one"
+      adams.flow.transformer.CallableTransformer -name "by category" -callable "add files - by category"
    adams.flow.control.Trigger -name update
     adams.flow.standalone.SetVariable -name initialize -var-name show_update_menu -var-value true
     adams.flow.source.Start
@@ -215,12 +215,14 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
         adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-update_add.props -value-type FILE_FORWARD_SLASHES -expand-value true
-        adams.flow.source.EnterManyValues -name "Add images" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name image_dir -display \"Directory with images\" -type DIRECTORY_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name categories -display \"Categories (blank-separated)\" -default-value \"cat1 cat2 cat3\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+        adams.flow.source.EnterManyValues -name "Add images" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name image_dir -display \"Directory with images\" -type DIRECTORY_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name categories -display \"Categories (blank-separated)\" -default-value \"cat1 cat2 cat3\"" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name process_type -display \"How to label images\" -value one-by-one -value \"by category\" -default-value one-by-one" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.MapToVariables
        adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.transformer.CallableTransformer -name "CallableTransformer (2)" -callable "buttons or combobox for categories?"
-       adams.flow.transformer.CallableTransformer -callable "add files - one-by-one"
+       adams.flow.control.Switch -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{process_type}\\\\\\\" = \\\\\\\"one-by-one\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{process_type}\\\\\\\" = \\\\\\\"by category\\\\\\\"\"" -lenient true
+        adams.flow.transformer.CallableTransformer -name one-by-one -callable "add files - one-by-one"
+        adams.flow.transformer.CallableTransformer -name "by category" -callable "add files - by category"
        adams.flow.control.CloseCallableDisplay -callable ProgressBar
       adams.flow.control.Trigger -name "update images"
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
