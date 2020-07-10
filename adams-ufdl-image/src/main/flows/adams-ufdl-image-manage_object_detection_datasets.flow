@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-10 16:32:34
+# Date: 2020-07-10 16:51:29
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -10,7 +10,7 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
   adams.flow.sink.HistoryDisplay -name Errors -short-title true -display-type adams.flow.core.displaytype.Default -y -3
   adams.flow.sink.SpreadSheetDisplay -name Current -short-title true -display-type adams.flow.core.displaytype.Default -x -3 -cell-rendering-customizer adams.gui.core.spreadsheettable.DefaultCellRenderingCustomizer -allow-search true -writer adams.data.io.output.NullWriter
   adams.flow.sink.ProgressBar -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -max @{max}
-  adams.flow.sink.DisplayPanelManager -name Images -display-type adams.flow.core.displaytype.Default -width 800 -height 600 -provider "adams.flow.sink.ImageViewer -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -zoom -1.0 -show-properties true -selection-processor adams.gui.visualization.image.selection.NullProcessor -left-click-processor adams.gui.visualization.image.leftclick.NullProcessor -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -image-overlay adams.gui.visualization.image.NullOverlay" -entry-name-variable image -allow-search true
+  adams.flow.sink.DisplayPanelManager -name Images -display-type adams.flow.core.displaytype.Default -width 800 -height 600 -provider "adams.flow.sink.ImageViewer -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -zoom -1.0 -show-properties true -selection-processor adams.gui.visualization.image.selection.NullProcessor -left-click-processor adams.gui.visualization.image.leftclick.NullProcessor -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -image-overlay \"adams.gui.visualization.image.ObjectLocationsOverlayFromReport -use-colors-per-type true -type-color-provider adams.gui.visualization.core.DefaultColorProvider -label-format \\\"# $\\\"\"" -entry-name-variable image -allow-search true
   adams.flow.control.Tee -name "clear output"
    adams.flow.control.ClearCallableDisplay -name "clear info" -callable Info
    adams.flow.control.ClearCallableDisplay -name "clear errors" -callable Errors
@@ -30,6 +30,9 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
     adams.flow.transformer.IncVariable -var-name count -output-variable-value true
     adams.flow.sink.CallableSink -callable ProgressBar
    adams.flow.transformer.SetVariable -var-name file
+   adams.flow.control.Tee -name "image name"
+    adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractFileNameFromFile
+    adams.flow.transformer.SetVariable -var-name image
    adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
    adams.flow.control.Switch -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{selection_type}\\\\\\\" = \\\\\\\"bounding_box\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{selection_type}\\\\\\\" = \\\\\\\"object_shape\\\\\\\"\"" -condition adams.flow.condition.bool.True
     adams.flow.transformer.ImageAnnotator -name "bounding box" -width 1400 -height 800 -label @{labels} -selection-processor adams.gui.visualization.image.selection.SelectObjects -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -overlay "adams.gui.visualization.image.ObjectLocationsOverlayFromReport -color #ffffff -use-colors-per-type true -type-color-provider \"adams.gui.visualization.core.CustomColorProvider -color #0000ff -color #00ffff -color #00ff00 -color #ff00ff -color #ffc800 -color #ff0000 -color #9999ff\" -label-format \"# $\" -predefined-labels @{labels}" -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
