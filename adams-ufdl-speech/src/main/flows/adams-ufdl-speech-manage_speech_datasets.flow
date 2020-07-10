@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-09 15:19:12
+# Date: 2020-07-10 17:01:26
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-audio,adams-core,adams-event,adams-ffmpeg,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-speech
@@ -25,7 +25,7 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
    adams.flow.control.Trigger -name "prompt user"
     adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-add_files.props -value-type FILE_FORWARD_SLASHES -expand-value true
     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-    adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name input_dir -display \"Dir with sound files (wav/mp3)\" -type DIRECTORY_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name transcript_file_type -display \"File type of transcripts\" -value CSV -value TSV -default-value TSV" -value "adams.flow.source.valuedefinition.FileValueDefinition -name transcripts_csv -display \"CSV file with transcripts\" -help \"comma-separated file\" -file-chooser-title \"Select CSV file with transcripts\" -extension csv -use-forward-slashes true" -value "adams.flow.source.valuedefinition.FileValueDefinition -name transcripts_tsv -display \"TSV file with transcripts\" -help \"tab separated file (as used by common-voice)\" -file-chooser-title \"Select TSV file with transcripts\" -extension tsv -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name col_filename -display \"Column in CSV with filename\" -type INDEX -default-value 1" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name col_transcript -display \"Column in CSV with transcript\" -type INDEX -default-value 2" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+    adams.flow.source.EnterManyValues -name "Add files" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name input_dir -display \"Dir with sound files (wav/mp3)\" -type DIRECTORY_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name transcript_file_type -display \"File type of transcripts\" -value CSV -value TSV -default-value TSV" -value "adams.flow.source.valuedefinition.FileValueDefinition -name transcripts_csv -display \"CSV file with transcripts\" -help \"comma-separated file\" -file-chooser-title \"Select CSV file with transcripts\" -extension csv -use-forward-slashes true" -value "adams.flow.source.valuedefinition.FileValueDefinition -name transcripts_tsv -display \"TSV file with transcripts\" -help \"tab separated file (as used by common-voice)\" -file-chooser-title \"Select TSV file with transcripts\" -extension tsv -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name col_filename -display \"Column in spreadsheet with filename\" -type INDEX -default-value 1" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name col_transcript -display \"Column in spreadsheet with transcript\" -type INDEX -default-value 2" -output-type MAP -restoration-enabled true -restoration-file @{restore}
     adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
     adams.flow.transformer.MapToVariables
    adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
@@ -233,9 +233,9 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
        adams.flow.source.Variable -var-name transcript -conversion adams.data.conversion.StringToString
        adams.flow.sink.CallableSink -callable Transcript
       adams.flow.control.Trigger -name "retrieve and playback file"
-       adams.flow.standalone.SetVariable -var-name output_file -var-value ${TMP}/@{image} -value-type FILE_FORWARD_SLASHES -expand-value true
+       adams.flow.standalone.SetVariable -var-name output_file -var-value ${TMP}/@{file} -value-type FILE_FORWARD_SLASHES -expand-value true
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetSpeechFile -name @{image} -output-file @{output_file}" -use-error-queue true
+       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetSpeechFile -name @{file} -output-file @{output_file}" -use-error-queue true
        adams.flow.control.Trigger -name playback
         adams.flow.source.Variable -var-name output_file -conversion adams.data.conversion.StringToString
         adams.flow.sink.AudioPlayback
