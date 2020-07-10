@@ -15,7 +15,7 @@
 
 /*
  * UFDLConnectionPanel.java
- * Copyright (C) 2019 University of Waikato, Hamilton, New Zealand
+ * Copyright (C) 2019-2020 University of Waikato, Hamilton, New Zealand
  */
 package adams.gui.application;
 
@@ -75,15 +75,15 @@ public class UFDLConnectionPanel
     add(m_PanelParameters, BorderLayout.CENTER);
 
     m_TextHost = new BaseObjectTextField<>(new BaseURL());
-    m_TextHost.setObject(new BaseURL("http://localhost:8000"));
+    m_TextHost.setObject(new BaseURL(UfdlHelper.getHost()));
     m_PanelParameters.addParameter("_Host", m_TextHost);
 
     m_TextUser = new BaseTextField(10);
-    m_TextUser.setText("");
+    m_TextUser.setText(UfdlHelper.getUser());
     m_PanelParameters.addParameter("_User", m_TextUser);
 
     m_TextPassword = new JPasswordField(20);
-    m_TextPassword.setText("");
+    m_TextPassword.setText(UfdlHelper.getPassword().getValue());
     m_TextPassword.setEchoChar(Constants.PASSWORD_CHAR);
     m_PanelParameters.addParameter("_Password", m_TextPassword);
 
