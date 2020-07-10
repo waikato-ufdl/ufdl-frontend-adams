@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-10 14:55:46
+# Date: 2020-07-10 15:21:07
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -335,6 +335,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
        adams.flow.transformer.SetVariable -var-name none -var-value true
        adams.flow.control.Trigger -name display
         adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListProjects -state ANY -resolve-ids true" -use-error-queue true
+        adams.flow.transformer.SetVariable -var-name none -var-value false
         adams.flow.sink.CallableSink -callable Current
        adams.flow.control.ConditionalTrigger -name "nothing to list" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name none"
         adams.flow.source.CombineVariables -expression "No projects available yet!" -conversion adams.data.conversion.StringToString
@@ -424,6 +425,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
        adams.flow.transformer.SetVariable -var-name none -var-value true
        adams.flow.control.Trigger -name display
         adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListLicenses -use-error-queue true
+        adams.flow.transformer.SetVariable -var-name none -var-value false
         adams.flow.sink.CallableSink -callable Current
        adams.flow.control.ConditionalTrigger -name "nothing to list" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name none"
         adams.flow.source.CombineVariables -expression "No licenses available yet!" -conversion adams.data.conversion.StringToString
