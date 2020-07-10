@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-09 15:17:42
+# Date: 2020-07-10 14:36:13
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -422,24 +422,28 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateLicense -name @{name} -url @{url}" -use-error-queue true
         adams.flow.transformer.SetStorageValue -storage-name license
         adams.flow.control.Trigger -name domains
+         adams.flow.standalone.SetVariable -name init -var-name domains -var-value ""
          adams.flow.source.SelectObjects -name "Select domains" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Domain -short-title true
          adams.flow.control.ArrayProcess
           adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
          adams.flow.transformer.StringJoin -glue " "
          adams.flow.transformer.SetVariable -var-name domains
         adams.flow.control.Trigger -name permissions
+         adams.flow.standalone.SetVariable -name init -var-name permissions -var-value ""
          adams.flow.source.SelectObjects -name "Select permissions" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Permission -short-title true
          adams.flow.control.ArrayProcess
           adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
          adams.flow.transformer.StringJoin -glue " "
          adams.flow.transformer.SetVariable -var-name permissions
         adams.flow.control.Trigger -name conditions
+         adams.flow.standalone.SetVariable -name init -var-name conditions -var-value ""
          adams.flow.source.SelectObjects -name "Select conditions" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Condition -short-title true
          adams.flow.control.ArrayProcess
           adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
          adams.flow.transformer.StringJoin -glue " "
          adams.flow.transformer.SetVariable -var-name conditions
         adams.flow.control.Trigger -name limitations
+         adams.flow.standalone.SetVariable -name init -var-name limitations -var-value ""
          adams.flow.source.SelectObjects -name "Select limitations" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Limitation -short-title true
          adams.flow.control.ArrayProcess
           adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
