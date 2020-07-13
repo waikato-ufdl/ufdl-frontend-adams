@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-09 16:07:03
+# Date: 2020-07-13 14:21:30
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -30,6 +30,10 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.transformer.IncVariable -var-name count -output-variable-value true
     adams.flow.sink.CallableSink -callable ProgressBar
    adams.flow.transformer.SetVariable -var-name file
+   adams.flow.control.Tee -name "escape file"
+    adams.flow.transformer.SequenceToArray
+    adams.flow.transformer.Convert -conversion adams.data.conversion.JoinOptions
+    adams.flow.transformer.SetVariable -var-name file_escaped
    adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
    adams.flow.transformer.ImageLabeler -x -2 -y -2 -label @{categories} -use-buttons @{use_buttons} -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
    adams.flow.control.Tee -name "get label"
@@ -40,7 +44,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.transformer.SetStorageValue -storage-name metadata
    adams.flow.control.Trigger -name add
     adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
-    adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{file} -category @{category}"
+    adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{file_escaped} -category @{category}"
     adams.flow.control.Trigger -name info
      adams.flow.source.CombineVariables -expression "added to dataset @{dataset_pk}: @{file}" -conversion adams.data.conversion.StringToString
      adams.flow.sink.CallableSink -callable Info
@@ -67,14 +71,15 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.control.Tee -name "# images"
       adams.flow.transformer.ArrayLength
       adams.flow.transformer.SetVariable -var-name max
-     adams.flow.transformer.ArrayToSequence
+     adams.flow.transformer.ArrayToChunks
+     adams.flow.transformer.Convert -conversion adams.data.conversion.JoinOptions
      adams.flow.control.Tee -name progress
       adams.flow.transformer.IncVariable -var-name count -output-variable-value true
       adams.flow.sink.CallableSink -callable ProgressBar
-     adams.flow.transformer.SetVariable -var-name file
+     adams.flow.transformer.SetVariable -var-name file_escaped
      adams.flow.control.Trigger -name add
       adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
-      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{file} -category @{category}"
+      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{file_escaped} -category @{category}"
       adams.flow.control.Trigger -name info
        adams.flow.source.CombineVariables -expression "added to dataset @{dataset_pk}: @{file} / @{category}" -conversion adams.data.conversion.StringToString
        adams.flow.sink.CallableSink -callable Info
