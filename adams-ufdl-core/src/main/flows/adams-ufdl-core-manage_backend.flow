@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-10 15:21:07
+# Date: 2020-07-10 15:57:28
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -448,44 +448,32 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.transformer.SetStorageValue -storage-name license
         adams.flow.control.Trigger -name domains
          adams.flow.standalone.SetVariable -name init -var-name domains -var-value ""
-         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
          adams.flow.source.SelectObjects -name "Select domains" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Domain -short-title true
          adams.flow.control.ArrayProcess
           adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
          adams.flow.transformer.StringJoin -glue " "
          adams.flow.transformer.SetVariable -var-name domains
-         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
         adams.flow.control.Trigger -name permissions
          adams.flow.standalone.SetVariable -name init -var-name permissions -var-value ""
-         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
          adams.flow.source.SelectObjects -name "Select permissions" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Permission -short-title true
          adams.flow.control.ArrayProcess
           adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
          adams.flow.transformer.StringJoin -glue " "
          adams.flow.transformer.SetVariable -var-name permissions
-         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.control.Block -name "block if cancelled (2)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
         adams.flow.control.Trigger -name conditions
          adams.flow.standalone.SetVariable -name init -var-name conditions -var-value ""
-         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
          adams.flow.source.SelectObjects -name "Select conditions" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Condition -short-title true
          adams.flow.control.ArrayProcess
           adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
          adams.flow.transformer.StringJoin -glue " "
          adams.flow.transformer.SetVariable -var-name conditions
-         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.control.Block -name "block if cancelled (3)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
         adams.flow.control.Trigger -name limitations
          adams.flow.standalone.SetVariable -name init -var-name limitations -var-value ""
-         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
          adams.flow.source.SelectObjects -name "Select limitations" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Limitation -short-title true
          adams.flow.control.ArrayProcess
           adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
          adams.flow.transformer.StringJoin -glue " "
          adams.flow.transformer.SetVariable -var-name limitations
-         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.control.Block -name "block if cancelled (4)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
         adams.flow.control.Trigger -name display
          adams.flow.source.StorageValue -storage-name license -conversion adams.data.conversion.UnknownToUnknown
          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UpdateLicenseSubDescriptors -domain @{domains} -permission @{permissions} -condition @{conditions} -limitation @{limitations}" -use-error-queue true
@@ -515,41 +503,29 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source license -target license_pk
        adams.flow.control.Block -name "block if cancelled (2)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name domains
-        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
         adams.flow.source.SelectObjects -name "Select domains" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Domain -initial-objects @{domains} -short-title true
         adams.flow.control.ArrayProcess
          adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
         adams.flow.transformer.StringJoin -glue " "
         adams.flow.transformer.SetVariable -var-name domains
-        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-       adams.flow.control.Block -name "block if cancelled (3)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name permissions
-        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
         adams.flow.source.SelectObjects -name "Select permissions" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Permission -initial-objects @{permissions} -short-title true
         adams.flow.control.ArrayProcess
          adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
         adams.flow.transformer.StringJoin -glue " "
         adams.flow.transformer.SetVariable -var-name permissions
-        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-       adams.flow.control.Block -name "block if cancelled (4)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name conditions
-        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
         adams.flow.source.SelectObjects -name "Select conditions" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Condition -initial-objects @{conditions} -short-title true
         adams.flow.control.ArrayProcess
          adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
         adams.flow.transformer.StringJoin -glue " "
         adams.flow.transformer.SetVariable -var-name conditions
-        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-       adams.flow.control.Block -name "block if cancelled (5)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name limitations
-        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
         adams.flow.source.SelectObjects -name "Select limitations" -output-array true -super-class com.github.waikatoufdl.ufdl4j.action.Licenses$Limitation -initial-objects @{limitations} -short-title true
         adams.flow.control.ArrayProcess
          adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
         adams.flow.transformer.StringJoin -glue " "
         adams.flow.transformer.SetVariable -var-name limitations
-        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-       adams.flow.control.Block -name "block if cancelled (6)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name "update and display"
         adams.flow.source.StorageValue -storage-name license -conversion adams.data.conversion.UnknownToUnknown
         adams.flow.transformer.UFDLTransformer -name "UFDLTransformer (2)" -action "adams.flow.transformer.ufdl.UpdateLicense -name @{name} -url @{url}" -use-error-queue true
