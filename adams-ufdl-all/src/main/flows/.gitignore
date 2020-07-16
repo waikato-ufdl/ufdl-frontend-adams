@@ -1,0 +1,5 @@
+*.props
+*.log
+*~
+*.swp
+*.bak
