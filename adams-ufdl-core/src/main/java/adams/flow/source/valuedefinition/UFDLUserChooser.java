@@ -20,6 +20,7 @@
 
 package adams.flow.source.valuedefinition;
 
+import adams.core.TriState;
 import adams.gui.chooser.UFDLUserChooserPanel;
 import adams.gui.core.PropertiesParameterPanel;
 
@@ -33,6 +34,9 @@ public class UFDLUserChooser
 
   private static final long serialVersionUID = 4093023607556720026L;
 
+  /** the active state of the users. */
+  protected TriState m_Active;
+
   /**
    * Returns a string describing the object.
    *
@@ -41,6 +45,47 @@ public class UFDLUserChooser
   @Override
   public String globalInfo() {
     return "For selecting UFDL users.";
+  }
+
+  /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "active", "active",
+      TriState.TRUE);
+  }
+
+  /**
+   * Sets the state of the users to retrieve.
+   *
+   * @param value	the state
+   */
+  public void setActive(TriState value) {
+    m_Active = value;
+    reset();
+  }
+
+  /**
+   * Returns the state of the users to retrieve.
+   *
+   * @return		the state
+   */
+  public TriState getActive() {
+    return m_Active;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String activeTipText() {
+    return "The active state of the users to retrieve.";
   }
 
   /**
@@ -60,6 +105,7 @@ public class UFDLUserChooser
     chooser.setSorting(m_Sorting);
     chooser.setMultiSelection(m_MultiSelection);
     chooser.setSeparator(m_Separator);
+    chooser.setActive(m_Active);
 
     panel.addPropertyType(getName(), getType());
     panel.setComponent(getName(), chooser);

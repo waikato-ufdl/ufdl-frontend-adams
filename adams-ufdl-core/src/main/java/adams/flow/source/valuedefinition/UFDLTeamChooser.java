@@ -29,7 +29,7 @@ import adams.gui.core.PropertiesParameterPanel;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLTeamChooser
-  extends AbstractUFDLSpreadSheetBasedValueDefinition {
+  extends AbstractUFDLSpreadSheetBasedSoftDeleteValueDefinition {
 
   private static final long serialVersionUID = 4093023607556720026L;
 
@@ -41,6 +41,17 @@ public class UFDLTeamChooser
   @Override
   public String globalInfo() {
     return "For selecting UFDL teams.";
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  @Override
+  public String stateTipText() {
+    return "The state that the teams must have in order to be listed.";
   }
 
   /**
@@ -60,6 +71,7 @@ public class UFDLTeamChooser
     chooser.setSorting(m_Sorting);
     chooser.setMultiSelection(m_MultiSelection);
     chooser.setSeparator(m_Separator);
+    chooser.setState(m_State);
 
     panel.addPropertyType(getName(), getType());
     panel.setComponent(getName(), chooser);

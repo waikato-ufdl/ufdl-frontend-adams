@@ -14,41 +14,34 @@
  */
 
 /*
- * AbstractUFDLSoftDeleteListValueDefinition.java
+ * AbstractUFDLSpreadSheetBasedSoftDeleteChooserPanel.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
-package adams.flow.source.valuedefinition;
+package adams.gui.chooser;
 
 import adams.flow.core.UFDLSoftDeleteObjectState;
 import adams.flow.core.UFDLSoftDeleteObjectStateHandler;
+import com.github.waikatoufdl.ufdl4j.core.SoftDeleteObject;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Ancestor for list-based UFDL value definitions that return int (the PK),
- * which can filter by soft-delete state.
+ * Ancestor for chooser panels which allow the user to select one or more
+ * soft-delete objects from a spreadsheet.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public abstract class AbstractUFDLSoftDeleteListValueDefinition
-  extends AbstractUFDLListValueDefinition
+public abstract class AbstractUFDLSpreadSheetBasedSoftDeleteChooserPanel<T extends SoftDeleteObject>
+  extends AbstractUFDLSpreadSheetBasedChooserPanel<T>
   implements UFDLSoftDeleteObjectStateHandler {
 
-  private static final long serialVersionUID = 1674400421173102369L;
+  private static final long serialVersionUID = -8773065516752491368L;
 
-  /** the state of the datasets to list. */
+  /** the state of the objects to list. */
   protected UFDLSoftDeleteObjectState m_State;
-
-  /**
-   * Adds options to the internal list of options.
-   */
-  @Override
-  public void defineOptions() {
-    super.defineOptions();
-
-    m_OptionManager.add(
-      "state", "state",
-      UFDLSoftDeleteObjectState.ACTIVE);
-  }
 
   /**
    * Sets the state of the objects to retrieve.
@@ -58,7 +51,6 @@ public abstract class AbstractUFDLSoftDeleteListValueDefinition
   @Override
   public void setState(UFDLSoftDeleteObjectState value) {
     m_State = value;
-    reset();
   }
 
   /**
@@ -72,12 +64,29 @@ public abstract class AbstractUFDLSoftDeleteListValueDefinition
   }
 
   /**
-   * Returns the tip text for this property.
+   * Hook method for filtering objects.
    *
-   * @return 		tip text for this property suitable for
-   * 			displaying in the GUI or for listing the options.
+   * @param objects	the objects to filter
+   * @return		the filtered objects
    */
-  public String stateTipText() {
-    return "The state of the datasets to retrieve.";
+  protected T[] filterObjects(T[] objects) {
+    Object	result;
+    List    	filtered;
+    int		i;
+
+    if (m_State == UFDLSoftDeleteObjectState.ANY)
+      return objects;
+
+    filtered = new ArrayList();
+    for (T object: objects) {
+      if (m_State.accept(object))
+        filtered.add(object);
+    }
+
+    result = newArray(filtered.size());
+    for (i = 0; i < filtered.size(); i++)
+      Array.set(result, i, filtered.get(i));
+
+    return (T[]) result;
   }
 }

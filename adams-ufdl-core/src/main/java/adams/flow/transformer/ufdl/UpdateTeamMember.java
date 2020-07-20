@@ -65,7 +65,7 @@ public class UpdateTeamMember
 
     m_OptionManager.add(
       "permissions", "permissions",
-      Permissions.READ);
+      Permissions.R);
   }
 
   /**

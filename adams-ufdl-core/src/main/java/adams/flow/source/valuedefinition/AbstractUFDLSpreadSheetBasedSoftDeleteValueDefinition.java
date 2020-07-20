@@ -14,7 +14,7 @@
  */
 
 /*
- * AbstractUFDLSoftDeleteListValueDefinition.java
+ * AbstractUFDLSpreadSheetBasedSoftDeleteValueDefinition.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
@@ -24,18 +24,18 @@ import adams.flow.core.UFDLSoftDeleteObjectState;
 import adams.flow.core.UFDLSoftDeleteObjectStateHandler;
 
 /**
- * Ancestor for list-based UFDL value definitions that return int (the PK),
- * which can filter by soft-delete state.
+ * Ancestor for value definitions that allow selection of one or more soft-delete
+ * objects from a spreadsheet dialog.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public abstract class AbstractUFDLSoftDeleteListValueDefinition
-  extends AbstractUFDLListValueDefinition
+public abstract class AbstractUFDLSpreadSheetBasedSoftDeleteValueDefinition
+  extends AbstractUFDLSpreadSheetBasedValueDefinition
   implements UFDLSoftDeleteObjectStateHandler {
 
-  private static final long serialVersionUID = 1674400421173102369L;
+  private static final long serialVersionUID = 6062420176229244118L;
 
-  /** the state of the datasets to list. */
+  /** the state of the objects to list. */
   protected UFDLSoftDeleteObjectState m_State;
 
   /**
@@ -77,7 +77,5 @@ public abstract class AbstractUFDLSoftDeleteListValueDefinition
    * @return 		tip text for this property suitable for
    * 			displaying in the GUI or for listing the options.
    */
-  public String stateTipText() {
-    return "The state of the datasets to retrieve.";
-  }
+  public abstract String stateTipText();
 }

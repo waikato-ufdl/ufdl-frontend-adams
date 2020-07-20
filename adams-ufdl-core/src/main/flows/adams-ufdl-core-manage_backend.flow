@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-20 16:39:07
+# Date: 2020-07-21 09:33:37
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -84,11 +84,11 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
      adams.flow.source.Start
      adams.flow.control.Trigger -name "menu prompt"
-      adams.flow.source.EnterValue -name "User menu" -message "Please select user operation" -selection-values List -selection-values Add -selection-values Update -selection-values Password -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
+      adams.flow.source.EnterValue -name "User menu" -message "Please select user operation" -selection-values List -selection-values Add -selection-values Update -selection-values Password -selection-values Delete -selection-values Reinstate -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
       adams.flow.transformer.SetVariable -var-name choice
       adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
-     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Password\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
+     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Password\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Reinstate\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
       adams.flow.control.Trigger -name List
        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListUsers -active NOT_SET" -use-error-queue true
        adams.flow.sink.CallableSink -callable Current
@@ -176,6 +176,40 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
           adams.flow.control.Trigger -name info
            adams.flow.source.CombineVariables -expression "deleted user @{pk}: @{success}" -conversion adams.data.conversion.StringToString
            adams.flow.sink.CallableSink -callable Info
+      adams.flow.control.Trigger -name Reinstate
+       adams.flow.source.Start
+       adams.flow.control.Trigger -name "any users to reinstate?"
+        adams.flow.standalone.SetVariable -name reset -var-name num_items -var-value 0
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListUsers -active FALSE" -use-error-queue true
+        adams.flow.transformer.SpreadSheetInfo
+        adams.flow.transformer.SetVariable -name set -var-name num_items
+       adams.flow.control.IfThenElse -condition "adams.flow.condition.bool.Expression -expression \"@{num_items} = 0\""
+        adams.flow.control.Trigger -name then
+         adams.flow.source.CombineVariables -expression "No users available that can be reinstated!" -conversion adams.data.conversion.StringToString
+         adams.flow.sink.InformationDialog -title "Reinstating users"
+        adams.flow.control.Sequence -name else
+         adams.flow.control.Trigger -name "select users"
+          adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+          adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLUserChooser -name users -display Users -multi-selection true -active FALSE" -output-type MAP
+          adams.flow.transformer.MapToVariables
+          adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+          adams.flow.transformer.UFDLExtractAndTransfer -source users -target users_pk
+         adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+         adams.flow.control.Trigger -name reinstate
+          adams.flow.source.StringConstants -output-array true -string @{users_pk} -conversion adams.data.conversion.StringToInt
+          adams.flow.control.Tee -name "# users"
+           adams.flow.transformer.ArrayLength
+           adams.flow.transformer.SetVariable -var-name num_items
+          adams.flow.control.ConditionalTee -name reinstate? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to reinstate @{num_items} user(s)?\""
+           adams.flow.transformer.ArrayToSequence
+           adams.flow.transformer.SetVariable -var-name pk
+           adams.flow.control.Trigger -name reinstate
+            adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
+            adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ReinstateUser -use-error-queue true
+            adams.flow.transformer.SetVariable -var-name success
+            adams.flow.control.Trigger -name info
+             adams.flow.source.CombineVariables -expression "reinstated user @{pk}: @{success}" -conversion adams.data.conversion.StringToString
+             adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Tee -name "Clear output"
        adams.flow.transformer.CallableTransformer -callable "clear output"
       adams.flow.control.Tee -name Return

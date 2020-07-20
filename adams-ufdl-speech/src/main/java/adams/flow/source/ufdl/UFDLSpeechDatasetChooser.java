@@ -20,7 +20,7 @@
 
 package adams.flow.source.ufdl;
 
-import adams.flow.source.valuedefinition.AbstractUFDLSpreadSheetBasedValueDefinition;
+import adams.flow.source.valuedefinition.AbstractUFDLSpreadSheetBasedSoftDeleteValueDefinition;
 import adams.gui.chooser.UFDLSpeechDatasetChooserPanel;
 import adams.gui.core.PropertiesParameterPanel;
 
@@ -30,7 +30,7 @@ import adams.gui.core.PropertiesParameterPanel;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLSpeechDatasetChooser
-  extends AbstractUFDLSpreadSheetBasedValueDefinition {
+  extends AbstractUFDLSpreadSheetBasedSoftDeleteValueDefinition {
 
   private static final long serialVersionUID = 4093023607556720026L;
 
@@ -42,6 +42,17 @@ public class UFDLSpeechDatasetChooser
   @Override
   public String globalInfo() {
     return "For selecting UFDL speech datasets.";
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  @Override
+  public String stateTipText() {
+    return "The state that the datasets must have in order to be listed.";
   }
 
   /**
@@ -61,6 +72,7 @@ public class UFDLSpeechDatasetChooser
     chooser.setSorting(m_Sorting);
     chooser.setMultiSelection(m_MultiSelection);
     chooser.setSeparator(m_Separator);
+    chooser.setState(m_State);
 
     panel.addPropertyType(getName(), getType());
     panel.setComponent(getName(), chooser);

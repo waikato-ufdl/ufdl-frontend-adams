@@ -35,17 +35,9 @@ public interface UFDLSoftDeleteObjectStateHandler {
   public void setState(UFDLSoftDeleteObjectState value);
 
   /**
-   * Returns the state of the objects to retriev.
+   * Returns the state of the objects to retrieve.
    *
    * @return		the state
    */
   public UFDLSoftDeleteObjectState getState();
-
-  /**
-   * Returns the tip text for this property.
-   *
-   * @return 		tip text for this property suitable for
-   * 			displaying in the GUI or for listing the options.
-   */
-  public String stateTipText();
 }

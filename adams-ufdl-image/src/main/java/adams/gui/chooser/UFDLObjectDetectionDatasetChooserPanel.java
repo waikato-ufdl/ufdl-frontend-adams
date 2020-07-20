@@ -36,7 +36,7 @@ import java.util.List;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLObjectDetectionDatasetChooserPanel
-  extends AbstractUFDLSpreadSheetBasedChooserPanel<ObjectDetectionDataset> {
+  extends AbstractUFDLSpreadSheetBasedSoftDeleteChooserPanel<ObjectDetectionDataset> {
 
   private static final long serialVersionUID = -5162524212611793388L;
 

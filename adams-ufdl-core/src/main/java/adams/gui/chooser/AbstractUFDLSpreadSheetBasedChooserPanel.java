@@ -70,6 +70,18 @@ public abstract class AbstractUFDLSpreadSheetBasedChooserPanel<T>
   protected abstract int getPK(T object);
 
   /**
+   * Hook method for filtering objects.
+   * <br>
+   * The default implementation performs no filtering.
+   *
+   * @param objects	the objects to filter
+   * @return		the filtered objects
+   */
+  protected T[] filterObjects(T[] objects) {
+    return objects;
+  }
+
+  /**
    * Returns all available objects.
    *
    * @return		the objects
@@ -157,7 +169,7 @@ public abstract class AbstractUFDLSpreadSheetBasedChooserPanel<T>
     }
 
     try {
-      available = getAvailableObjects();
+      available = filterObjects(getAvailableObjects());
     }
     catch (Exception e) {
       ConsolePanel.getSingleton().append("Failed to determine available objects!", e);

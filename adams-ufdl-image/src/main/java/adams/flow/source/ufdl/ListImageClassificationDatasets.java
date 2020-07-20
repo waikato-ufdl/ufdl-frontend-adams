@@ -88,7 +88,7 @@ public class ListImageClassificationDatasets
   }
 
   /**
-   * Returns the state of the objects to retriev.
+   * Returns the state of the objects to retrieve.
    *
    * @return		the state
    */
@@ -103,7 +103,6 @@ public class ListImageClassificationDatasets
    * @return 		tip text for this property suitable for
    * 			displaying in the GUI or for listing the options.
    */
-  @Override
   public String stateTipText() {
     return "The state of the datasets to retrieve.";
   }

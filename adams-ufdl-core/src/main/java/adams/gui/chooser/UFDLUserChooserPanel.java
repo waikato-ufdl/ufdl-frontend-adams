@@ -20,10 +20,14 @@
 
 package adams.gui.chooser;
 
+import adams.core.TriState;
 import adams.data.conversion.AbstractUFDLObjectToSpreadSheetConversion;
 import adams.data.conversion.UFDLUserToSpreadSheet;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.Users.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Allows the user to select users.
@@ -34,6 +38,27 @@ public class UFDLUserChooserPanel
   extends AbstractUFDLSpreadSheetBasedChooserPanel<User> {
 
   private static final long serialVersionUID = -5162524212611793388L;
+
+  /** the active state of the users. */
+  protected TriState m_Active;
+
+  /**
+   * Sets the state of the users to retrieve.
+   *
+   * @param value	the state
+   */
+  public void setActive(TriState value) {
+    m_Active = value;
+  }
+
+  /**
+   * Returns the state of the users to retrieve.
+   *
+   * @return		the state
+   */
+  public TriState getActive() {
+    return m_Active;
+  }
 
   /**
    * Turns the object into a struct (ID and string).
@@ -98,6 +123,37 @@ public class UFDLUserChooserPanel
   @Override
   protected int getPK(User object) {
     return object.getPK();
+  }
+
+  /**
+   * Hook method for filtering objects.
+   *
+   * @param objects	the objects to filter
+   * @return		the filtered objects
+   */
+  @Override
+  protected User[] filterObjects(User[] objects) {
+    List<User> 	result;
+
+    if (m_Active == TriState.NOT_SET)
+      return objects;
+
+    result = new ArrayList<>();
+    for (User user: objects) {
+        switch (m_Active) {
+	  case FALSE:
+	    if (user.isActive())
+	      continue;
+	    break;
+	  case TRUE:
+	    if (!user.isActive())
+	      continue;
+	    break;
+	}
+      result.add(user);
+    }
+
+    return result.toArray(new User[0]);
   }
 
   /**

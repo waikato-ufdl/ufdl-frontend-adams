@@ -78,7 +78,7 @@ public class ListUsers
   }
 
   /**
-   * Returns the state of the users to retriev.
+   * Returns the state of the users to retrieve.
    *
    * @return		the state
    */

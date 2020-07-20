@@ -31,7 +31,7 @@ import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLDatasetChooserPanel
-  extends AbstractUFDLSpreadSheetBasedChooserPanel<Dataset> {
+  extends AbstractUFDLSpreadSheetBasedSoftDeleteChooserPanel<Dataset> {
 
   private static final long serialVersionUID = -5162524212611793388L;
 
