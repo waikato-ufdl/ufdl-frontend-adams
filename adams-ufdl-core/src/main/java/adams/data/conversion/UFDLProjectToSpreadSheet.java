@@ -115,7 +115,7 @@ public class UFDLProjectToSpreadSheet
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(project.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (project.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(project.getDeletionTime().toInstant(ZoneOffset.UTC))));
-    row.addCell("ti").setContent(getProject(project.getTeam()));
+    row.addCell("ti").setContent(getTeam(project.getTeam()));
 
     return result;
   }
