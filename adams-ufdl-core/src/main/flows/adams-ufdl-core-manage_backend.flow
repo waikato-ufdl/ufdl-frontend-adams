@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-21 09:33:37
+# Date: 2020-07-21 11:04:47
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -223,11 +223,11 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
      adams.flow.source.Start
      adams.flow.control.Trigger -name "menu prompt"
-      adams.flow.source.EnterValue -name "Teams menu" -message "Please select team operation" -selection-values List -selection-values Add -selection-values Update -selection-values "Add team members" -selection-values "Remove team members" -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
+      adams.flow.source.EnterValue -name "Teams menu" -message "Please select team operation" -selection-values List -selection-values Add -selection-values Update -selection-values "Add team members" -selection-values "Remove team members" -selection-values Delete -selection-values Reinstate -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
       adams.flow.transformer.SetVariable -var-name choice
       adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
-     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add team members\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Remove team members\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
+     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add team members\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Remove team members\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Reinstate\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
       adams.flow.control.Trigger -name List
        adams.flow.source.Start
        adams.flow.transformer.SetVariable -var-name none -var-value true
@@ -341,20 +341,63 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
            adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.RemoveTeamMember -member @{member}" -use-error-queue true
            adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Delete
-       adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListTeams -use-error-queue true
-       adams.flow.transformer.SpreadSheetSelectSubset -message "Please select teams to delete" -allow-search true
-       adams.flow.control.Tee -name "# items"
+       adams.flow.source.Start
+       adams.flow.control.Trigger -name "select teams"
+        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLTeamChooser -name teams -display Teams -multi-selection true -state ANY" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name hard_delete -display \"Hard delete?\" -type BOOLEAN -default-value false" -output-type MAP
+        adams.flow.transformer.MapToVariables
+        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+        adams.flow.transformer.UFDLExtractAndTransfer -source teams -target teams_pk
+       adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+       adams.flow.control.Trigger -name delete
+        adams.flow.source.StringConstants -output-array true -string @{teams_pk} -conversion adams.data.conversion.StringToInt
+        adams.flow.control.Tee -name "# teams"
+         adams.flow.transformer.ArrayLength
+         adams.flow.transformer.SetVariable -var-name num_items
+        adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_items} team(s)?\""
+         adams.flow.transformer.ArrayToSequence
+         adams.flow.transformer.SetVariable -var-name pk
+         adams.flow.control.Trigger -name delete
+          adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
+          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteTeam -hard @{hard_delete}" -use-error-queue true
+          adams.flow.transformer.SetVariable -var-name success
+          adams.flow.control.Trigger -name info
+           adams.flow.source.CombineVariables -expression "deleted team @{pk}: @{success}" -conversion adams.data.conversion.StringToString
+           adams.flow.sink.CallableSink -callable Info
+      adams.flow.control.Trigger -name Reinstate
+       adams.flow.source.Start
+       adams.flow.control.Trigger -name "any teams to reinstate?"
+        adams.flow.standalone.SetVariable -name reset -var-name num_items -var-value 0
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListTeams -state DELETED" -use-error-queue true
         adams.flow.transformer.SpreadSheetInfo
-        adams.flow.transformer.SetVariable -var-name num_items
-       adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_items} project(s)?\""
-        adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
-        adams.flow.control.Trigger -name delete
-         adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteProject -use-error-queue true
-         adams.flow.transformer.SetVariable -var-name success
-         adams.flow.control.Trigger -name info
-          adams.flow.source.CombineVariables -expression "deleted project @{pk}: @{success}" -conversion adams.data.conversion.StringToString
-          adams.flow.sink.CallableSink -callable Info
+        adams.flow.transformer.SetVariable -name set -var-name num_items
+       adams.flow.control.IfThenElse -condition "adams.flow.condition.bool.Expression -expression \"@{num_items} = 0\""
+        adams.flow.control.Trigger -name then
+         adams.flow.source.CombineVariables -expression "No teams available that can be reinstated!" -conversion adams.data.conversion.StringToString
+         adams.flow.sink.InformationDialog -title "Reinstating users"
+        adams.flow.control.Sequence -name else
+         adams.flow.control.Trigger -name "select teams"
+          adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+          adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLTeamChooser -name teams -display Teams -multi-selection true -state DELETED" -output-type MAP
+          adams.flow.transformer.MapToVariables
+          adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+          adams.flow.transformer.UFDLExtractAndTransfer -source teams -target teams_pk
+         adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+         adams.flow.control.Trigger -name reinstate
+          adams.flow.source.StringConstants -output-array true -string @{teams_pk} -conversion adams.data.conversion.StringToInt
+          adams.flow.control.Tee -name "# teams"
+           adams.flow.transformer.ArrayLength
+           adams.flow.transformer.SetVariable -var-name num_items
+          adams.flow.control.ConditionalTee -name reinstate? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to reinstate @{num_items} team(s)?\""
+           adams.flow.transformer.ArrayToSequence
+           adams.flow.transformer.SetVariable -var-name pk
+           adams.flow.control.Trigger -name reinstate
+            adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
+            adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ReinstateTeam -use-error-queue true
+            adams.flow.transformer.SetVariable -var-name success
+            adams.flow.control.Trigger -name info
+             adams.flow.source.CombineVariables -expression "reinstated team @{pk}: @{success}" -conversion adams.data.conversion.StringToString
+             adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Tee -name "Clear output"
        adams.flow.transformer.CallableTransformer -callable "clear output"
       adams.flow.control.Tee -name Return
@@ -368,11 +411,11 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
      adams.flow.source.Start
      adams.flow.control.Trigger -name "menu prompt"
-      adams.flow.source.EnterValue -name "Projects menu" -message "Please select project operation" -selection-values List -selection-values Add -selection-values Update -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
+      adams.flow.source.EnterValue -name "Projects menu" -message "Please select project operation" -selection-values List -selection-values Add -selection-values Update -selection-values Delete -selection-values Reinstate -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
       adams.flow.transformer.SetVariable -var-name choice
       adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
-     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
+     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Reinstate\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
       adams.flow.control.Trigger -name List
        adams.flow.source.Start
        adams.flow.transformer.SetVariable -var-name none -var-value true
@@ -431,20 +474,63 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UpdateProject -name @{name} -team @{team_pk}" -use-error-queue true
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Delete
-       adams.flow.source.UFDLSource -action adams.flow.source.ufdl.ListProjects -use-error-queue true
-       adams.flow.transformer.SpreadSheetSelectSubset -message "Please select projects to delete" -allow-search true
-       adams.flow.control.Tee -name "# items"
+       adams.flow.source.Start
+       adams.flow.control.Trigger -name "select projects"
+        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLProjectChooser -name projects -display Projects -multi-selection true -state ANY" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name hard_delete -display \"Hard delete?\" -type BOOLEAN -default-value false" -output-type MAP
+        adams.flow.transformer.MapToVariables
+        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+        adams.flow.transformer.UFDLExtractAndTransfer -source projects -target projects_pk
+       adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+       adams.flow.control.Trigger -name delete
+        adams.flow.source.StringConstants -output-array true -string @{projects_pk} -conversion adams.data.conversion.StringToInt
+        adams.flow.control.Tee -name "# projects"
+         adams.flow.transformer.ArrayLength
+         adams.flow.transformer.SetVariable -var-name num_items
+        adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_items} project(s)?\""
+         adams.flow.transformer.ArrayToSequence
+         adams.flow.transformer.SetVariable -var-name pk
+         adams.flow.control.Trigger -name delete
+          adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
+          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteProject -hard @{hard_delete}" -use-error-queue true
+          adams.flow.transformer.SetVariable -var-name success
+          adams.flow.control.Trigger -name info
+           adams.flow.source.CombineVariables -expression "deleted project @{pk}: @{success}" -conversion adams.data.conversion.StringToString
+           adams.flow.sink.CallableSink -callable Info
+      adams.flow.control.Trigger -name Reinstate
+       adams.flow.source.Start
+       adams.flow.control.Trigger -name "any projects to reinstate?"
+        adams.flow.standalone.SetVariable -name reset -var-name num_items -var-value 0
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListProjects -state DELETED" -use-error-queue true
         adams.flow.transformer.SpreadSheetInfo
-        adams.flow.transformer.SetVariable -var-name num_items
-       adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_items} project(s)?\""
-        adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
-        adams.flow.control.Trigger -name delete
-         adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteProject -use-error-queue true
-         adams.flow.transformer.SetVariable -var-name success
-         adams.flow.control.Trigger -name info
-          adams.flow.source.CombineVariables -expression "deleted project @{pk}: @{success}" -conversion adams.data.conversion.StringToString
-          adams.flow.sink.CallableSink -callable Info
+        adams.flow.transformer.SetVariable -name set -var-name num_items
+       adams.flow.control.IfThenElse -condition "adams.flow.condition.bool.Expression -expression \"@{num_items} = 0\""
+        adams.flow.control.Trigger -name then
+         adams.flow.source.CombineVariables -expression "No projects available that can be reinstated!" -conversion adams.data.conversion.StringToString
+         adams.flow.sink.InformationDialog -title "Reinstating users"
+        adams.flow.control.Sequence -name else
+         adams.flow.control.Trigger -name "select projects"
+          adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+          adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLProjectChooser -name projects -display Projects -multi-selection true -state DELETED" -output-type MAP
+          adams.flow.transformer.MapToVariables
+          adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+          adams.flow.transformer.UFDLExtractAndTransfer -source projects -target projects_pk
+         adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+         adams.flow.control.Trigger -name reinstate
+          adams.flow.source.StringConstants -output-array true -string @{projects_pk} -conversion adams.data.conversion.StringToInt
+          adams.flow.control.Tee -name "# projects"
+           adams.flow.transformer.ArrayLength
+           adams.flow.transformer.SetVariable -var-name num_items
+          adams.flow.control.ConditionalTee -name reinstate? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to reinstate @{num_items} project(s)?\""
+           adams.flow.transformer.ArrayToSequence
+           adams.flow.transformer.SetVariable -var-name pk
+           adams.flow.control.Trigger -name reinstate
+            adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
+            adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ReinstateProject -use-error-queue true
+            adams.flow.transformer.SetVariable -var-name success
+            adams.flow.control.Trigger -name info
+             adams.flow.source.CombineVariables -expression "reinstated project @{pk}: @{success}" -conversion adams.data.conversion.StringToString
+             adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Tee -name "Clear output"
        adams.flow.transformer.CallableTransformer -callable "clear output"
       adams.flow.control.Tee -name Return
