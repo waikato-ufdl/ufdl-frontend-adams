@@ -14,27 +14,24 @@
  */
 
 /*
- * DeleteProject.java
+ * ReinstateImageClassificationDataset.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
-import com.github.waikatoufdl.ufdl4j.action.Projects.Project;
+import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 
 /**
- * Deletes the project either via PK or projectname.
+ * Reinstates the image classification dataset either via PK or datasetname.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class DeleteProject
-  extends AbstractProjectTransformerAction {
+public class ReinstateImageClassificationDataset
+  extends AbstractImageClassificationDatasetTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
-
-  /** whether to perform a hard delete. */
-  protected boolean m_Hard;
 
   /**
    * Returns a string describing the object.
@@ -43,48 +40,7 @@ public class DeleteProject
    */
   @Override
   public String globalInfo() {
-    return "Deletes the project either via PK or project name.";
-  }
-
-  /**
-   * Adds options to the internal list of options.
-   */
-  @Override
-  public void defineOptions() {
-    super.defineOptions();
-
-    m_OptionManager.add(
-      "hard", "hard",
-      false);
-  }
-
-  /**
-   * Sets whether to remove or just flag as deleted.
-   *
-   * @param value	true if to remove
-   */
-  public void setHard(boolean value) {
-    m_Hard = value;
-    reset();
-  }
-
-  /**
-   * Returns whether to remove or just flag as deleted.
-   *
-   * @return		true if to remove
-   */
-  public boolean getHard() {
-    return m_Hard;
-  }
-
-  /**
-   * Returns the tip text for this property.
-   *
-   * @return 		tip text for this property suitable for
-   * 			displaying in the GUI or for listing the options.
-   */
-  public String hardTipText() {
-    return "Whether to remove or just flag as deleted.";
+    return "Reinstates the image classification dataset either via PK or dataset name.";
   }
 
   /**
@@ -98,26 +54,26 @@ public class DeleteProject
   }
 
   /**
-   * Transforms the project.
+   * Transforms the dataset.
    *
-   * @param project	the project
+   * @param dataset	the dataset
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
   @Override
-  protected Object doTransform(Project project, MessageCollection errors) {
-    boolean	result;
+  protected Object doTransform(Dataset dataset, MessageCollection errors) {
+    boolean			result;
 
     result = false;
 
     if (isLoggingEnabled())
-      getLogger().info("Deleting project (hard=" + m_Hard + "): " + project);
+      getLogger().info("Reinstating image classification dataset: " + dataset);
 
     try {
-      result = m_Client.projects().delete(project, m_Hard);
+      result = getDatasetsAction().reinstate(dataset);
     }
     catch (Exception e) {
-      errors.add("Failed to delete project (hard=" + m_Hard + "): " + project, e);
+      errors.add("Failed to reinstate image classification dataset: " + dataset, e);
     }
 
     return result;

@@ -110,7 +110,7 @@ public class UpdatePassword
 
     result = null;
     try {
-      result = m_Client.users().partialUpdate(user, null, m_Password.getValue(), null, null, null);
+      result = m_Client.users().partialUpdate(user, null, m_Password.getValue(), null, null, null, null);
     }
     catch (Exception e) {
       errors.add("Failed to update password for user: " + user, e);

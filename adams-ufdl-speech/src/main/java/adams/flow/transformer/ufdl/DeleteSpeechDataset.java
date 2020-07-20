@@ -33,6 +33,9 @@ public class DeleteSpeechDataset
 
   private static final long serialVersionUID = 2890424326502728143L;
 
+  /** whether to perform a hard delete. */
+  protected boolean m_Hard;
+
   /**
    * Returns a string describing the object.
    *
@@ -41,6 +44,47 @@ public class DeleteSpeechDataset
   @Override
   public String globalInfo() {
     return "Deletes the speech dataset either via PK or dataset name.";
+  }
+
+  /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "hard", "hard",
+      false);
+  }
+
+  /**
+   * Sets whether to remove or just flag as deleted.
+   *
+   * @param value	true if to remove
+   */
+  public void setHard(boolean value) {
+    m_Hard = value;
+    reset();
+  }
+
+  /**
+   * Returns whether to remove or just flag as deleted.
+   *
+   * @return		true if to remove
+   */
+  public boolean getHard() {
+    return m_Hard;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String hardTipText() {
+    return "Whether to remove or just flag as deleted.";
   }
 
   /**
@@ -67,13 +111,13 @@ public class DeleteSpeechDataset
     result = false;
 
     if (isLoggingEnabled())
-      getLogger().info("Deleting speech dataset: " + dataset);
+      getLogger().info("Deleting speech dataset (hard=" + m_Hard + "): " + dataset);
 
     try {
-      result = getDatasetsAction().delete(dataset);
+      result = getDatasetsAction().delete(dataset, m_Hard);
     }
     catch (Exception e) {
-      errors.add("Failed to delete speech dataset: " + dataset, e);
+      errors.add("Failed to delete speech dataset (hard=" + m_Hard + "): " + dataset, e);
     }
 
     return result;

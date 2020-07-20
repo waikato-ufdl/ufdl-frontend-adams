@@ -22,6 +22,7 @@ package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
+import adams.core.TriState;
 import adams.core.net.EmailAddress;
 import com.github.waikatoufdl.ufdl4j.action.Users.User;
 
@@ -46,6 +47,9 @@ public class UpdateUser
 
   /** the email. */
   protected EmailAddress m_Email;
+
+  /** the active state. */
+  protected TriState m_Active;
 
   /**
    * Returns a string describing the object.
@@ -79,6 +83,10 @@ public class UpdateUser
     m_OptionManager.add(
       "email", "email",
       new EmailAddress());
+
+    m_OptionManager.add(
+      "active", "active",
+      TriState.TRUE);
   }
 
   /**
@@ -198,6 +206,35 @@ public class UpdateUser
   }
 
   /**
+   * Sets the active state.
+   *
+   * @param value	the state
+   */
+  public void setActive(TriState value) {
+    m_Active = value;
+    reset();
+  }
+
+  /**
+   * Returns the active state.
+   *
+   * @return		the state
+   */
+  public TriState getActive() {
+    return m_Active;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String activeTipText() {
+    return "The 'active' state of the user.";
+  }
+
+  /**
    * Returns a quick info about the actor, which will be displayed in the GUI.
    *
    * @return		null if no info available, otherwise short string
@@ -229,7 +266,8 @@ public class UpdateUser
 
     result = null;
     try {
-      result = m_Client.users().partialUpdate(user, m_UserName, null, m_FirstName, m_LastName, m_Email.strippedValue());
+      result = m_Client.users().partialUpdate(
+        user, m_UserName, null, m_FirstName, m_LastName, m_Email.strippedValue(), m_Active.toBoolean());
     }
     catch (Exception e) {
       errors.add("Failed to update user: " + user, e);
