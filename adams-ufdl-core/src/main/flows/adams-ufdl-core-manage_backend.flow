@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-21 11:04:47
+# Date: 2020-07-21 11:26:15
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -287,22 +287,44 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name "Add team members"
        adams.flow.source.Start
-       adams.flow.control.Trigger -name "select team"
+       adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -name "Select team" -value "adams.flow.source.valuedefinition.UFDLTeamList -name team -display Team -help \"the team to remove members from\"" -output-type MAP
+        adams.flow.source.EnterManyValues -name "Select team and members" -value "adams.flow.source.valuedefinition.UFDLTeamList -name team -display Team -help \"the team to add members to\"" -value "adams.flow.source.valuedefinition.UFDLUserChooser -name users -display Users -help \"the team members to add\" -multi-selection true" -value "adams.flow.source.valuedefinition.EnumValueDefinition -name permissions -display Permissions -help \"The permissions for the team members\" -enum-class com.github.waikatoufdl.ufdl4j.action.Permissions" -output-type MAP
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.UFDLExtractAndTransfer -name team_pk -source team -target team_pk
+        adams.flow.transformer.UFDLExtractAndTransfer -name users_pk -source users -target users_pk
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
-       adams.flow.control.Trigger -name "select team members"
-        adams.flow.source.Variable -var-name team_pk -conversion adams.data.conversion.StringToInt
-        adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadTeam -use-error-queue true
-        adams.flow.transformer.SetStorageValue -storage-name team
-       adams.flow.transformer.CallableTransformer -callable "add team members"
-       adams.flow.control.Trigger -name display
-        adams.flow.source.Variable -var-name team_pk -conversion adams.data.conversion.StringToInt
-        adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadTeam -use-error-queue true
-        adams.flow.sink.CallableSink -callable Info
+       adams.flow.control.Trigger -name "add team members"
+        adams.flow.source.StringConstants -output-array true -string @{users_pk} -conversion adams.data.conversion.StringToInt
+        adams.flow.control.Tee -name "# users"
+         adams.flow.transformer.ArrayLength
+         adams.flow.transformer.SetVariable -var-name num_items
+        adams.flow.control.ConditionalTrigger -name add? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to add @{num_items} team member(s)?\""
+         adams.flow.source.Variable -var-name team_pk -conversion adams.data.conversion.StringToInt
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddTeamMember -member @{users_pk} -permissions @{permissions}" -use-error-queue true
+         adams.flow.control.Tee -name info
+          adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
+          adams.flow.transformer.StringInsert -position first -value "team members added: "
+          adams.flow.sink.CallableSink -callable Info
+       adams.flow.control.Trigger -skip true
+        adams.flow.source.Start
+        adams.flow.control.Trigger -name "select team"
+         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+         adams.flow.source.EnterManyValues -name "Select team" -value "adams.flow.source.valuedefinition.UFDLTeamList -name team -display Team -help \"the team to remove members from\"" -output-type MAP
+         adams.flow.transformer.MapToVariables
+         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+         adams.flow.transformer.UFDLExtractAndTransfer -name team_pk -source team -target team_pk
+        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+        adams.flow.control.Trigger -name "select team members"
+         adams.flow.source.Variable -var-name team_pk -conversion adams.data.conversion.StringToInt
+         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadTeam -use-error-queue true
+         adams.flow.transformer.SetStorageValue -storage-name team
+        adams.flow.transformer.CallableTransformer -callable "add team members"
+        adams.flow.control.Trigger -name display
+         adams.flow.source.Variable -var-name team_pk -conversion adams.data.conversion.StringToInt
+         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadTeam -use-error-queue true
+         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name "Remove team members"
        adams.flow.source.Start
        adams.flow.control.Trigger -name "select team"
