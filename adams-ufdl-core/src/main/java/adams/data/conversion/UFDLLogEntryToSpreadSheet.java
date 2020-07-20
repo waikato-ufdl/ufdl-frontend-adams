@@ -65,7 +65,7 @@ public class UFDLLogEntryToSpreadSheet
    * @return		the template
    */
   @Override
-  protected SpreadSheet getTemplate() {
+  public SpreadSheet getTemplate() {
     SpreadSheet result;
     Row 	row;
 

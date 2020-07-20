@@ -62,7 +62,7 @@ public class UFDLLicenseToSpreadSheet
    * @return		the template
    */
   @Override
-  protected SpreadSheet getTemplate() {
+  public SpreadSheet getTemplate() {
     SpreadSheet result;
     Row 	row;
 

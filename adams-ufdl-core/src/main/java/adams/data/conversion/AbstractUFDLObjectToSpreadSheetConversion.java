@@ -124,7 +124,7 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
    *
    * @return		the template
    */
-  protected abstract SpreadSheet getTemplate();
+  public abstract SpreadSheet getTemplate();
 
   /**
    * Returns the additional information.
