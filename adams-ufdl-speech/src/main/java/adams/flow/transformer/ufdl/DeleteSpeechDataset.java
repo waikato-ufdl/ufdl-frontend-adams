@@ -21,6 +21,7 @@
 package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
+import adams.core.QuickInfoHelper;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 
 /**
@@ -85,6 +86,16 @@ public class DeleteSpeechDataset
    */
   public String hardTipText() {
     return "Whether to remove or just flag as deleted.";
+  }
+
+  /**
+   * Returns a quick info about the object, which can be displayed in the GUI.
+   *
+   * @return		null if no info available, otherwise short string
+   */
+  @Override
+  public String getQuickInfo() {
+    return QuickInfoHelper.toString(this, "hard", (m_Hard ? "hard" : "soft"));
   }
 
   /**
