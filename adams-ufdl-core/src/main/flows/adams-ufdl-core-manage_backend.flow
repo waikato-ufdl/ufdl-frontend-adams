@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-10 15:57:28
+# Date: 2020-07-20 16:39:07
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -153,20 +153,29 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UpdatePassword -password @{password}" -use-error-queue true
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Delete
-       adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListUsers -active NOT_SET" -use-error-queue true
-       adams.flow.transformer.SpreadSheetSelectSubset -message "Please select users to delete" -allow-search true
-       adams.flow.control.Tee -name "# items"
-        adams.flow.transformer.SpreadSheetInfo
-        adams.flow.transformer.SetVariable -var-name num_items
-       adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_items} user(s)?\""
-        adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
-        adams.flow.control.Trigger -name delete
-         adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteUser -use-error-queue true
-         adams.flow.transformer.SetVariable -var-name success
-         adams.flow.control.Trigger -name info
-          adams.flow.source.CombineVariables -expression "deleted user @{pk}: @{success}" -conversion adams.data.conversion.StringToString
-          adams.flow.sink.CallableSink -callable Info
+       adams.flow.source.Start
+       adams.flow.control.Trigger -name "select users"
+        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLUserChooser -name users -display Users -multi-selection true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name hard_delete -display \"Hard delete?\" -type BOOLEAN -default-value false" -output-type MAP
+        adams.flow.transformer.MapToVariables
+        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+        adams.flow.transformer.UFDLExtractAndTransfer -source users -target users_pk
+       adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+       adams.flow.control.Trigger -name delete
+        adams.flow.source.StringConstants -output-array true -string @{users_pk} -conversion adams.data.conversion.StringToInt
+        adams.flow.control.Tee -name "# users"
+         adams.flow.transformer.ArrayLength
+         adams.flow.transformer.SetVariable -var-name num_items
+        adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_items} user(s)?\""
+         adams.flow.transformer.ArrayToSequence
+         adams.flow.transformer.SetVariable -var-name pk
+         adams.flow.control.Trigger -name delete
+          adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
+          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteUser -hard @{hard_delete}" -use-error-queue true
+          adams.flow.transformer.SetVariable -var-name success
+          adams.flow.control.Trigger -name info
+           adams.flow.source.CombineVariables -expression "deleted user @{pk}: @{success}" -conversion adams.data.conversion.StringToString
+           adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Tee -name "Clear output"
        adams.flow.transformer.CallableTransformer -callable "clear output"
       adams.flow.control.Tee -name Return
