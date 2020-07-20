@@ -20,8 +20,6 @@
 
 package adams.gui.chooser;
 
-import adams.flow.core.UFDLListSorting;
-import adams.flow.standalone.UFDLConnection;
 import adams.gui.core.ConsolePanel;
 import adams.gui.core.GUIHelper;
 import adams.gui.dialog.ApprovalDialog;
@@ -40,15 +38,9 @@ import java.awt.Dialog.ModalityType;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLLicenseFilterChooser
-  extends AbstractChooserPanel<License> {
+  extends AbstractUFDLPKChooserPanel<License> {
 
   private static final long serialVersionUID = 2236959758363695310L;
-
-  /** the connection to use. */
-  protected transient UFDLConnection m_Connection;
-
-  /** how to sort. */
-  protected UFDLListSorting m_Sorting;
 
   /** the filter panel. */
   protected transient LicenseFilterPanel m_PanelFilter;
@@ -57,78 +49,37 @@ public class UFDLLicenseFilterChooser
   protected transient ApprovalDialog m_Dialog;
 
   /**
-   * Initializes the members.
+   * Turns the object into a struct (ID and string).
+   *
+   * @param value	the object to convert
+   * @return		the generated struct
    */
   @Override
-  protected void initialize() {
-    super.initialize();
-
-    m_Connection = null;
-    m_Sorting    = UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE;
+  protected Struct2<Integer, String> toStruct(License value) {
+    return new Struct2<>(value.getPK(), value.getName());
   }
 
   /**
-   * Sets the connection to use.
+   * Loads the object based on the ID.
    *
-   * @param value	the connection
-   */
-  public void setConnection(UFDLConnection value) {
-    m_Connection = value;
-  }
-
-  /**
-   * Returns the connection in use.
-   *
-   * @return		the connection, null if none set
-   */
-  public UFDLConnection getConnection() {
-    return m_Connection;
-  }
-
-  /**
-   * Sets how to sort the list items.
-   *
-   * @param value	the sorting
-   */
-  public void setSorting(UFDLListSorting value) {
-    m_Sorting = value;
-  }
-
-  /**
-   * Returns how to sort the list items.
-   *
-   * @return 		the sorting
-   */
-  public UFDLListSorting getSorting() {
-    return m_Sorting;
-  }
-
-  /**
-   * Converts the value into its string representation.
-   *
-   * @param value	the value to convert
-   * @return		the generated string
+   * @param pk		the ID to load
+   * @return		the object, null if failed to load
+   * @throws Exception	if loading failed
    */
   @Override
-  protected String toString(License value) {
-    return m_Sorting.toString(new Struct2<>(value.getPK(), value.getName()));
+  protected License loadObject(int pk) throws Exception {
+    return m_Connection.getClient().licenses().load(pk);
   }
 
   /**
-   * Converts the string representation into its object representation.
+   * Creates a new array of the specified object.
    *
-   * @param value	the string value to convert
-   * @return		the generated object, null if failed to convert
+   * @param len		the length of the array
+   * @return		the array
    */
   @Override
-  protected License fromString(String value) {
-    try {
-      return m_Connection.getClient().licenses().load(m_Sorting.fromString(value).value1);
-    }
-    catch (Exception e) {
-      ConsolePanel.getSingleton().append("Failed to parse license string: " + value, e);
-      return null;
-    }
+  protected License[] newArray(int len) {
+    return new License[len];
   }
 
   /**
@@ -137,21 +88,27 @@ public class UFDLLicenseFilterChooser
    * @return		the chosen object or null if none chosen
    */
   @Override
-  protected License doChoose() {
-    License 	result;
+  protected License[] doChoose() {
+    License[] 	result;
     License[]	selected;
 
     result = getCurrent();
 
     if (m_Dialog == null) {
       m_PanelFilter = new LicenseFilterPanel();
-      m_PanelFilter.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+      if (m_MultiSelection)
+        m_PanelFilter.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+      else
+        m_PanelFilter.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
       if (getParentDialog() != null)
 	m_Dialog = new ApprovalDialog(getParentDialog(), ModalityType.DOCUMENT_MODAL);
       else
 	m_Dialog = new ApprovalDialog(getParentFrame(), true);
       m_Dialog.setDefaultCloseOperation(ApprovalDialog.HIDE_ON_CLOSE);
-      m_Dialog.setTitle("Select license");
+      if (m_MultiSelection)
+	m_Dialog.setTitle("Select licenses");
+      else
+	m_Dialog.setTitle("Select license");
       m_Dialog.getContentPane().add(m_PanelFilter, BorderLayout.CENTER);
       m_Dialog.setDiscardVisible(false);
       m_Dialog.setCancelVisible(true);
@@ -168,12 +125,17 @@ public class UFDLLicenseFilterChooser
     }
     m_PanelFilter.clearFilters();
     if (result != null)
-      m_PanelFilter.setSelectedLicenses(new License[]{result});
+      m_PanelFilter.setSelectedLicenses(result);
     m_Dialog.setVisible(true);
     if (m_Dialog.getOption() == ApprovalDialog.APPROVE_OPTION) {
       selected = m_PanelFilter.getSelectedLicenses();
-      if (selected.length == 1)
-        result = selected[0];
+      if (!m_MultiSelection) {
+	if (selected.length == 1)
+	  result = selected;
+      }
+      else {
+        result = selected;
+      }
     }
 
     return result;
