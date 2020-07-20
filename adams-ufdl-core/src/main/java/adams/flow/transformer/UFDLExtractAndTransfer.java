@@ -21,9 +21,12 @@
 package adams.flow.transformer;
 
 import adams.core.QuickInfoHelper;
+import adams.core.Utils;
 import adams.core.VariableName;
+import adams.core.option.OptionUtils;
 import adams.flow.core.UFDLListSorting;
 import adams.flow.core.Unknown;
+import adams.gui.chooser.AbstractUFDLPKChooserPanel;
 import com.github.fracpete.javautils.struct.Struct2;
 
 /**
@@ -81,6 +84,11 @@ import com.github.fracpete.javautils.struct.Struct2;
  * &nbsp;&nbsp;&nbsp;default: variable
  * </pre>
  *
+ * <pre>-separator &lt;java.lang.String&gt; (property: separator)
+ * &nbsp;&nbsp;&nbsp;The separator to use for splitting into multiple objects.
+ * &nbsp;&nbsp;&nbsp;default: |
+ * </pre>
+ *
  * <pre>-sorting &lt;BY_ID|BY_DESCRIPTION_CASE_SENSITIVE|BY_DESCRIPTION_CASE_INSENSITIVE&gt; (property: sorting)
  * &nbsp;&nbsp;&nbsp;The sorting that was applied to the list items.
  * &nbsp;&nbsp;&nbsp;default: BY_DESCRIPTION_CASE_INSENSITIVE
@@ -116,12 +124,15 @@ public class UFDLExtractAndTransfer
   /** the source variable. */
   protected VariableName m_Source;
 
+  /** the separator in use. */
+  protected String m_Separator;
+
   /** how to the list items were sorted. */
   protected UFDLListSorting m_Sorting;
 
   /** what to extract. */
   protected ExtractionType m_Type;
-  
+
   /** the target variable. */
   protected VariableName m_Target;
 
@@ -145,6 +156,10 @@ public class UFDLExtractAndTransfer
     m_OptionManager.add(
       "source", "source",
       new VariableName());
+
+    m_OptionManager.add(
+      "separator", "separator",
+      AbstractUFDLPKChooserPanel.DEFAULT_SEPARATOR);
 
     m_OptionManager.add(
       "sorting", "sorting",
@@ -203,6 +218,37 @@ public class UFDLExtractAndTransfer
    */
   public String sourceTipText() {
     return "The source variable to obtain the list item string from.";
+  }
+
+  /**
+   * Sets the separator for splitting into multiple objects.
+   *
+   * @param value	the separator
+   */
+  public void setSeparator(String value) {
+    if ((value != null) && (value.length() == 1)) {
+      m_Separator = value;
+      reset();
+    }
+  }
+
+  /**
+   * Returns the separator for splitting into multiple objects.
+   *
+   * @return 		the separator
+   */
+  public String getSeparator() {
+    return m_Separator;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return		tip text for this property suitable for
+   *             	displaying in the GUI or for listing the options.
+   */
+  public String separatorTipText() {
+    return "The separator to use for splitting into multiple objects.";
   }
 
   /**
@@ -321,6 +367,10 @@ public class UFDLExtractAndTransfer
   protected String doExecute() {
     String			result;
     String 			itemStr;
+    String[]			itemStrs;
+    String[] 			itemExtrs;
+    String			joined;
+    int				i;
     Struct2<Integer,String> 	item;
 
     result = null;
@@ -330,27 +380,43 @@ public class UFDLExtractAndTransfer
 
     if (result == null) {
       itemStr = getVariables().get(m_Source.getValue());
-      try {
-	item = m_Sorting.fromString(itemStr);
-	if (item == null) {
-          result = "Failed to extract PK from: " + itemStr;
-        }
-	else {
-	  switch (m_Type) {
-            case PK:
-              getVariables().set(m_Target.getValue(), "" + item.value1);
-              break;
-            case DESCRIPTION:
-              getVariables().set(m_Target.getValue(), item.value2);
-              break;
-            default:
-              throw new IllegalStateException("Unhandled extraction type: " + m_Type);
-          }
-        }
+      if (itemStr.contains(m_Separator))
+        itemStrs = Utils.split(itemStr, m_Separator);
+      else
+        itemStrs = new String[]{itemStr};
+      itemExtrs = new String[itemStrs.length];
+
+      for (i = 0; i < itemStrs.length; i++) {
+	try {
+	  item = m_Sorting.fromString(itemStrs[i]);
+	  if (item == null) {
+	    result = "Failed to extract " + m_Type + " from: " + itemStrs[i];
+	  }
+	  else {
+	    switch (m_Type) {
+	      case PK:
+		itemExtrs[i] = "" + item.value1;
+		break;
+	      case DESCRIPTION:
+		itemExtrs[i] = item.value2;
+		break;
+	      default:
+		throw new IllegalStateException("Unhandled extraction type: " + m_Type);
+	    }
+	  }
+	}
+	catch (Exception e) {
+	  result = handleException("Failed to extract " + m_Type + " from: " + itemStrs[i], e);
+	}
       }
-      catch (Exception e) {
-        result = handleException("Failed to extract PK from: " + itemStr, e);
-      }
+
+      if (itemExtrs.length == 0)
+        joined = "";
+      else if (itemExtrs.length == 1)
+        joined = itemExtrs[0];
+      else
+        joined = OptionUtils.joinOptions(itemExtrs);
+      getVariables().set(m_Target.getValue(), joined);
     }
 
     if (result == null)
