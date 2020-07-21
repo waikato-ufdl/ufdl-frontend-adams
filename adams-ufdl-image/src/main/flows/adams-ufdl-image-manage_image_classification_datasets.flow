@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-21 16:49:22
+# Date: 2020-07-21 17:02:16
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -187,7 +187,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.control.Trigger -name "menu prompt"
       adams.flow.source.EnterValue -name "Update menu" -stop-if-canceled true -message "Please select update operation" -selection-values Properties -selection-values "Add images" -selection-values "Update images" -selection-values "Delete images" -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
       adams.flow.transformer.SetVariable -var-name update_choice
-     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{update_choice}\\\\\\\" = \\\\\\\"Properties\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{update_choice}\\\\\\\" = \\\\\\\"Add images\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{update_choice}\\\\\\\" = \\\\\\\"Update images\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{update_choice}\\\\\\\" = \\\\\\\"Delete images\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{update_choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{update_choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
+     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.HasVariableValue -variable-name update_choice -value Properties" -condition "adams.flow.condition.bool.HasVariableValue -variable-name update_choice -value \"Add images\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name update_choice -value \"Update images\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name update_choice -value \"Delete images\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name update_choice -value \"Clear output\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name update_choice -value Return" -lenient true
       adams.flow.control.Trigger -name properties
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
        adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadImageClassificationDataset -use-error-queue true
