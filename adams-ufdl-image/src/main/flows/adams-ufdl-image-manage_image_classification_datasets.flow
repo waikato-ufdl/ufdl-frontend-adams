@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-21 14:16:50
+# Date: 2020-07-21 16:49:22
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -60,29 +60,31 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
    adams.flow.source.Start
    adams.flow.control.WhileLoop -condition "adams.flow.condition.bool.VariableFlagSet -variable-name keep_adding_files"
     adams.flow.standalone.SetVariable -name reset -var-name count -var-value 0
-    adams.flow.source.SelectFile -output-array true -file-chooser-title "Select images to add" -initial-dir @{image_dir} -extension jpg,png
-    adams.flow.control.Trigger -name "select category"
-     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-     adams.flow.source.EnterManyValues -name "Category for images" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name category -display Category -value @{categories}" -output-type MAP
-     adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-     adams.flow.transformer.MapToVariables
-    adams.flow.control.Tee -name "add files"
-     adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
-     adams.flow.control.Tee -name "# images"
-      adams.flow.transformer.ArrayLength
-      adams.flow.transformer.SetVariable -var-name max
-     adams.flow.transformer.ArrayToChunks
-     adams.flow.transformer.Convert -conversion adams.data.conversion.JoinOptions
-     adams.flow.control.Tee -name progress
-      adams.flow.transformer.IncVariable -var-name count -output-variable-value true
-      adams.flow.sink.CallableSink -callable ProgressBar
-     adams.flow.transformer.SetVariable -var-name file_escaped
-     adams.flow.control.Trigger -name add
-      adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
-      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{file_escaped} -category @{category}"
-      adams.flow.control.Trigger -name info
-       adams.flow.source.CombineVariables -expression "added to dataset @{dataset}: @{file_escaped} / @{category}" -conversion adams.data.conversion.StringToString
-       adams.flow.sink.CallableSink -callable Info
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name "select/add files"
+     adams.flow.source.SelectFile -output-array true -file-chooser-title "Select images to add" -initial-dir @{image_dir} -extension jpg,png
+     adams.flow.control.Trigger -name "select category"
+      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+      adams.flow.source.EnterManyValues -name "Category for images" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name category -display Category -value @{categories}" -output-type MAP
+      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+      adams.flow.transformer.MapToVariables
+     adams.flow.control.Tee -name "add files"
+      adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+      adams.flow.control.Tee -name "# images"
+       adams.flow.transformer.ArrayLength
+       adams.flow.transformer.SetVariable -var-name max
+      adams.flow.transformer.ArrayToChunks
+      adams.flow.transformer.Convert -conversion adams.data.conversion.JoinOptions
+      adams.flow.control.Tee -name progress
+       adams.flow.transformer.IncVariable -var-name count -output-variable-value true
+       adams.flow.sink.CallableSink -callable ProgressBar
+      adams.flow.transformer.SetVariable -var-name file_escaped
+      adams.flow.control.Trigger -name add
+       adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageClassificationFile -file @{file_escaped} -category @{category}"
+       adams.flow.control.Trigger -name info
+        adams.flow.source.CombineVariables -expression "added to dataset @{dataset}: @{file_escaped} / @{category}" -conversion adams.data.conversion.StringToString
+        adams.flow.sink.CallableSink -callable Info
     adams.flow.control.Tee -name "continue adding?"
      adams.flow.transformer.SetVariable -name reset -var-name keep_adding_files -var-value false
      adams.flow.transformer.ConfirmationDialog -message "Add more files?"
