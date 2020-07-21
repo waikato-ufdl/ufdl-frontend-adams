@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-21 14:32:33
+# Date: 2020-07-22 08:54:24
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-audio,adams-core,adams-event,adams-ffmpeg,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-speech
@@ -150,11 +150,39 @@ adams.flow.control.Flow -annotation "Flow for managing speech datasets (create/u
      adams.flow.source.Start
      adams.flow.control.CloseCallableDisplay -name "close progressbar" -callable ProgressBar
      adams.flow.control.Trigger -name "menu prompt"
-      adams.flow.source.EnterValue -name "Update menu" -message "Please select update operation" -selection-values "Add files" -selection-values "Update files" -selection-values "Delete files" -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
+      adams.flow.source.EnterValue -name "Update menu" -message "Please select update operation" -selection-values Properties -selection-values "Add files" -selection-values "Update files" -selection-values "Delete files" -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
       adams.flow.transformer.SetVariable -var-name choice
       adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
-     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add files\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Update files\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete files\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
+     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Properties" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value \"Add files\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value \"Update files\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value \"Delete files\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value \"Clear output\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Return" -lenient true
+      adams.flow.control.Trigger -name Properties
+       adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+       adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadSpeechDataset -use-error-queue true
+       adams.flow.transformer.SetStorageValue -storage-name dataset
+       adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLSpeechDatasetToSpreadSheet
+       adams.flow.transformer.SpreadSheetVariableRowIterator
+       adams.flow.control.Trigger -name license
+        adams.flow.source.Variable -var-name license -conversion adams.data.conversion.StringToInt
+        adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadLicense -use-error-queue true
+        adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLLicenseToListItem
+        adams.flow.transformer.SetVariable -var-name license
+       adams.flow.control.Trigger -name project
+        adams.flow.source.Variable -var-name project -conversion adams.data.conversion.StringToInt
+        adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadProject -use-error-queue true
+        adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLProjectToListItem
+        adams.flow.transformer.SetVariable -var-name project
+       adams.flow.control.Trigger -name "prompt user"
+        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+        adams.flow.source.EnterManyValues -name "Update properties" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_name -display \"Dataset name\" -default-value @{name}" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_desc -display Description -default-value @{description}" -value "adams.flow.source.valuedefinition.UFDLLicenseList -name dataset_license -display License -default-value @{license}" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_public -display Public? -type BOOLEAN -default-value @{name}" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_tags -display Tags -default-value @{tags}" -value "adams.flow.source.valuedefinition.UFDLProjectList -name dataset_project -display Project -default-value @{project}" -output-type MAP
+        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+        adams.flow.transformer.MapToVariables
+        adams.flow.transformer.UFDLExtractAndTransfer -name project_pk -source dataset_project -target project_pk
+        adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source dataset_license -target license_pk
+       adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+       adams.flow.control.Trigger -name update
+        adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UpdateSpeechDataset -name @{dataset_name} -description @{dataset_desc} -project @{project_pk} -license @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}" -use-error-queue true
+        adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name "Add files"
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
        adams.flow.transformer.SetStorageValue -storage-name dataset
