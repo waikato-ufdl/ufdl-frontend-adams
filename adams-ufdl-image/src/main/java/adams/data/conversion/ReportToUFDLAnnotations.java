@@ -140,7 +140,7 @@ public class ReportToUFDLAnnotations
     for (LocatedObject obj: objs) {
       label = "Object";
       if (obj.getMetaData().containsKey("type"))
-        label = "" + obj.getMetaData().containsKey("type");
+        label = "" + obj.getMetaData().get("type");
       if (obj.hasPolygon()) {
 	x = obj.getPolygonX();
 	y = obj.getPolygonY();
