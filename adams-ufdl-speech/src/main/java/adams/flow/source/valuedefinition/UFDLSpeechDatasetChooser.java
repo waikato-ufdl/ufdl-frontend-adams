@@ -18,9 +18,8 @@
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
-package adams.flow.source.ufdl;
+package adams.flow.source.valuedefinition;
 
-import adams.flow.source.valuedefinition.AbstractUFDLSpreadSheetBasedSoftDeleteValueDefinition;
 import adams.gui.chooser.UFDLSpeechDatasetChooserPanel;
 import adams.gui.core.PropertiesParameterPanel;
 
