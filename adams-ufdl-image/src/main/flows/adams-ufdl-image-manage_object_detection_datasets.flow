@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-21 17:03:35
+# Date: 2020-07-21 17:12:25
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -11,6 +11,7 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
   adams.flow.sink.SpreadSheetDisplay -name Current -short-title true -display-type adams.flow.core.displaytype.Default -x -3 -cell-rendering-customizer adams.gui.core.spreadsheettable.DefaultCellRenderingCustomizer -allow-search true -writer adams.data.io.output.NullWriter
   adams.flow.sink.ProgressBar -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -max @{max}
   adams.flow.sink.DisplayPanelManager -name Images -display-type adams.flow.core.displaytype.Default -width 800 -height 600 -provider "adams.flow.sink.ImageViewer -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -zoom -1.0 -show-properties true -selection-processor adams.gui.visualization.image.selection.NullProcessor -left-click-processor adams.gui.visualization.image.leftclick.NullProcessor -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -image-overlay \"adams.gui.visualization.image.ObjectLocationsOverlayFromReport -use-colors-per-type true -type-color-provider adams.gui.visualization.core.DefaultColorProvider -label-format \\\"# $\\\"\"" -entry-name-variable image -allow-search true
+  adams.flow.sink.DisplayPanelManager -name Interactions -short-title true -display-type adams.flow.core.displaytype.Default -width 800 -height 600 -x -3 -provider "adams.flow.sink.JsonDisplay -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -preview true" -entry-name-variable image
   adams.flow.control.Tee -name "clear output"
    adams.flow.control.ClearCallableDisplay -name "clear info" -callable Info
    adams.flow.control.ClearCallableDisplay -name "clear errors" -callable Errors
@@ -19,6 +20,7 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
    adams.flow.control.CloseCallableDisplay -name "close progress" -callable ProgressBar
    adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
    adams.flow.control.CloseCallableDisplay -name "close images" -callable Images
+   adams.flow.control.CloseCallableDisplay -name "close interactions" -callable Interactions
   adams.flow.control.Trigger -name "add files" -annotation "uses \\\"dataset\\\" from storage"
    adams.flow.standalone.SetVariable -name reset -var-name count -var-value 0
    adams.flow.source.SelectFile -output-array true -file-chooser-title "Select images to add" -initial-dir @{image_dir} -extension jpg,png
@@ -293,6 +295,13 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetObjectDetectionMetadataForImage -name @{image}" -use-error-queue true
        adams.flow.transformer.SetVariable -var-name interaction
+       adams.flow.control.Tee -name length
+        adams.flow.transformer.StringLength
+        adams.flow.transformer.SetVariable -var-name str_length
+       adams.flow.control.ConditionalSubProcess -name "no interactions?" -condition "adams.flow.condition.bool.Expression -expression \"@{str_length} = 0\""
+        adams.flow.transformer.StringReplace -find .* -replace []
+       adams.flow.transformer.Convert -conversion adams.data.conversion.StringToJson
+       adams.flow.sink.CallableSink -callable Interactions
       adams.flow.control.Trigger -name "load image"
        adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
