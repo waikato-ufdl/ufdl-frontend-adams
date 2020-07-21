@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-21 14:18:39
+# Date: 2020-07-21 16:54:07
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -159,7 +159,7 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
         adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-update_add.props -value-type FILE_FORWARD_SLASHES -expand-value true
-        adams.flow.source.EnterManyValues -name "Add images" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name image_dir -display \"Directory with images\" -type DIRECTORY_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name categories -display \"Categories (blank-separated)\" -default-value \"cat1 cat2 cat3\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+        adams.flow.source.EnterManyValues -name "Add images" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name image_dir -display \"Directory with images\" -type DIRECTORY_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name labels -display \"Categories (blank-separated)\" -default-value \"cat1 cat2 cat3\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.MapToVariables
        adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
