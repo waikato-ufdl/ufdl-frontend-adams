@@ -269,7 +269,7 @@ public abstract class AbstractCreateDataset
 
     result = QuickInfoHelper.toString(this, "name", m_Name);
     result += QuickInfoHelper.toString(this, "project", m_Project, ", project: ");
-    result += QuickInfoHelper.toString(this, "license", m_LoggingIsEnabled, ", license: ");
+    result += QuickInfoHelper.toString(this, "license", m_License, ", license: ");
     result += QuickInfoHelper.toString(this, "isPublic", m_IsPublic, "public", ", ");
 
     return result;
