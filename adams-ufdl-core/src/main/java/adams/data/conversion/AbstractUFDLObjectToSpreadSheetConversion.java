@@ -27,6 +27,7 @@ import adams.flow.core.Actor;
 import adams.flow.core.ActorUtils;
 import adams.flow.core.FlowContextHandler;
 import adams.flow.standalone.UFDLConnection;
+import com.github.waikatoufdl.ufdl4j.action.Frameworks.Framework;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
 import com.github.waikatoufdl.ufdl4j.action.Projects.Project;
 import com.github.waikatoufdl.ufdl4j.action.Teams.Team;
@@ -266,6 +267,31 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
       }
       catch (Exception e) {
         getLogger().severe("Failed to resolve project ID: " + id);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns the framework ID or name/version, depending on whether IDs get resolved.
+   *
+   * @param id		the project ID
+   * @return		the generated string
+   */
+  protected String getFramework(int id) {
+    String	result;
+    Framework 	framework;
+
+    result = "" + id;
+
+    if (m_ResolveIDs && (id > -1)) {
+      try {
+        framework = m_Connection.getClient().frameworks().load(id);
+	result = framework.getName() + "/" + framework.getVersion();
+      }
+      catch (Exception e) {
+        getLogger().severe("Failed to resolve framework ID: " + id);
       }
     }
 
