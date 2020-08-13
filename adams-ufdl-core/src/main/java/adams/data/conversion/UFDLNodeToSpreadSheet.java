@@ -101,7 +101,7 @@ public class UFDLNodeToSpreadSheet
     row.addCell("pk").setContent(node.getPK());
     row.addCell("ip").setContent(node.getIP());
     row.addCell("dv").setContent(node.getDriverVersion());
-    row.addCell("hg").setContent(node.getHardwareGeneration());
+    row.addCell("hg").setContent(getHardwareGeneration(node.getHardwareGeneration()));
     row.addCell("cm").setContent(node.getCPUMemory());
     row.addCell("gm").setContent(node.getGPUMemory());
     if (node.getLastSeen() != null)

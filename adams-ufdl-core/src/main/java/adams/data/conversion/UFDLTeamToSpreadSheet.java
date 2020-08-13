@@ -116,7 +116,10 @@ public class UFDLTeamToSpreadSheet
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(team.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (team.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(team.getDeletionTime().toInstant(ZoneOffset.UTC))));
-    row.addCell("me").setContent(Utils.flatten(team.members(), ","));
+    if (getResolveIDs())
+      row.addCell("me").setContent(Utils.flatten(team.members(), ","));
+    else
+      row.addCell("me").setContent(Utils.flatten(team.membersPK(), ","));
 
     return result;
   }

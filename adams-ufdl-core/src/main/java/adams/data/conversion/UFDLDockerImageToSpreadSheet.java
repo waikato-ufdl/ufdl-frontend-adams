@@ -108,9 +108,9 @@ public class UFDLDockerImageToSpreadSheet
     row.addCell("ru").setContent(image.getRegistryUrl());
     row.addCell("run").setContent(image.getRegistryUserName());
     row.addCell("rp").setContent(image.getRegistryPassword().isEmpty() ? "" : "***");
-    row.addCell("cv").setContent(image.getCudaVersion());
+    row.addCell("cv").setContent(getCudaVersion(image.getCudaVersion()));
     row.addCell("fw").setContent(getFramework(image.getFramework()));
-    row.addCell("mh").setContent(image.getMinHardwareGeneration());
+    row.addCell("mh").setContent(getHardwareGeneration(image.getMinHardwareGeneration()));
     row.addCell("cp").setContent(image.getCPU());
 
     return result;

@@ -84,7 +84,8 @@ public class UFDLJobTemplateToSpreadSheet
     row.addCell("do").setContentAsString("domain");
     row.addCell("ec").setContentAsString("executor_class");
     row.addCell("rp").setContentAsString("required_packages");
-    // TODO inputs/parameters
+    row.addCell("in").setContentAsString("inputs");
+    row.addCell("pm").setContentAsString("parameters");
     row.addCell("bo").setContentAsString("body");
 
     return result;
@@ -119,7 +120,8 @@ public class UFDLJobTemplateToSpreadSheet
     row.addCell("do").setContent(template.getDomain());
     row.addCell("ec").setContent(template.getExecutorClass());
     row.addCell("rp").setContent(template.getRequiredPackages());
-    // TODO inputs/parameters
+    row.addCell("in").setContent(template.getInputs().toString());
+    row.addCell("pm").setContent(template.getParameters().toString());
     row.addCell("bo").setContent(template.getBody());
 
     return result;

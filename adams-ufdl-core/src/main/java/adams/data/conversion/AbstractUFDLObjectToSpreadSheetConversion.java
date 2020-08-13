@@ -27,7 +27,11 @@ import adams.flow.core.Actor;
 import adams.flow.core.ActorUtils;
 import adams.flow.core.FlowContextHandler;
 import adams.flow.standalone.UFDLConnection;
+import com.github.waikatoufdl.ufdl4j.action.CudaVersions.CudaVersion;
+import com.github.waikatoufdl.ufdl4j.action.DockerImages.DockerImage;
 import com.github.waikatoufdl.ufdl4j.action.Frameworks.Framework;
+import com.github.waikatoufdl.ufdl4j.action.HardwareGenerations.HardwareGeneration;
+import com.github.waikatoufdl.ufdl4j.action.JobTemplates.JobTemplate;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
 import com.github.waikatoufdl.ufdl4j.action.Projects.Project;
 import com.github.waikatoufdl.ufdl4j.action.Teams.Team;
@@ -276,7 +280,7 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
   /**
    * Returns the framework ID or name/version, depending on whether IDs get resolved.
    *
-   * @param id		the project ID
+   * @param id		the framework ID
    * @return		the generated string
    */
   protected String getFramework(int id) {
@@ -292,6 +296,106 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
       }
       catch (Exception e) {
         getLogger().severe("Failed to resolve framework ID: " + id);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns the cuda version ID or version, depending on whether IDs get resolved.
+   *
+   * @param id		the cuda version ID
+   * @return		the generated string
+   */
+  protected String getCudaVersion(int id) {
+    String	result;
+    CudaVersion cuda;
+
+    result = "" + id;
+
+    if (m_ResolveIDs && (id > -1)) {
+      try {
+        cuda = m_Connection.getClient().cuda().load(id);
+	result = cuda.getVersion();
+      }
+      catch (Exception e) {
+        getLogger().severe("Failed to resolve cuda version ID: " + id);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns the hardware generation ID or version, depending on whether IDs get resolved.
+   *
+   * @param id		the hardware generation ID
+   * @return		the generated string
+   */
+  protected String getHardwareGeneration(int id) {
+    String		result;
+    HardwareGeneration 	gen;
+
+    result = "" + id;
+
+    if (m_ResolveIDs && (id > -1)) {
+      try {
+        gen = m_Connection.getClient().hardware().load(id);
+	result = gen.getGeneration();
+      }
+      catch (Exception e) {
+        getLogger().severe("Failed to resolve hardware generation ID: " + id);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns the docker image ID or name/version, depending on whether IDs get resolved.
+   *
+   * @param id		the docker image ID
+   * @return		the generated string
+   */
+  protected String getDockerImage(int id) {
+    String	result;
+    DockerImage img;
+
+    result = "" + id;
+
+    if (m_ResolveIDs && (id > -1)) {
+      try {
+        img = m_Connection.getClient().docker().load(id);
+	result = img.getName() + "/" + img.getVersion();
+      }
+      catch (Exception e) {
+        getLogger().severe("Failed to resolve docker image ID: " + id);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns the job template ID or name/version, depending on whether IDs get resolved.
+   *
+   * @param id		the job template ID
+   * @return		the generated string
+   */
+  protected String getJobTemplate(int id) {
+    String	result;
+    JobTemplate template;
+
+    result = "" + id;
+
+    if (m_ResolveIDs && (id > -1)) {
+      try {
+        template = m_Connection.getClient().jobTemplates().load(id);
+	result = template.getName() + "/" + template.getVersion();
+      }
+      catch (Exception e) {
+        getLogger().severe("Failed to resolve job template ID: " + id);
       }
     }
 

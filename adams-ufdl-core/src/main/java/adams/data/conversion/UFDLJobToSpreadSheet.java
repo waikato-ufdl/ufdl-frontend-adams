@@ -108,8 +108,8 @@ public class UFDLJobToSpreadSheet
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(job.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (job.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(job.getDeletionTime().toInstant(ZoneOffset.UTC))));
-    row.addCell("jt").setContent(job.getJobTemplate());
-    row.addCell("di").setContent(job.getDockerImage());
+    row.addCell("jt").setContent(getJobTemplate(job.getJobTemplate()));
+    row.addCell("di").setContent(getDockerImage(job.getDockerImage()));
     row.addCell("no").setContent(job.getNode());
     if (job.getStartTime() != null)
       row.addCell("st").setContent(new DateTimeMsec(Date.from(job.getStartTime().toInstant(ZoneOffset.UTC))));
