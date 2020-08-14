@@ -97,7 +97,7 @@ public class CreateLicense
   }
 
   /**
-   * Sets the team URL.
+   * Sets the license URL.
    *
    * @param value	the URL
    */
@@ -107,7 +107,7 @@ public class CreateLicense
   }
 
   /**
-   * Returns the team URL.
+   * Returns the license URL.
    *
    * @return		the URL
    */
