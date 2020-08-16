@@ -28,9 +28,8 @@ import com.github.waikatoufdl.ufdl4j.action.JobTemplates.JobTemplate;
  * Ancestor of transformer actions on job templates.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
- * @param <T> the type of JobTemplates action
  */
-public abstract class AbstractJobTemplateTransformerAction<T extends JobTemplates>
+public abstract class AbstractJobTemplateTransformerAction
   extends AbstractUFDLTransformerAction {
 
   private static final long serialVersionUID = 1320770985737432995L;
@@ -50,14 +49,14 @@ public abstract class AbstractJobTemplateTransformerAction<T extends JobTemplate
    * @return		the action
    * @throws Exception	if instantiation of action fails
    */
-  protected T getJobTemplatesAction() throws Exception {
-    return (T) m_Client.action(JobTemplates.class);
+  protected JobTemplates getJobTemplatesAction() throws Exception {
+    return m_Client.action(JobTemplates.class);
   }
 
   /**
    * Transforms the job template.
    *
-   * @param job template	the job template
+   * @param template	the job template
    * @param errors 	for collecting errors
    * @return 		the transformed data
    */
@@ -72,9 +71,9 @@ public abstract class AbstractJobTemplateTransformerAction<T extends JobTemplate
    */
   @Override
   protected Object doTransform(Object input, MessageCollection errors) {
-    Object	result;
-    JobTemplate template;
-    T		action;
+    Object		result;
+    JobTemplate 	template;
+    JobTemplates	action;
 
     result = null;
 
