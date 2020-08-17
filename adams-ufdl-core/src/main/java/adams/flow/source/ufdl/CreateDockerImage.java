@@ -565,7 +565,7 @@ public class CreateDockerImage
         m_Name, m_Version, m_URL,
 	m_RegistryURL, m_RegistryUser, m_RegistryPassword.getValue(),
 	m_CudaVersion, m_Framework, m_Domain, BaseObject.toStringArray(m_Tasks),
-	m_MinHardwareGeneration, m_CPU);  // TODO license
+	m_MinHardwareGeneration, m_CPU, m_License);
     }
     catch (Exception e) {
       errors.add("Failed to create docker image!", e);

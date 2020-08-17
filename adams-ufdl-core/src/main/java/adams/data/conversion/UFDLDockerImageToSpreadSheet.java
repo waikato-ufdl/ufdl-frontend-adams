@@ -72,6 +72,7 @@ public class UFDLDockerImageToSpreadSheet
     row.addCell("pk").setContentAsString("pk");
     row.addCell("na").setContentAsString("name");
     row.addCell("ve").setContentAsString("version");
+    row.addCell("li").setContentAsString("license");
     row.addCell("ru").setContentAsString("registry_url");
     row.addCell("run").setContentAsString("registry_username");
     row.addCell("rp").setContentAsString("registry_password");
@@ -103,6 +104,7 @@ public class UFDLDockerImageToSpreadSheet
     row.addCell("pk").setContent(image.getPK());
     row.addCell("na").setContent(image.getName());
     row.addCell("ve").setContent(image.getVersion());
+    row.addCell("li").setContent(getLicense(image.getLicense()));
     row.addCell("do").setContent(image.getDomain());
     row.addCell("ta").setContent(Utils.arrayToString(image.getTasks()));
     row.addCell("ru").setContent(image.getRegistryUrl());

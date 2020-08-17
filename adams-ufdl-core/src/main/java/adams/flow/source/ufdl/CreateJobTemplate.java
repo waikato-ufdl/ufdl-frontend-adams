@@ -455,7 +455,7 @@ public class CreateJobTemplate
     try {
       result = m_Client.jobTemplates().create(
         m_Name, m_Version, m_Scope, m_Framework, m_Domain, m_Type,
-        m_ExecutorClass, m_RequiredPackages, m_Template.getValue());  // TODO license
+        m_ExecutorClass, m_RequiredPackages, m_Template.getValue(), m_License);
     }
     catch (Exception e) {
       errors.add("Failed to create pretrained model!", e);
