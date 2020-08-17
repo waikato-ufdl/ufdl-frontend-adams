@@ -26,7 +26,7 @@ import adams.core.base.BaseText;
 import com.github.waikatoufdl.ufdl4j.action.JobTemplates.JobTemplate;
 
 /**
- * Creates a docker image and forwards the docker image object.
+ * Creates a job template and forwards the job template object.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
@@ -72,7 +72,7 @@ public class CreateJobTemplate
    */
   @Override
   public String globalInfo() {
-    return "Creates a docker image and forwards the docker image object.";
+    return "Creates a job template and forwards the job template object.";
   }
 
   /**
