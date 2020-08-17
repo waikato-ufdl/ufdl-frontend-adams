@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
+import adams.core.MessageCollection;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.Teams.Team;
@@ -72,7 +73,7 @@ public class UFDLTeamList
     result = new ArrayList<>();
 
     try {
-      for (Team team : m_Connection.getClient().teams().list()) {
+      for (Team team : m_Connection.getClient().teams().list(m_Filter.generate(new MessageCollection()))) {
         if (!m_State.accept(team))
           continue;
         result.add(new Struct2<>(team.getPK(), team.getName()));

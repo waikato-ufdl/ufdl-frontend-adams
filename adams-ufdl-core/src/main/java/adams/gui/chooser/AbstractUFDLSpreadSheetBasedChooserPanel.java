@@ -24,6 +24,7 @@ import adams.core.logging.LoggingLevel;
 import adams.data.conversion.AbstractUFDLObjectToSpreadSheetConversion;
 import adams.data.spreadsheet.SpreadSheet;
 import adams.data.spreadsheet.SpreadSheetHelper;
+import adams.flow.core.UFDLFilterHandler;
 import adams.gui.core.ConsolePanel;
 import adams.gui.core.GUIHelper;
 import adams.gui.dialog.SpreadSheetDialog;
@@ -40,7 +41,8 @@ import java.awt.Dialog.ModalityType;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public abstract class AbstractUFDLSpreadSheetBasedChooserPanel<T>
-  extends AbstractUFDLPKChooserPanel<T> {
+  extends AbstractUFDLPKChooserPanel<T>
+  implements UFDLFilterHandler {
 
   private static final long serialVersionUID = -5162524212611793388L;
 

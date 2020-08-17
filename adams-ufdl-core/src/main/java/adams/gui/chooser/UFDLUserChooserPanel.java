@@ -20,6 +20,7 @@
 
 package adams.gui.chooser;
 
+import adams.core.MessageCollection;
 import adams.core.TriState;
 import adams.data.conversion.AbstractUFDLObjectToSpreadSheetConversion;
 import adams.data.conversion.UFDLUserToSpreadSheet;
@@ -164,7 +165,7 @@ public class UFDLUserChooserPanel
    */
   @Override
   protected User[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().users().list().toArray(new User[0]);
+    return m_Connection.getClient().users().list(m_Filter.generate(new MessageCollection())).toArray(new User[0]);
   }
 
   /**

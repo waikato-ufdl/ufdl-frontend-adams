@@ -20,6 +20,7 @@
 
 package adams.gui.chooser;
 
+import adams.core.MessageCollection;
 import adams.data.conversion.AbstractUFDLObjectToSpreadSheetConversion;
 import adams.data.conversion.UFDLProjectToSpreadSheet;
 import com.github.fracpete.javautils.struct.Struct2;
@@ -108,7 +109,7 @@ public class UFDLProjectChooserPanel
    */
   @Override
   protected Project[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().projects().list().toArray(new Project[0]);
+    return m_Connection.getClient().projects().list(m_Filter.generate(new MessageCollection())).toArray(new Project[0]);
   }
 
   /**

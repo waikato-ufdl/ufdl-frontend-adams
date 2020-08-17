@@ -20,6 +20,7 @@
 
 package adams.gui.chooser;
 
+import adams.core.MessageCollection;
 import adams.data.conversion.AbstractUFDLObjectToSpreadSheetConversion;
 import adams.data.conversion.UFDLCudaVersionToSpreadSheet;
 import com.github.fracpete.javautils.struct.Struct2;
@@ -108,7 +109,7 @@ public class UFDLCudaVersionChooserPanel
    */
   @Override
   protected CudaVersion[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().jobTypes().list().toArray(new CudaVersion[0]);
+    return m_Connection.getClient().jobTypes().list(m_Filter.generate(new MessageCollection())).toArray(new CudaVersion[0]);
   }
 
   /**

@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
+import adams.core.MessageCollection;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
@@ -72,7 +73,7 @@ public class UFDLLicenseList
     result = new ArrayList<>();
 
     try {
-      for (License license : m_Connection.getClient().licenses().list())
+      for (License license : m_Connection.getClient().licenses().list(m_Filter.generate(new MessageCollection())))
         result.add(new Struct2<>(license.getPK(), license.getName()));
     }
     catch (Exception e) {

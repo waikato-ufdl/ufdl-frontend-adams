@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
+import adams.core.MessageCollection;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.DockerImages.DockerImage;
@@ -72,7 +73,7 @@ public class UFDLDockerImagesList
     result = new ArrayList<>();
 
     try {
-      for (DockerImage image : m_Connection.getClient().docker().list())
+      for (DockerImage image : m_Connection.getClient().docker().list(m_Filter.generate(new MessageCollection())))
         result.add(new Struct2<>(image.getPK(), image.getName() + "/" + image.getVersion()));
     }
     catch (Exception e) {

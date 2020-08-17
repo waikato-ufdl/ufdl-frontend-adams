@@ -20,6 +20,7 @@
 
 package adams.gui.chooser;
 
+import adams.core.MessageCollection;
 import adams.data.conversion.AbstractUFDLObjectToSpreadSheetConversion;
 import adams.data.conversion.UFDLImageClassificationDatasetToSpreadSheet;
 import com.github.fracpete.javautils.struct.Struct2;
@@ -118,7 +119,7 @@ public class UFDLImageClassificationDatasetChooserPanel
 
     result = new ArrayList<>();
     action = m_Connection.getClient().action(ImageClassificationDatasets.class);
-    for (Dataset dataset: action.list())
+    for (Dataset dataset: action.list(m_Filter.generate(new MessageCollection())))
       result.add(dataset.as(ImageClassificationDataset.class));
     return result.toArray(new ImageClassificationDataset[0]);
   }

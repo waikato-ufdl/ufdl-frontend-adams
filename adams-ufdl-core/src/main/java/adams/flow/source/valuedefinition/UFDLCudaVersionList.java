@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
+import adams.core.MessageCollection;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.CudaVersions.CudaVersion;
@@ -72,7 +73,7 @@ public class UFDLCudaVersionList
     result = new ArrayList<>();
 
     try {
-      for (CudaVersion cuda : m_Connection.getClient().cuda().list())
+      for (CudaVersion cuda : m_Connection.getClient().cuda().list(m_Filter.generate(new MessageCollection())))
         result.add(new Struct2<>(cuda.getPK(), cuda.getVersion()));
     }
     catch (Exception e) {

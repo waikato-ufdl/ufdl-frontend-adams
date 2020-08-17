@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
+import adams.core.MessageCollection;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.PretrainedModels.PretrainedModel;
@@ -72,7 +73,7 @@ public class UFDLPretrainedModelList
     result = new ArrayList<>();
 
     try {
-      for (PretrainedModel model : m_Connection.getClient().pretrainedModels().list()) {
+      for (PretrainedModel model : m_Connection.getClient().pretrainedModels().list(m_Filter.generate(new MessageCollection()))) {
         if (!m_State.accept(model))
           continue;
         result.add(new Struct2<>(model.getPK(), model.getURL()));  // TODO use name

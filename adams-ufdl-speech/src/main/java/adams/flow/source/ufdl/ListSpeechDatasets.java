@@ -26,6 +26,9 @@ import adams.core.QuickInfoHelper;
 import adams.data.conversion.UFDLSpeechDatasetToSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
+import adams.data.ufdlfilter.AbstractUFDLFilter;
+import adams.data.ufdlfilter.AllFilter;
+import adams.flow.core.UFDLFilterHandler;
 import adams.flow.core.UFDLSoftDeleteObjectState;
 import adams.flow.core.UFDLSoftDeleteObjectStateHandler;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
@@ -40,9 +43,12 @@ import java.util.List;
  */
 public class ListSpeechDatasets
   extends AbstractUFDLSourceAction
-  implements UFDLSoftDeleteObjectStateHandler, AdditionalInformationHandler {
+  implements UFDLSoftDeleteObjectStateHandler, UFDLFilterHandler, AdditionalInformationHandler {
 
   private static final long serialVersionUID = 2444931814949354710L;
+
+  /** the filter to apply. */
+  protected AbstractUFDLFilter m_Filter;
 
   /** the state of the datasets to list. */
   protected UFDLSoftDeleteObjectState m_State;
@@ -68,12 +74,47 @@ public class ListSpeechDatasets
     super.defineOptions();
 
     m_OptionManager.add(
+      "filter", "filter",
+      new AllFilter());
+
+    m_OptionManager.add(
       "state", "state",
       UFDLSoftDeleteObjectState.ACTIVE);
 
     m_OptionManager.add(
       "resolve-ids", "resolveIDs",
       false);
+  }
+
+  /**
+   * Sets the filter to apply to the result.
+   *
+   * @param value	the filter
+   */
+  @Override
+  public void setFilter(AbstractUFDLFilter value) {
+    m_Filter = value;
+    reset();
+  }
+
+  /**
+   * Returns the filter to apply to the result.
+   *
+   * @return		the filter
+   */
+  @Override
+  public AbstractUFDLFilter getFilter() {
+    return m_Filter;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String filterTipText() {
+    return "The filter to apply.";
   }
 
   /**

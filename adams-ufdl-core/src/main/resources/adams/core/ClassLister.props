@@ -17,3 +17,17 @@ adams.flow.source.ufdl.AbstractUFDLSourceAction=\
 # the UFDL transformer actions
 adams.flow.transformer.ufdl.AbstractUFDLTransformerAction=\
   adams.flow.transformer.ufdl
+
+# the UFDL filters
+adams.data.ufdlfilter.AbstractUFDLFilter=\
+  adams.data.ufdlfilter
+
+# the UFDL filter expressions
+adams.data.ufdlfilter.AbstractExpression=\
+  adams.data.ufdlfilter,\
+  adams.data.ufdlfilter.field,\
+  adams.data.ufdlfilter.logical
+
+# the UFDL filter ordering
+adams.data.ufdlfilter.OrderBy=\
+  adams.data.ufdlfilter

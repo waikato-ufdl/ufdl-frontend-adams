@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
+import adams.core.MessageCollection;
 import adams.core.TriState;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
@@ -117,7 +118,7 @@ public class UFDLUserList
     result = new ArrayList<>();
 
     try {
-      for (User user : m_Connection.getClient().users().list()) {
+      for (User user : m_Connection.getClient().users().list(m_Filter.generate(new MessageCollection()))) {
         switch (m_Active) {
 	  case FALSE:
 	    if (user.isActive())

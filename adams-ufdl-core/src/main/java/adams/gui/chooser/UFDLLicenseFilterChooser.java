@@ -20,6 +20,7 @@
 
 package adams.gui.chooser;
 
+import adams.core.MessageCollection;
 import adams.gui.core.ConsolePanel;
 import adams.gui.core.GUIHelper;
 import adams.gui.dialog.ApprovalDialog;
@@ -118,7 +119,7 @@ public class UFDLLicenseFilterChooser
     }
 
     try {
-      m_PanelFilter.setLicenses(m_Connection.getClient().licenses().list().toArray(new License[0]));
+      m_PanelFilter.setLicenses(m_Connection.getClient().licenses().list(m_Filter.generate(new MessageCollection())).toArray(new License[0]));
     }
     catch (Exception e) {
       ConsolePanel.getSingleton().append("Failed to list licenses!", e);

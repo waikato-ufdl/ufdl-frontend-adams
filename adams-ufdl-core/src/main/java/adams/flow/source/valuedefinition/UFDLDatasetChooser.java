@@ -20,6 +20,7 @@
 
 package adams.flow.source.valuedefinition;
 
+import adams.core.ObjectCopyHelper;
 import adams.gui.chooser.UFDLDatasetChooserPanel;
 import adams.gui.core.PropertiesParameterPanel;
 
@@ -68,6 +69,7 @@ public class UFDLDatasetChooser
 
     chooser  = new UFDLDatasetChooserPanel();
     chooser.setConnection(m_Connection);
+    chooser.setFilter(ObjectCopyHelper.copyObject(m_Filter));
     chooser.setSorting(m_Sorting);
     chooser.setMultiSelection(m_MultiSelection);
     chooser.setSeparator(m_Separator);

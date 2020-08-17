@@ -20,6 +20,7 @@
 
 package adams.gui.chooser;
 
+import adams.core.MessageCollection;
 import adams.data.conversion.AbstractUFDLObjectToSpreadSheetConversion;
 import adams.data.conversion.UFDLLicenseToSpreadSheet;
 import com.github.fracpete.javautils.struct.Struct2;
@@ -108,7 +109,7 @@ public class UFDLLicenseChooserPanel
    */
   @Override
   protected License[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().licenses().list().toArray(new License[0]);
+    return m_Connection.getClient().licenses().list(m_Filter.generate(new MessageCollection())).toArray(new License[0]);
   }
 
   /**

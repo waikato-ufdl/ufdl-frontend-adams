@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
+import adams.core.MessageCollection;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.Domains.Domain;
@@ -72,7 +73,7 @@ public class UFDLDomainList
     result = new ArrayList<>();
 
     try {
-      for (Domain domain : m_Connection.getClient().domains().list())
+      for (Domain domain : m_Connection.getClient().domains().list(m_Filter.generate(new MessageCollection())))
         result.add(new Struct2<>(domain.getPK(), domain.getName()));
     }
     catch (Exception e) {

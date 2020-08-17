@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
+import adams.core.MessageCollection;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.JobTemplates.JobTemplate;
@@ -72,7 +73,7 @@ public class UFDLJobTemplateList
     result = new ArrayList<>();
 
     try {
-      for (JobTemplate template : m_Connection.getClient().jobTemplates().list()) {
+      for (JobTemplate template : m_Connection.getClient().jobTemplates().list(m_Filter.generate(new MessageCollection()))) {
         if (!m_State.accept(template))
           continue;
         result.add(new Struct2<>(template.getPK(), template.getName()));

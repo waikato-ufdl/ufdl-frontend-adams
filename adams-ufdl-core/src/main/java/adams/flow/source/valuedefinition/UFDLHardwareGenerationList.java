@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
+import adams.core.MessageCollection;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.HardwareGenerations.HardwareGeneration;
@@ -72,7 +73,7 @@ public class UFDLHardwareGenerationList
     result = new ArrayList<>();
 
     try {
-      for (HardwareGeneration generation : m_Connection.getClient().hardware().list())
+      for (HardwareGeneration generation : m_Connection.getClient().hardware().list(m_Filter.generate(new MessageCollection())))
         result.add(new Struct2<>(generation.getPK(), generation.getGeneration()));
     }
     catch (Exception e) {

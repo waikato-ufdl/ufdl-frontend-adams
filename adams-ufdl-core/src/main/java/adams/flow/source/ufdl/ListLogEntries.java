@@ -25,6 +25,9 @@ import adams.core.MessageCollection;
 import adams.data.conversion.UFDLLogEntryToSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
+import adams.data.ufdlfilter.AbstractUFDLFilter;
+import adams.data.ufdlfilter.AllFilter;
+import adams.flow.core.UFDLFilterHandler;
 import com.github.waikatoufdl.ufdl4j.action.Log.LogEntry;
 
 import java.util.List;
@@ -36,9 +39,12 @@ import java.util.List;
  */
 public class ListLogEntries
   extends AbstractUFDLSourceAction
-  implements AdditionalInformationHandler {
+  implements UFDLFilterHandler, AdditionalInformationHandler {
 
   private static final long serialVersionUID = 2444931814949354710L;
+
+  /** the filter to apply. */
+  protected AbstractUFDLFilter m_Filter;
 
   /**
    * Returns a string describing the object.
@@ -48,6 +54,49 @@ public class ListLogEntries
   @Override
   public String globalInfo() {
     return "Outputs a spreadsheet with all the log entries.";
+  }
+
+  /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "filter", "filter",
+      new AllFilter());
+  }
+
+  /**
+   * Sets the filter to apply to the result.
+   *
+   * @param value	the filter
+   */
+  @Override
+  public void setFilter(AbstractUFDLFilter value) {
+    m_Filter = value;
+    reset();
+  }
+
+  /**
+   * Returns the filter to apply to the result.
+   *
+   * @return		the filter
+   */
+  @Override
+  public AbstractUFDLFilter getFilter() {
+    return m_Filter;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String filterTipText() {
+    return "The filter to apply.";
   }
 
   /**

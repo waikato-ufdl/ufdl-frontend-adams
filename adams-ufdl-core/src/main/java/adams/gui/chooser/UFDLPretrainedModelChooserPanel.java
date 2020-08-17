@@ -20,6 +20,7 @@
 
 package adams.gui.chooser;
 
+import adams.core.MessageCollection;
 import adams.data.conversion.AbstractUFDLObjectToSpreadSheetConversion;
 import adams.data.conversion.UFDLPretrainedModelToSpreadSheet;
 import com.github.fracpete.javautils.struct.Struct2;
@@ -108,7 +109,7 @@ public class UFDLPretrainedModelChooserPanel
    */
   @Override
   protected PretrainedModel[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().jobs().list().toArray(new PretrainedModel[0]);
+    return m_Connection.getClient().jobs().list(m_Filter.generate(new MessageCollection())).toArray(new PretrainedModel[0]);
   }
 
   /**

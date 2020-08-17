@@ -20,6 +20,7 @@
 
 package adams.gui.chooser;
 
+import adams.core.MessageCollection;
 import adams.data.conversion.AbstractUFDLObjectToSpreadSheetConversion;
 import adams.data.conversion.UFDLJobToSpreadSheet;
 import com.github.fracpete.javautils.struct.Struct2;
@@ -108,7 +109,7 @@ public class UFDLJobChooserPanel
    */
   @Override
   protected Job[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().jobs().list().toArray(new Job[0]);
+    return m_Connection.getClient().jobs().list(m_Filter.generate(new MessageCollection())).toArray(new Job[0]);
   }
 
   /**

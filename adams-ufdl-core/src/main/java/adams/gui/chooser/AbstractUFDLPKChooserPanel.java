@@ -21,6 +21,9 @@
 package adams.gui.chooser;
 
 import adams.core.Utils;
+import adams.data.ufdlfilter.AbstractUFDLFilter;
+import adams.data.ufdlfilter.AllFilter;
+import adams.flow.core.UFDLFilterHandler;
 import adams.flow.core.UFDLListSorting;
 import adams.gui.core.ConsolePanel;
 import com.github.fracpete.javautils.struct.Struct2;
@@ -32,12 +35,16 @@ import com.github.fracpete.javautils.struct.Struct2;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public abstract class AbstractUFDLPKChooserPanel<T>
-  extends AbstractUFDLChooserPanel<T[]> {
+  extends AbstractUFDLChooserPanel<T[]>
+  implements UFDLFilterHandler {
 
   private static final long serialVersionUID = -3378435434299216372L;
 
   /** the default separator. */
   public final static String DEFAULT_SEPARATOR = "|";
+
+  /** the filter to apply. */
+  protected AbstractUFDLFilter m_Filter;
 
   /** how to sort. */
   protected UFDLListSorting m_Sorting;
@@ -55,9 +62,30 @@ public abstract class AbstractUFDLPKChooserPanel<T>
   protected void initialize() {
     super.initialize();
 
+    m_Filter         = new AllFilter();
     m_Sorting        = UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE;
     m_MultiSelection = false;
     m_Separator      = DEFAULT_SEPARATOR;
+  }
+
+  /**
+   * Sets the filter to apply to the result.
+   *
+   * @param value	the filter
+   */
+  @Override
+  public void setFilter(AbstractUFDLFilter value) {
+    m_Filter = value;
+  }
+
+  /**
+   * Returns the filter to apply to the result.
+   *
+   * @return		the filter
+   */
+  @Override
+  public AbstractUFDLFilter getFilter() {
+    return m_Filter;
   }
 
   /**

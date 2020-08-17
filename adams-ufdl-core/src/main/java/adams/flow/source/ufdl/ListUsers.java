@@ -27,6 +27,9 @@ import adams.core.TriState;
 import adams.data.conversion.UFDLUserToSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
+import adams.data.ufdlfilter.AbstractUFDLFilter;
+import adams.data.ufdlfilter.AllFilter;
+import adams.flow.core.UFDLFilterHandler;
 import com.github.waikatoufdl.ufdl4j.action.Users.User;
 
 import java.util.List;
@@ -38,9 +41,12 @@ import java.util.List;
  */
 public class ListUsers
   extends AbstractUFDLSourceAction
-  implements AdditionalInformationHandler {
+  implements UFDLFilterHandler, AdditionalInformationHandler {
 
   private static final long serialVersionUID = 2444931814949354710L;
+
+  /** the filter to apply. */
+  protected AbstractUFDLFilter m_Filter;
 
   /** the active state of the users. */
   protected TriState m_Active;
@@ -63,8 +69,43 @@ public class ListUsers
     super.defineOptions();
 
     m_OptionManager.add(
+      "filter", "filter",
+      new AllFilter());
+
+    m_OptionManager.add(
       "active", "active",
       TriState.TRUE);
+  }
+
+  /**
+   * Sets the filter to apply to the result.
+   *
+   * @param value	the filter
+   */
+  @Override
+  public void setFilter(AbstractUFDLFilter value) {
+    m_Filter = value;
+    reset();
+  }
+
+  /**
+   * Returns the filter to apply to the result.
+   *
+   * @return		the filter
+   */
+  @Override
+  public AbstractUFDLFilter getFilter() {
+    return m_Filter;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String filterTipText() {
+    return "The filter to apply.";
   }
 
   /**

@@ -22,6 +22,9 @@ package adams.flow.source.valuedefinition;
 
 import adams.core.Utils;
 import adams.core.io.ConsoleHelper;
+import adams.data.ufdlfilter.AbstractUFDLFilter;
+import adams.data.ufdlfilter.AllFilter;
+import adams.flow.core.UFDLFilterHandler;
 import adams.flow.core.UFDLListSorting;
 import adams.gui.core.PropertiesParameterPanel;
 import adams.gui.core.PropertiesParameterPanel.PropertyType;
@@ -38,13 +41,17 @@ import java.util.List;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public abstract class AbstractUFDLListValueDefinition
-  extends AbstractUFDLValueDefinition {
+  extends AbstractUFDLValueDefinition
+  implements UFDLFilterHandler {
 
   private static final long serialVersionUID = 3824312130176924215L;
 
   public static final String NO_ENTRIES = "No entries";
 
   public static final int NO_PK = -1;
+
+  /** the filter to apply. */
+  protected AbstractUFDLFilter m_Filter;
 
   /** how to sort. */
   protected UFDLListSorting m_Sorting;
@@ -60,12 +67,47 @@ public abstract class AbstractUFDLListValueDefinition
     super.defineOptions();
 
     m_OptionManager.add(
+      "filter", "filter",
+      new AllFilter());
+
+    m_OptionManager.add(
       "sorting", "sorting",
       UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE);
 
     m_OptionManager.add(
       "default-value", "defaultValue",
       "");
+  }
+
+  /**
+   * Sets the filter to apply to the result.
+   *
+   * @param value	the filter
+   */
+  @Override
+  public void setFilter(AbstractUFDLFilter value) {
+    m_Filter = value;
+    reset();
+  }
+
+  /**
+   * Returns the filter to apply to the result.
+   *
+   * @return		the filter
+   */
+  @Override
+  public AbstractUFDLFilter getFilter() {
+    return m_Filter;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String filterTipText() {
+    return "The filter to apply.";
   }
 
   /**

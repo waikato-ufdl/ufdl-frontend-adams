@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
+import adams.core.MessageCollection;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.Frameworks.Framework;
@@ -72,7 +73,7 @@ public class UFDLFrameworkList
     result = new ArrayList<>();
 
     try {
-      for (Framework framework : m_Connection.getClient().frameworks().list())
+      for (Framework framework : m_Connection.getClient().frameworks().list(m_Filter.generate(new MessageCollection())))
         result.add(new Struct2<>(framework.getPK(), framework.getName() + "/" + framework.getVersion()));
     }
     catch (Exception e) {

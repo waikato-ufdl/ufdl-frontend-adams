@@ -20,6 +20,7 @@
 
 package adams.gui.chooser;
 
+import adams.core.MessageCollection;
 import adams.data.conversion.AbstractUFDLObjectToSpreadSheetConversion;
 import adams.data.conversion.UFDLSpeechDatasetToSpreadSheet;
 import com.github.fracpete.javautils.struct.Struct2;
@@ -118,7 +119,7 @@ public class UFDLSpeechDatasetChooserPanel
 
     result = new ArrayList<>();
     action = m_Connection.getClient().action(SpeechDatasets.class);
-    for (Dataset dataset: action.list())
+    for (Dataset dataset: action.list(m_Filter.generate(new MessageCollection())))
       result.add(dataset.as(SpeechDataset.class));
     return result.toArray(new SpeechDataset[0]);
   }
