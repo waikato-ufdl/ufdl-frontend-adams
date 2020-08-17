@@ -35,10 +35,10 @@ public class CreateJobTemplate
 
   private static final long serialVersionUID = 2444931814949354710L;
 
-  /** the docker image name. */
+  /** the pretrained model name. */
   protected String m_Name;
 
-  /** the docker image version. */
+  /** the pretrained model version. */
   protected int m_Version;
 
   /** the scope. */
@@ -124,7 +124,7 @@ public class CreateJobTemplate
   }
 
   /**
-   * Sets the docker image name.
+   * Sets the pretrained model name.
    *
    * @param value	the name
    */
@@ -134,7 +134,7 @@ public class CreateJobTemplate
   }
 
   /**
-   * Returns the docker image name.
+   * Returns the pretrained model name.
    *
    * @return		the name
    */
@@ -149,11 +149,11 @@ public class CreateJobTemplate
    * 			displaying in the GUI or for listing the options.
    */
   public String nameTipText() {
-    return "The docker image name.";
+    return "The pretrained model name.";
   }
 
   /**
-   * Sets the docker image version.
+   * Sets the pretrained model version.
    *
    * @param value	the version
    */
@@ -163,7 +163,7 @@ public class CreateJobTemplate
   }
 
   /**
-   * Returns the docker image version.
+   * Returns the pretrained model version.
    *
    * @return		the version
    */
@@ -178,7 +178,7 @@ public class CreateJobTemplate
    * 			displaying in the GUI or for listing the options.
    */
   public String versionTipText() {
-    return "The docker image version.";
+    return "The pretrained model version.";
   }
 
   /**
@@ -458,7 +458,7 @@ public class CreateJobTemplate
         m_ExecutorClass, m_RequiredPackages, m_Template.getValue());  // TODO license
     }
     catch (Exception e) {
-      errors.add("Failed to create docker image!", e);
+      errors.add("Failed to create pretrained model!", e);
     }
 
     return result;
