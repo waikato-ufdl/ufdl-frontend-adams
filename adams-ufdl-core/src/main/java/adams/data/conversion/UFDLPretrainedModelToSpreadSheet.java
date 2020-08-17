@@ -73,6 +73,7 @@ public class UFDLPretrainedModelToSpreadSheet
 
     row = result.getHeaderRow();
     row.addCell("pk").setContentAsString("pk");
+    row.addCell("na").setContentAsString("name");
     row.addCell("cr").setContentAsString("creator");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
@@ -101,6 +102,7 @@ public class UFDLPretrainedModelToSpreadSheet
     result  = getTemplate();
     row     = result.addRow();
     row.addCell("pk").setContent(template.getPK());
+    row.addCell("name").setContentAsString(template.getName());
     row.addCell("cr").setContent(getUser(template.getCreator()));
     if (template.getCreationTime() != null)
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(template.getCreationTime().toInstant(ZoneOffset.UTC))));
