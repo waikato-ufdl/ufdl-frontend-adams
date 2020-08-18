@@ -109,7 +109,7 @@ public class UFDLHardwareGenerationChooserPanel
    */
   @Override
   protected HardwareGeneration[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().jobTypes().list(m_Filter.generate(new MessageCollection())).toArray(new HardwareGeneration[0]);
+    return m_Connection.getClient().hardware().list(m_Filter.generate(new MessageCollection())).toArray(new HardwareGeneration[0]);
   }
 
   /**

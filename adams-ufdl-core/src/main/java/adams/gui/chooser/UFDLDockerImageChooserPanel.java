@@ -109,7 +109,7 @@ public class UFDLDockerImageChooserPanel
    */
   @Override
   protected DockerImage[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().jobTypes().list(m_Filter.generate(new MessageCollection())).toArray(new DockerImage[0]);
+    return m_Connection.getClient().docker().list(m_Filter.generate(new MessageCollection())).toArray(new DockerImage[0]);
   }
 
   /**

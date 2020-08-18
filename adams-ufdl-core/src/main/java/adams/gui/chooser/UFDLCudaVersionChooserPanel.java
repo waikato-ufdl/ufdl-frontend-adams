@@ -109,7 +109,7 @@ public class UFDLCudaVersionChooserPanel
    */
   @Override
   protected CudaVersion[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().jobTypes().list(m_Filter.generate(new MessageCollection())).toArray(new CudaVersion[0]);
+    return m_Connection.getClient().cuda().list(m_Filter.generate(new MessageCollection())).toArray(new CudaVersion[0]);
   }
 
   /**
