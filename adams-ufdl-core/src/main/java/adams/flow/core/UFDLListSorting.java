@@ -28,6 +28,7 @@ import com.github.fracpete.javautils.struct.Struct2;
  */
 public enum UFDLListSorting {
   BY_ID,
+  BY_ID_ONLY,
   BY_DESCRIPTION_CASE_SENSITIVE,
   BY_DESCRIPTION_CASE_INSENSITIVE;
 
@@ -41,6 +42,9 @@ public enum UFDLListSorting {
     switch (this) {
       case BY_ID:
 	return item.value1 + ": " + item.value2;
+
+      case BY_ID_ONLY:
+	return "" + item.value1;
 
       case BY_DESCRIPTION_CASE_SENSITIVE:
       case BY_DESCRIPTION_CASE_INSENSITIVE:
@@ -75,6 +79,15 @@ public enum UFDLListSorting {
 	}
 	id   = Integer.parseInt(idStr);
         desc = s.substring(s.indexOf(':')).trim();
+	break;
+
+      case BY_ID_ONLY:
+        if (!Utils.isInteger(s)) {
+          System.err.println("Failed to parse item '" + s + "', PK is not an integer, expected format: 'PK'");
+          return null;
+	}
+	id   = Integer.parseInt(s);
+        desc = "";
 	break;
 
       case BY_DESCRIPTION_CASE_SENSITIVE:
