@@ -109,7 +109,7 @@ public class UFDLJobTemplateChooserPanel
    */
   @Override
   protected JobTemplate[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().jobs().list(m_Filter.generate(new MessageCollection())).toArray(new JobTemplate[0]);
+    return m_Connection.getClient().jobTemplates().list(m_Filter.generate(new MessageCollection())).toArray(new JobTemplate[0]);
   }
 
   /**
