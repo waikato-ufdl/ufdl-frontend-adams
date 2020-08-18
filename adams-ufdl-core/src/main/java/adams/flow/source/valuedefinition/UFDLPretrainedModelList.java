@@ -76,7 +76,7 @@ public class UFDLPretrainedModelList
       for (PretrainedModel model : m_Connection.getClient().pretrainedModels().list(m_Filter.generate(new MessageCollection()))) {
         if (!m_State.accept(model))
           continue;
-        result.add(new Struct2<>(model.getPK(), model.getURL()));  // TODO use name
+        result.add(new Struct2<>(model.getPK(), model.getName()));
       }
     }
     catch (Exception e) {
