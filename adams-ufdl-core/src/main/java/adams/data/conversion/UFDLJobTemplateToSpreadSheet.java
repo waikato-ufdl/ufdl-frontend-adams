@@ -108,7 +108,7 @@ public class UFDLJobTemplateToSpreadSheet
     result  = getTemplate();
     row     = result.addRow();
     row.addCell("pk").setContent(template.getPK());
-    row.addCell("na").setContent(template.getName());
+    row.addCell("na").setContentAsString(template.getName());
     row.addCell("ve").setContent(template.getVersion());
     row.addCell("li").setContent(getLicense(template.getLicense()));
     row.addCell("cr").setContent(getUser(template.getCreator()));
@@ -117,14 +117,14 @@ public class UFDLJobTemplateToSpreadSheet
     if (template.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(template.getDeletionTime().toInstant(ZoneOffset.UTC))));
     row.addCell("fw").setContent(getFramework(template.getFramework()));
-    row.addCell("sc").setContent(template.getScope());
-    row.addCell("ty").setContent(template.getType());
-    row.addCell("do").setContent(template.getDomain());
-    row.addCell("ec").setContent(template.getExecutorClass());
-    row.addCell("rp").setContent(template.getRequiredPackages());
-    row.addCell("in").setContent(template.getInputs().toString());
-    row.addCell("pm").setContent(template.getParameters().toString());
-    row.addCell("bo").setContent(template.getBody());
+    row.addCell("sc").setContentAsString(template.getScope());
+    row.addCell("ty").setContentAsString(template.getType());
+    row.addCell("do").setContentAsString(template.getDomain());
+    row.addCell("ec").setContentAsString(template.getExecutorClass());
+    row.addCell("rp").setContentAsString(template.getRequiredPackages());
+    row.addCell("in").setContentAsString(template.getInputs().toString());
+    row.addCell("pm").setContentAsString(template.getParameters().toString());
+    row.addCell("bo").setContentAsString(template.getBody());
 
     return result;
   }

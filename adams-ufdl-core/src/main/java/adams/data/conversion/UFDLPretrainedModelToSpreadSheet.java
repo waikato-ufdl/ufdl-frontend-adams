@@ -109,10 +109,10 @@ public class UFDLPretrainedModelToSpreadSheet
     if (template.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(template.getDeletionTime().toInstant(ZoneOffset.UTC))));
     row.addCell("fw").setContent(getFramework(template.getFramework()));
-    row.addCell("do").setContent(template.getDomain());
+    row.addCell("do").setContentAsString(template.getDomain());
     row.addCell("li").setContent(getLicense(template.getLicense()));
-    row.addCell("ur").setContent(template.getURL());
-    row.addCell("de").setContent(template.getDescription());
+    row.addCell("ur").setContentAsString(template.getURL());
+    row.addCell("de").setContentAsString(template.getDescription());
 
     return result;
   }

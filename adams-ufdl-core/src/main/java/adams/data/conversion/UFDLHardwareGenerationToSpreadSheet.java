@@ -92,7 +92,7 @@ public class UFDLHardwareGenerationToSpreadSheet
     result  = getTemplate();
     row     = result.addRow();
     row.addCell("pk").setContent(generation.getPK());
-    row.addCell("g").setContent(generation.getGeneration());
+    row.addCell("g").setContentAsString(generation.getGeneration());
     row.addCell("min").setContent(generation.getMinComputeCapability());
     row.addCell("max").setContent(generation.getMaxComputeCapability());
 

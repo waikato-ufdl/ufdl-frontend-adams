@@ -91,8 +91,8 @@ public class UFDLFrameworkToSpreadSheet
     result  = getTemplate();
     row     = result.addRow();
     row.addCell("pk").setContent(framework.getPK());
-    row.addCell("n").setContent(framework.getName());
-    row.addCell("v").setContent(framework.getVersion());
+    row.addCell("n").setContentAsString(framework.getName());
+    row.addCell("v").setContentAsString(framework.getVersion());
 
     return result;
   }

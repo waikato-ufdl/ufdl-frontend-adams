@@ -92,9 +92,9 @@ public class UFDLCudaVersionToSpreadSheet
     result  = getTemplate();
     row     = result.addRow();
     row.addCell("pk").setContent(cuda.getPK());
-    row.addCell("v").setContent(cuda.getVersion());
-    row.addCell("fv").setContent(cuda.getFullVersion());
-    row.addCell("dv").setContent(cuda.getMinDriverVersion());
+    row.addCell("v").setContentAsString(cuda.getVersion());
+    row.addCell("fv").setContentAsString(cuda.getFullVersion());
+    row.addCell("dv").setContentAsString(cuda.getMinDriverVersion());
 
     return result;
   }

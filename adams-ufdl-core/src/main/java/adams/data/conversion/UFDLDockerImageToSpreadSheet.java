@@ -102,17 +102,17 @@ public class UFDLDockerImageToSpreadSheet
     result  = getTemplate();
     row     = result.addRow();
     row.addCell("pk").setContent(image.getPK());
-    row.addCell("na").setContent(image.getName());
-    row.addCell("ve").setContent(image.getVersion());
+    row.addCell("na").setContentAsString(image.getName());
+    row.addCell("ve").setContentAsString(image.getVersion());
     row.addCell("li").setContent(getLicense(image.getLicense()));
-    row.addCell("do").setContent(image.getDomain());
-    row.addCell("ta").setContent(Utils.arrayToString(image.getTasks()));
-    row.addCell("ru").setContent(image.getRegistryUrl());
-    row.addCell("run").setContent(image.getRegistryUserName());
-    row.addCell("rp").setContent(image.getRegistryPassword().isEmpty() ? "" : "***");
+    row.addCell("do").setContentAsString(image.getDomain());
+    row.addCell("ta").setContentAsString(Utils.arrayToString(image.getTasks()));
+    row.addCell("ru").setContentAsString(image.getRegistryUrl());
+    row.addCell("run").setContentAsString(image.getRegistryUserName());
+    row.addCell("rp").setContentAsString(image.getRegistryPassword().isEmpty() ? "" : "***");
     row.addCell("cv").setContent(getCudaVersion(image.getCudaVersion()));
     row.addCell("fw").setContent(getFramework(image.getFramework()));
-    row.addCell("mh").setContent(getHardwareGeneration(image.getMinHardwareGeneration()));
+    row.addCell("mh").setContentAsString(image.getMinHardwareGeneration());
     row.addCell("cp").setContent(image.getCPU());
 
     return result;

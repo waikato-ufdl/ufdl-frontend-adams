@@ -90,7 +90,7 @@ public class UFDLJobTypeToSpreadSheet
     result  = getTemplate();
     row     = result.addRow();
     row.addCell("pk").setContent(jobtype.getPK());
-    row.addCell("n").setContent(jobtype.getName());
+    row.addCell("n").setContentAsString(jobtype.getName());
 
     return result;
   }

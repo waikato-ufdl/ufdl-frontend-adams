@@ -90,7 +90,7 @@ public class UFDLDomainToSpreadSheet
     result  = getTemplate();
     row     = result.addRow();
     row.addCell("pk").setContent(domain.getPK());
-    row.addCell("n").setContent(domain.getName());
+    row.addCell("n").setContentAsString(domain.getName());
 
     return result;
   }
