@@ -399,6 +399,7 @@ public class UFDLCreateJob
       dockerImage.setName(propsPrefix + name);
       dockerImage.setDisplay(displPrefix + name);
       dockerImage.setFilter(genericFilter);
+      dockerImage.setHelp("The docker image to use for executing the job.");
       dockerImage.addToPanel(m_PropertiesPanel);
       props.setProperty(propsPrefix + name, value);
     }
