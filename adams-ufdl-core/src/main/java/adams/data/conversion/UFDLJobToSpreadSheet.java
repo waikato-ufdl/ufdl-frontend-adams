@@ -50,6 +50,18 @@ public class UFDLJobToSpreadSheet
   }
 
   /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "resolve-ids", "resolveIDs",
+      false);
+  }
+
+  /**
    * Returns the class that is accepted as input.
    *
    * @return		the class
