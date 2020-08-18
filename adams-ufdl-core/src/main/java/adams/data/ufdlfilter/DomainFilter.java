@@ -33,8 +33,8 @@ public class DomainFilter
 
   private static final long serialVersionUID = 2619705759928753024L;
 
-  /** the domain. */
-  protected String m_Domain;
+  /** the domain PK. */
+  protected int m_Domain;
 
   /**
    * Returns a string describing the object.
@@ -55,25 +55,25 @@ public class DomainFilter
 
     m_OptionManager.add(
       "domain", "domain",
-      "");
+      -1);
   }
 
   /**
-   * Sets the domain to look for.
+   * Sets the domain PK to look for.
    *
    * @param value	the domain
    */
-  public void setDomain(String value) {
+  public void setDomain(int value) {
     m_Domain = value;
     reset();
   }
 
   /**
-   * Returns the domain to look for.
+   * Returns the domain PK to look for.
    *
    * @return		the domain
    */
-  public String getDomain() {
+  public int getDomain() {
     return m_Domain;
   }
 
@@ -84,7 +84,7 @@ public class DomainFilter
    * 			displaying in the GUI or for listing the options.
    */
   public String domainTipText() {
-    return "The exact domain to look for.";
+    return "The domain PK to look for.";
   }
 
   /**
