@@ -186,7 +186,8 @@ public class ListSpeechDatasets
   public String getQuickInfo() {
     String	result;
 
-    result = QuickInfoHelper.toString(this, "state", m_State, "state: ");
+    result = QuickInfoHelper.toString(this, "filter", m_Filter, "filter: ");
+    result += QuickInfoHelper.toString(this, "state", m_State, ", state: ");
     result += QuickInfoHelper.toString(this, "resolveIDs", m_ResolveIDs, "resolve IDs", ", ");
 
     return result;

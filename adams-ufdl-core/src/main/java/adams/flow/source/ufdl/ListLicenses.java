@@ -22,6 +22,7 @@ package adams.flow.source.ufdl;
 
 import adams.core.AdditionalInformationHandler;
 import adams.core.MessageCollection;
+import adams.core.QuickInfoHelper;
 import adams.data.conversion.UFDLLicenseToSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
@@ -97,6 +98,16 @@ public class ListLicenses
    */
   public String filterTipText() {
     return "The filter to apply.";
+  }
+
+  /**
+   * Returns a quick info about the object, which can be displayed in the GUI.
+   *
+   * @return		null if no info available, otherwise short string
+   */
+  @Override
+  public String getQuickInfo() {
+    return QuickInfoHelper.toString(this, "filter", m_Filter, "filter: ");
   }
 
   /**

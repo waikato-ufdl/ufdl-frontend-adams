@@ -144,7 +144,12 @@ public class ListUsers
    */
   @Override
   public String getQuickInfo() {
-    return QuickInfoHelper.toString(this, "active", m_Active, "active: ");
+    String	result;
+
+    result = QuickInfoHelper.toString(this, "filter", m_Filter, "filter: ");
+    result += QuickInfoHelper.toString(this, "active", m_Active, ", active: ");
+
+    return result;
   }
 
   /**
