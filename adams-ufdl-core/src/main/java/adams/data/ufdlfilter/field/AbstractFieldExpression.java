@@ -36,6 +36,23 @@ public abstract class AbstractFieldExpression
   protected String m_Field;
 
   /**
+   * Default constructor.
+   */
+  protected AbstractFieldExpression() {
+    super();
+  }
+
+  /**
+   * Initializes the expression with the field name.
+   *
+   * @param field	the field to use
+   */
+  protected AbstractFieldExpression(String field) {
+    this();
+    setField(field);
+  }
+
+  /**
    * Adds options to the internal list of options.
    */
   @Override

@@ -37,6 +37,24 @@ public class ExactDouble
   protected double m_Value;
 
   /**
+   * Default constructor.
+   */
+  public ExactDouble() {
+    super();
+  }
+
+  /**
+   * Initializes the expression.
+   *
+   * @param field	the field to operate on
+   * @param value	the value to look for
+   */
+  public ExactDouble(String field, double value) {
+    super(field);
+    setValue(value);
+  }
+
+  /**
    * Returns a string describing the object.
    *
    * @return 			a description suitable for displaying in the gui

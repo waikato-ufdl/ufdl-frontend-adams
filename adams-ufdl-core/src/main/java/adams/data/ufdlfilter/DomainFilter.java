@@ -37,6 +37,23 @@ public class DomainFilter
   protected int m_Domain;
 
   /**
+   * Default constructor.
+   */
+  public DomainFilter() {
+    super();
+  }
+
+  /**
+   * Initializes the filter with the domain.
+   *
+   * @param domain 	the domain to filter on
+   */
+  public DomainFilter(int domain) {
+    this();
+    setDomain(domain);
+  }
+
+  /**
    * Returns a string describing the object.
    *
    * @return 			a description suitable for displaying in the gui

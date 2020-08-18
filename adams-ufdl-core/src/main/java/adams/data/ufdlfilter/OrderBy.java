@@ -44,6 +44,46 @@ public class OrderBy
   protected TriState m_NullsFirst;
 
   /**
+   * Default constructor.
+   */
+  public OrderBy() {
+    super();
+  }
+
+  /**
+   * Initializes the order. Ascending and nulls are sorted using DB-default behavior.
+   *
+   * @param field	the field to operate on
+   */
+  public OrderBy(String field) {
+    this(field, true);
+  }
+
+  /**
+   * Initializes the order. Nulls are sorted using DB-default behavior.
+   *
+   * @param field	the field to operate on
+   * @param ascending	whether ascending or descending
+   */
+  public OrderBy(String field, boolean ascending) {
+    this(field, ascending, TriState.NOT_SET);
+  }
+
+  /**
+   * Initializes the order.
+   *
+   * @param field	the field to operate on
+   * @param ascending	whether ascending or descending
+   * @param nullsFirst	how nulls are ordered in the search result
+   */
+  public OrderBy(String field, boolean ascending, TriState nullsFirst) {
+    this();
+    setField(field);
+    setAscending(ascending);
+    setNullsFirst(nullsFirst);
+  }
+
+  /**
    * Returns a string describing the object.
    *
    * @return 			a description suitable for displaying in the gui

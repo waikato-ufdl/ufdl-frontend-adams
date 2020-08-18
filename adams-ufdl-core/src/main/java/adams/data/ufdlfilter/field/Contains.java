@@ -40,6 +40,26 @@ public class Contains
   protected boolean m_CaseInsensitive;
 
   /**
+   * Default constructor.
+   */
+  public Contains() {
+    super();
+  }
+
+  /**
+   * Initializes the expression.
+   *
+   * @param field 		the field to operate on
+   * @param subString		the substring to search for
+   * @param caseInsensitive	whether the search case insensitive or not
+   */
+  public Contains(String field, String subString, boolean caseInsensitive) {
+    super(field);
+    setSubString(subString);
+    setCaseInsensitive(caseInsensitive);
+  }
+
+  /**
    * Returns a string describing the object.
    *
    * @return 			a description suitable for displaying in the gui

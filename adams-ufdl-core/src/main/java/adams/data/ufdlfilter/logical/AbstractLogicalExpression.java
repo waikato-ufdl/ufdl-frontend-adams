@@ -75,4 +75,24 @@ public abstract class AbstractLogicalExpression
   public String subExpressionsTipText() {
     return "The sub-expressions that make up the filter.";
   }
+
+  /**
+   * Adds an expression to the array of expressions.
+   *
+   * @param expression	the expression to add
+   * @return		itself
+   */
+  public AbstractLogicalExpression addSubExpression(AbstractExpression expression) {
+    AbstractExpression[] 	subExpressions;
+    int				i;
+
+    subExpressions = new AbstractExpression[m_SubExpressions.length + 1];
+    for (i = 0; i < m_SubExpressions.length; i++)
+      subExpressions[i] = m_SubExpressions[i];
+    subExpressions[subExpressions.length - 1] = expression;
+    m_SubExpressions = subExpressions;
+    reset();
+
+    return this;
+  }
 }

@@ -40,6 +40,25 @@ public class NameAndVersionFilter
   protected String m_Version;
 
   /**
+   * Default constructor.
+   */
+  public NameAndVersionFilter() {
+    super();
+  }
+
+  /**
+   * Initializes the filter with name and version.
+   *
+   * @param name	the name to use
+   * @param version	the version to use
+   */
+  public NameAndVersionFilter(String name, String version) {
+    this();
+    setName(name);
+    setVersion(version);
+  }
+
+  /**
    * Returns a string describing the object.
    *
    * @return 			a description suitable for displaying in the gui

@@ -37,6 +37,23 @@ public class NameFilter
   protected String m_Name;
 
   /**
+   * Default constructor.
+   */
+  public NameFilter() {
+    super();
+  }
+
+  /**
+   * Initializes the filer with the name.
+   *
+   * @param name	the name
+   */
+  public NameFilter(String name) {
+    this();
+    setName(name);
+  }
+
+  /**
    * Returns a string describing the object.
    *
    * @return 			a description suitable for displaying in the gui

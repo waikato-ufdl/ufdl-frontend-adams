@@ -37,6 +37,24 @@ public class ExactInteger
   protected int m_Value;
 
   /**
+   * Default constructor.
+   */
+  public ExactInteger() {
+    super();
+  }
+
+  /**
+   * Initializes the expression.
+   *
+   * @param field	the field to operate on
+   * @param value	the value to look for
+   */
+  public ExactInteger(String field, int value) {
+    super(field);
+    setValue(value);
+  }
+
+  /**
    * Returns a string describing the object.
    *
    * @return 			a description suitable for displaying in the gui

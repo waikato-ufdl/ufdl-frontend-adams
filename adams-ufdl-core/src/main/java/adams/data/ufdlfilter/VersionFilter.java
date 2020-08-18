@@ -37,6 +37,23 @@ public class VersionFilter
   protected String m_Version;
 
   /**
+   * Default constructor.
+   */
+  public VersionFilter() {
+    super();
+  }
+
+  /**
+   * Initializes the filter with the version.
+   *
+   * @param version 	the version to use
+   */
+  public VersionFilter(String version) {
+    this();
+    setVersion(version);
+  }
+
+  /**
    * Returns a string describing the object.
    *
    * @return 			a description suitable for displaying in the gui

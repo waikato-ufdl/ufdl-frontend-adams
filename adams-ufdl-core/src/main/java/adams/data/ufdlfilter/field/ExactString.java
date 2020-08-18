@@ -40,6 +40,26 @@ public class ExactString
   protected boolean m_CaseInsensitive;
 
   /**
+   * Default constructor.
+   */
+  public ExactString() {
+    super();
+  }
+
+  /**
+   * Initializes the expression.
+   *
+   * @param field	the field to operate on
+   * @param value	the value to look for
+   * @param caseInsensitive 	whether the search is case-insensitive or not
+   */
+  public ExactString(String field, String value, boolean caseInsensitive) {
+    super(field);
+    setValue(value);
+    setCaseInsensitive(caseInsensitive);
+  }
+
+  /**
    * Returns a string describing the object.
    *
    * @return 			a description suitable for displaying in the gui

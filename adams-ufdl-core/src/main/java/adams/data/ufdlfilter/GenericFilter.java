@@ -102,6 +102,26 @@ public class GenericFilter
   }
 
   /**
+   * Adds an expression to the array of expressions.
+   *
+   * @param expression	the expression to add
+   * @return		itself
+   */
+  public GenericFilter addExpression(AbstractExpression expression) {
+    AbstractExpression[]	expressions;
+    int				i;
+
+    expressions = new AbstractExpression[m_Expressions.length + 1];
+    for (i = 0; i < m_Expressions.length; i++)
+      expressions[i] = m_Expressions[i];
+    expressions[expressions.length - 1] = expression;
+    m_Expressions = expressions;
+    reset();
+
+    return this;
+  }
+
+  /**
    * Sets the order to impose.
    *
    * @param value	the order
@@ -128,6 +148,26 @@ public class GenericFilter
    */
   public String orderTipText() {
     return "The order to impose on the result.";
+  }
+
+  /**
+   * Adds an ordering to the array of orderings.
+   *
+   * @param order	the ordering to add
+   * @return		itself
+   */
+  public GenericFilter addOrder(OrderBy order) {
+    OrderBy[] 	orders;
+    int		i;
+
+    orders = new OrderBy[m_Order.length + 1];
+    for (i = 0; i < m_Order.length; i++)
+      orders[i] = m_Order[i];
+    orders[orders.length - 1] = order;
+    m_Order = orders;
+    reset();
+
+    return this;
   }
 
   /**
