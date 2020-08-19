@@ -95,6 +95,7 @@ public class UFDLJobToSpreadSheet
     row.addCell("et").setContentAsString("end_time");
     row.addCell("iv").setContentAsString("input_values");
     row.addCell("pv").setContentAsString("parameter_values");
+    row.addCell("ou").setContentAsString("outputs");
 
     return result;
   }
@@ -129,6 +130,7 @@ public class UFDLJobToSpreadSheet
       row.addCell("et").setContent(new DateTimeMsec(Date.from(job.getEndTime().toInstant(ZoneOffset.UTC))));
     row.addCell("iv").setContentAsString(job.getInputValues().toString());
     row.addCell("pv").setContentAsString(job.getParameterValues().toString());
+    row.addCell("ou").setContentAsString(job.getOutputs().toString());
 
     return result;
   }
