@@ -167,7 +167,7 @@ public class AddImageClassificationFile
    * 			displaying in the GUI or for listing the options.
    */
   public String categoriesTipText() {
-    return "The categories to assign to each image.";
+    return "The categories to assign to each image, ignored if none provided.";
   }
 
   /**
@@ -233,14 +233,16 @@ public class AddImageClassificationFile
     }
 
     if (errors.isEmpty()) {
-      if (isLoggingEnabled())
-        getLogger().info("Assigning categories to dataset " + dataset + ": " + Utils.flatten(m_Categories, ", "));
-      try {
-        if (!action.addCategories(dataset, names, Arrays.asList(BaseObject.toStringArray(m_Categories))))
-	  errors.add("Failed to add categories to " + dataset + ": " + Utils.flatten(m_Categories, ", "));
-      }
-      catch (Exception e) {
-	errors.add("Failed to add categories to " + dataset + ": " + Utils.flatten(m_Categories, ", "), e);
+      if (m_Categories.length > 0) {
+        if (isLoggingEnabled())
+          getLogger().info("Assigning categories to dataset " + dataset + ": " + Utils.flatten(m_Categories, ", "));
+        try {
+          if (!action.addCategories(dataset, names, Arrays.asList(BaseObject.toStringArray(m_Categories))))
+            errors.add("Failed to add categories to " + dataset + ": " + Utils.flatten(m_Categories, ", "));
+        }
+        catch (Exception e) {
+          errors.add("Failed to add categories to " + dataset + ": " + Utils.flatten(m_Categories, ", "), e);
+        }
       }
     }
 
