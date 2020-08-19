@@ -228,7 +228,7 @@ public class ListTeams
     result = null;
 
     try {
-      teams = m_Client.teams().list();
+      teams = m_Client.teams().list(m_Filter.generate(errors));
       conv  = new UFDLTeamToSpreadSheet();
       conv.setFlowContext(m_FlowContext);
       conv.setResolveIDs(m_ResolveIDs);

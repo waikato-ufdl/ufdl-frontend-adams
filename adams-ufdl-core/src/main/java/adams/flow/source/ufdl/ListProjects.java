@@ -228,7 +228,7 @@ public class ListProjects
     result = null;
 
     try {
-      projects = m_Client.projects().list();
+      projects = m_Client.projects().list(m_Filter.generate(errors));
       conv  = new UFDLProjectToSpreadSheet();
       conv.setFlowContext(m_FlowContext);
       conv.setResolveIDs(m_ResolveIDs);

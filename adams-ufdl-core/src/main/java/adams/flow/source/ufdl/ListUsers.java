@@ -188,7 +188,7 @@ public class ListUsers
     result = null;
 
     try {
-      users = m_Client.users().list();
+      users = m_Client.users().list(m_Filter.generate(errors));
       conv  = new UFDLUserToSpreadSheet();
       for (User user: users) {
         switch (m_Active) {

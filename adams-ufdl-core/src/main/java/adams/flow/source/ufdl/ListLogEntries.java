@@ -146,7 +146,7 @@ public class ListLogEntries
     result = null;
 
     try {
-      entries = m_Client.log().list();
+      entries = m_Client.log().list(m_Filter.generate(errors));
       conv    = new UFDLLogEntryToSpreadSheet();
       for (LogEntry entry : entries) {
         conv.setInput(entry);

@@ -146,7 +146,7 @@ public class ListLicenses
     result = null;
 
     try {
-      licenses = m_Client.licenses().list();
+      licenses = m_Client.licenses().list(m_Filter.generate(errors));
       conv  = new UFDLLicenseToSpreadSheet();
       for (License license : licenses) {
         conv.setInput(license);

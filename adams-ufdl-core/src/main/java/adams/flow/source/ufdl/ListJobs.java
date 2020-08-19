@@ -228,7 +228,7 @@ public class ListJobs
     result = null;
 
     try {
-      jobs = m_Client.jobs().list();
+      jobs = m_Client.jobs().list(m_Filter.generate(errors));
       conv  = new UFDLJobToSpreadSheet();
       conv.setFlowContext(m_FlowContext);
       conv.setResolveIDs(m_ResolveIDs);
