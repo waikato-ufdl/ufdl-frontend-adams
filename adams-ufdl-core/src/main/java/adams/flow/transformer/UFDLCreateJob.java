@@ -354,8 +354,7 @@ public class UFDLCreateJob
 	  break;
 	case TYPE_DATASET:
 	  dataset = new UFDLDatasetChooser();
-	  // TODO filter by domain
-	  //dataset.setFilter(domainFilter);
+	  dataset.setFilter(domainFilter);
 	  dataset.setSorting(UFDLListSorting.BY_ID_ONLY);
 	  dataset.setFlowContext(this);
 	  dataset.setName(propsPrefix + name);
