@@ -109,6 +109,7 @@ The following source actions can be used:
   \item \textit{ListFrameworks} -- lists all the frameworks.
   \item \textit{ListHardwareGenerations} -- lists all the hardware generations.
   \item \textit{ListJobs} -- lists all the jobs.
+  \item \textit{ListJobOutputs} -- lists all the outputs from a specific job.
   \item \textit{ListJobTemplates} -- lists all the job templates.
   \item \textit{ListJobTypes} -- lists all the job types.
   \item \textit{ListLicenses} -- lists all the licenses.
@@ -140,8 +141,16 @@ The following transformer actions can be used:
   \item \textit{DeleteProject} -- deletes a project (via PK or name).
   \item \textit{DeleteTeam} -- deletes a team (via PK or name).
   \item \textit{DeleteUser} -- deletes a user (via PK or name).
+  \item \textit{LoadCudaVersion} -- loads a CUDA version (via PK or version).
   \item \textit{LoadDataset} -- loads a dataset (via PK or name).
+  \item \textit{LoadDockerImage} -- loads a docker image (via PK).
+  \item \textit{LoadFramework} -- loads a framework (via PK).
+  \item \textit{LoadHardwareGeneration} -- loads a hardware generation (via PK or name).
+  \item \textit{LoadJob} -- loads a job (via PK).
+  \item \textit{LoadJobTemplate} -- loads a job template (via PK or name).
   \item \textit{LoadLicense} -- loads a license (via PK or name).
+  \item \textit{LoadNode} -- loads a node (via PK or IP).
+  \item \textit{LoadPretrainedModel} -- loads a pretrained model (via PK or name).
   \item \textit{LoadProject} -- loads a project (via PK or name).
   \item \textit{LoadTeam} -- loads a team (via PK or name).
   \item \textit{LoadUser} -- loads a user (via PK or name).
@@ -215,6 +224,7 @@ The following conversions are available:
   \item \textit{UFDLFrameworkToSpreadSheet} -- converts the UFDL framework to a spreadsheet.
   \item \textit{UFDLHardwareGenerationToSpreadSheet} -- converts the UFDL hardware generation to a spreadsheet.
   \item \textit{UFDLJobToSpreadSheet} -- converts the UFDL job to a spreadsheet.
+  \item \textit{UFDLJobOutputToSpreadSheet} -- converts the UFDL job output to a spreadsheet.
   \item \textit{UFDLJobTemplateToSpreadSheet} -- converts the UFDL job template to a spreadsheet.
   \item \textit{UFDLJobTypeToSpreadSheet} -- converts the UFDL job type to a spreadsheet.
   \item \textit{UFDLJsonObjectToString} -- converts a UFDL object that wraps a JSON object into a JSON string.
