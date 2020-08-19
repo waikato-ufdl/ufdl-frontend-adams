@@ -41,7 +41,7 @@ public abstract class AbstractNodeTransformerAction<T extends Nodes>
    */
   @Override
   public Class[] accepts() {
-    return new Class[]{Integer.class, Node.class};
+    return new Class[]{Integer.class, String.class, Node.class};
   }
 
   /**
@@ -87,6 +87,8 @@ public abstract class AbstractNodeTransformerAction<T extends Nodes>
       action = getNodesAction();
       if (input instanceof Integer)
 	node = action.load((Integer) input);
+      else if (input instanceof String)
+	node = action.load((String) input);
       else
 	node = (Node) input;
     }
