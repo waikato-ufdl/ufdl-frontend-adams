@@ -108,23 +108,23 @@ public class UFDLPretrainedModelToSpreadSheet
   protected Object doConvert() throws Exception {
     SpreadSheet		result;
     Row			row;
-    PretrainedModel 	template;
+    PretrainedModel 	model;
 
-    template = (PretrainedModel) m_Input;
+    model = (PretrainedModel) m_Input;
     result  = getTemplate();
     row     = result.addRow();
-    row.addCell("pk").setContent(template.getPK());
-    row.addCell("name").setContentAsString(template.getName());
-    row.addCell("cr").setContent(getUser(template.getCreator()));
-    if (template.getCreationTime() != null)
-      row.addCell("ct").setContent(new DateTimeMsec(Date.from(template.getCreationTime().toInstant(ZoneOffset.UTC))));
-    if (template.getDeletionTime() != null)
-      row.addCell("dt").setContent(new DateTimeMsec(Date.from(template.getDeletionTime().toInstant(ZoneOffset.UTC))));
-    row.addCell("fw").setContent(getFramework(template.getFramework()));
-    row.addCell("do").setContentAsString(template.getDomain());
-    row.addCell("li").setContent(getLicense(template.getLicense()));
-    row.addCell("ur").setContentAsString(template.getURL());
-    row.addCell("de").setContentAsString(template.getDescription());
+    row.addCell("pk").setContent(model.getPK());
+    row.addCell("na").setContentAsString(model.getName());
+    row.addCell("cr").setContent(getUser(model.getCreator()));
+    if (model.getCreationTime() != null)
+      row.addCell("ct").setContent(new DateTimeMsec(Date.from(model.getCreationTime().toInstant(ZoneOffset.UTC))));
+    if (model.getDeletionTime() != null)
+      row.addCell("dt").setContent(new DateTimeMsec(Date.from(model.getDeletionTime().toInstant(ZoneOffset.UTC))));
+    row.addCell("fw").setContent(getFramework(model.getFramework()));
+    row.addCell("do").setContentAsString(model.getDomain());
+    row.addCell("li").setContent(getLicense(model.getLicense()));
+    row.addCell("ur").setContentAsString(model.getURL());
+    row.addCell("de").setContentAsString(model.getDescription());
 
     return result;
   }
