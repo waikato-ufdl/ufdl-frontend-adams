@@ -138,7 +138,7 @@ public class CreateDockerImage
       -1, -1, null);
 
     m_OptionManager.add(
-      "cpu", "cpu",
+      "cpu", "CPU",
       false);
 
     m_OptionManager.add(
