@@ -22,7 +22,6 @@ package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.ObjectDetectionDataset;
 
 /**
@@ -31,7 +30,7 @@ import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.ObjectDetect
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class LoadObjectDetectionDataset
-  extends AbstractDatasetTransformerAction {
+  extends AbstractObjectDetectionDatasetTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -64,12 +63,6 @@ public class LoadObjectDetectionDataset
    */
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
-    try {
-      return m_Client.action(ObjectDetectionDatasets.class).load(dataset.getPK());
-    }
-    catch (Exception e) {
-      errors.add("Failed to load object detection dataset: " + dataset.getPK(), e);
-      return null;
-    }
+    return dataset;
   }
 }
