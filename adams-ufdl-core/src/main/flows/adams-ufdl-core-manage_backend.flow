@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-08-21 17:00:54
+# Date: 2020-08-24 11:08:57
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -985,7 +985,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
       adams.flow.control.Tee -name Return
        adams.flow.transformer.CallableTransformer -callable "clear output"
        adams.flow.transformer.SetVariable -var-name show_sub_menu -var-value false
-   adams.flow.control.Trigger -name "Job templates" -annotation TODO
+   adams.flow.control.Trigger -name "Job templates"
     adams.flow.standalone.SetVariable -name initialize -var-name show_sub_menu -var-value true
     adams.flow.source.Start
     adams.flow.control.CloseCallableDisplay -name "close progressbar" -callable ProgressBar
@@ -993,7 +993,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
      adams.flow.source.Start
      adams.flow.control.Trigger -name "menu prompt"
-      adams.flow.source.EnterValue -name "License menu" -message "Please select CUIDA versions operation" -selection-values List -selection-values Add -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
+      adams.flow.source.EnterValue -name "Job template menu" -message "Please select Job template operation" -selection-values List -selection-values Add -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
       adams.flow.transformer.SetVariable -var-name choice
       adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
@@ -1002,42 +1002,44 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
        adams.flow.source.Start
        adams.flow.transformer.SetVariable -var-name none -var-value true
        adams.flow.control.Trigger -name display
-        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListCudaVersions -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListJobTemplates -filter adams.data.ufdlfilter.AllFilter -resolve-ids true" -use-error-queue true
         adams.flow.transformer.SetVariable -var-name none -var-value false
         adams.flow.sink.CallableSink -callable Current
        adams.flow.control.ConditionalTrigger -name "nothing to list" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name none"
-        adams.flow.source.CombineVariables -expression "No CUDA versions available yet!" -conversion adams.data.conversion.StringToString
+        adams.flow.source.CombineVariables -expression "No job templates available yet!" -conversion adams.data.conversion.StringToString
         adams.flow.sink.InformationDialog
       adams.flow.control.Trigger -name Add
        adams.flow.source.Start
        adams.flow.control.Trigger -name current
-        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListCudaVersions -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListJobTemplates -filter adams.data.ufdlfilter.AllFilter -state ANY" -use-error-queue true
         adams.flow.sink.CallableSink -callable Current
        adams.flow.control.Trigger -name "prompt user"
-        adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-license-add.props -value-type FILE_FORWARD_SLASHES -expand-value true
+        adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-jobtemplate-add.props -value-type FILE_FORWARD_SLASHES -expand-value true
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -name "Add CUDA version" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name version -display Version" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name full_version -display \"Full version\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name min_driver_version -display \"Minimum driver version\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+        adams.flow.source.EnterManyValues -name "Add Job template version" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name version -display Version -type INTEGER -default-value 1" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name scope -display Scope -value public -value project -value user -default-value public" -value "adams.flow.source.valuedefinition.UFDLFrameworkChooser -name framework -display Framework -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLDomainList -name domain -display Domain -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLDomainList -name type -display Type -help \"For example: train, predict, export\" -filter adams.data.ufdlfilter.AllFilter -default-value train" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name executor -display \"Executor class\" -help \"The Python class that handles this template\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name packages -display \"Required packages\" -help \"Any additional packages to install via pip for running the executor, blank-separated list (eg \\\"numpy<=1.18\\\")\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name template -display Template -help \"The body of the template itself\"" -value "adams.flow.source.valuedefinition.UFDLLicenseFilter -name license -display License -filter adams.data.ufdlfilter.AllFilter" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
+        adams.flow.transformer.UFDLExtractAndTransfer -name framework_pk -source framework -target framework_pk
+        adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source license -target license_pk
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
        adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name add
-        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateCudaVersion -version @{version} -full-version @{full_version} -min-driver-version @{min_driver_version}" -use-error-queue true
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateJobTemplate -name @{name} -version @{version} -scope @{scope} -framework @{framework_pk} -domain @{domain} -type @{type} -executor-class @{executor} -required-packages @{packages} -template @{template} -license @{license_pk}" -use-error-queue true
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Delete
-       adams.flow.source.UFDLSource -silent true -action "adams.flow.source.ufdl.ListCudaVersions -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
-       adams.flow.transformer.SpreadSheetSelectSubset -message "Please select CUDA versions to delete" -allow-search true
+       adams.flow.source.UFDLSource -silent true -action "adams.flow.source.ufdl.ListJobTemplates -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
+       adams.flow.transformer.SpreadSheetSelectSubset -message "Please select Job templates to delete" -allow-search true
        adams.flow.control.Tee -name "# items"
         adams.flow.transformer.SpreadSheetInfo
         adams.flow.transformer.SetVariable -var-name num_items
-       adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_items} CUDA version(s)?\""
+       adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_items} job template(s)?\""
         adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
         adams.flow.control.Trigger -name delete
          adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteCudaVersion -use-error-queue true
+         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteJobTemplate -use-error-queue true
          adams.flow.transformer.SetVariable -var-name success
          adams.flow.control.Trigger -name info
-          adams.flow.source.CombineVariables -expression "deleted CUDA version @{pk}: @{success}" -conversion adams.data.conversion.StringToString
+          adams.flow.source.CombineVariables -expression "deleted job template @{pk}: @{success}" -conversion adams.data.conversion.StringToString
           adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Tee -name "Clear output"
        adams.flow.transformer.CallableTransformer -callable "clear output"
