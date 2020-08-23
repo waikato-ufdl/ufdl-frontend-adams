@@ -21,16 +21,14 @@
 package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
-import com.github.waikatoufdl.ufdl4j.action.DockerImages;
 import com.github.waikatoufdl.ufdl4j.action.DockerImages.DockerImage;
 
 /**
  * Ancestor of transformer actions on docker images.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
- * @param <T> the type of DockerImages action
  */
-public abstract class AbstractDockerImageTransformerAction<T extends DockerImages>
+public abstract class AbstractDockerImageTransformerAction
   extends AbstractUFDLTransformerAction {
 
   private static final long serialVersionUID = 1320770985737432995L;
@@ -42,16 +40,6 @@ public abstract class AbstractDockerImageTransformerAction<T extends DockerImage
   @Override
   public Class[] accepts() {
     return new Class[]{Integer.class, DockerImage.class};
-  }
-
-  /**
-   * Returns the docker images action to use.
-   *
-   * @return		the action
-   * @throws Exception	if instantiation of action fails
-   */
-  protected T getDockerImagesAction() throws Exception {
-    return (T) m_Client.action(DockerImages.class);
   }
 
   /**
@@ -72,9 +60,8 @@ public abstract class AbstractDockerImageTransformerAction<T extends DockerImage
    */
   @Override
   protected Object doTransform(Object input, MessageCollection errors) {
-    Object	result;
+    Object		result;
     DockerImage 	image;
-    T		action;
 
     result = null;
 
@@ -84,9 +71,8 @@ public abstract class AbstractDockerImageTransformerAction<T extends DockerImage
     // load docker image
     image = null;
     try {
-      action = getDockerImagesAction();
       if (input instanceof Integer)
-	image = action.load((Integer) input);
+	image = m_Client.docker().load((Integer) input);
       else
 	image = (DockerImage) input;
     }
