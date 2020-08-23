@@ -22,7 +22,6 @@ package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
 import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets.ImageClassificationDataset;
 
 /**
@@ -31,7 +30,7 @@ import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets.ImageCla
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class LoadImageClassificationDataset
-  extends AbstractDatasetTransformerAction {
+  extends AbstractImageClassificationDatasetTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -64,12 +63,6 @@ public class LoadImageClassificationDataset
    */
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
-    try {
-      return m_Client.action(ImageClassificationDatasets.class).load(dataset.getPK());
-    }
-    catch (Exception e) {
-      errors.add("Failed to load image classification dataset: " + dataset.getPK(), e);
-      return null;
-    }
+    return dataset;
   }
 }
