@@ -35,10 +35,10 @@ public class CreateJobTemplate
 
   private static final long serialVersionUID = 2444931814949354710L;
 
-  /** the pretrained model name. */
+  /** the job template name. */
   protected String m_Name;
 
-  /** the pretrained model version. */
+  /** the job template version. */
   protected int m_Version;
 
   /** the scope. */
@@ -124,7 +124,7 @@ public class CreateJobTemplate
   }
 
   /**
-   * Sets the pretrained model name.
+   * Sets the job template name.
    *
    * @param value	the name
    */
@@ -134,7 +134,7 @@ public class CreateJobTemplate
   }
 
   /**
-   * Returns the pretrained model name.
+   * Returns the job template name.
    *
    * @return		the name
    */
@@ -149,11 +149,11 @@ public class CreateJobTemplate
    * 			displaying in the GUI or for listing the options.
    */
   public String nameTipText() {
-    return "The pretrained model name.";
+    return "The job template name.";
   }
 
   /**
-   * Sets the pretrained model version.
+   * Sets the job template version.
    *
    * @param value	the version
    */
@@ -163,7 +163,7 @@ public class CreateJobTemplate
   }
 
   /**
-   * Returns the pretrained model version.
+   * Returns the job template version.
    *
    * @return		the version
    */
@@ -178,7 +178,7 @@ public class CreateJobTemplate
    * 			displaying in the GUI or for listing the options.
    */
   public String versionTipText() {
-    return "The pretrained model version.";
+    return "The job template version.";
   }
 
   /**
@@ -458,7 +458,7 @@ public class CreateJobTemplate
         m_ExecutorClass, m_RequiredPackages, m_Template.getValue(), m_License);
     }
     catch (Exception e) {
-      errors.add("Failed to create pretrained model!", e);
+      errors.add("Failed to create job template!", e);
     }
 
     return result;
