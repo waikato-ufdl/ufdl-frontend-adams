@@ -20,8 +20,7 @@
 
 package adams.flow.transformer.ufdl;
 
-import adams.core.MessageCollection;
-import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
+import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
 
 /**
  * Reinstates the object detection dataset either via PK or datasetname.
@@ -29,7 +28,7 @@ import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class ReinstateObjectDetectionDataset
-  extends AbstractObjectDetectionDatasetTransformerAction {
+  extends ReinstateDataset {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -44,38 +43,13 @@ public class ReinstateObjectDetectionDataset
   }
 
   /**
-   * Returns the classes that the transformer generates.
+   * Returns the datasets action to use.
    *
-   * @return		the classes
+   * @return		the action
+   * @throws Exception	if instantiation of action fails
    */
   @Override
-  public Class[] generates() {
-    return new Class[]{Boolean.class};
-  }
-
-  /**
-   * Transforms the dataset.
-   *
-   * @param dataset	the dataset
-   * @param errors 	for collecting errors
-   * @return 		the transformed data
-   */
-  @Override
-  protected Object doTransform(Dataset dataset, MessageCollection errors) {
-    boolean			result;
-
-    result = false;
-
-    if (isLoggingEnabled())
-      getLogger().info("Deleting object detection dataset: " + dataset);
-
-    try {
-      result = getDatasetsAction().reinstate(dataset);
-    }
-    catch (Exception e) {
-      errors.add("Failed to reinstate object detection dataset: " + dataset, e);
-    }
-
-    return result;
+  protected ObjectDetectionDatasets getDatasetsAction() throws Exception {
+    return m_Client.action(ObjectDetectionDatasets.class);
   }
 }

@@ -20,8 +20,7 @@
 
 package adams.flow.transformer.ufdl;
 
-import adams.core.MessageCollection;
-import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
+import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
 
 /**
  * Reinstates the image classification dataset either via PK or datasetname.
@@ -29,7 +28,7 @@ import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class ReinstateImageClassificationDataset
-  extends AbstractImageClassificationDatasetTransformerAction {
+  extends ReinstateDataset {
 
   private static final long serialVersionUID = 2890424326502728143L;
 
@@ -44,38 +43,13 @@ public class ReinstateImageClassificationDataset
   }
 
   /**
-   * Returns the classes that the transformer generates.
+   * Returns the datasets action to use.
    *
-   * @return		the classes
+   * @return		the action
+   * @throws Exception	if instantiation of action fails
    */
   @Override
-  public Class[] generates() {
-    return new Class[]{Boolean.class};
-  }
-
-  /**
-   * Transforms the dataset.
-   *
-   * @param dataset	the dataset
-   * @param errors 	for collecting errors
-   * @return 		the transformed data
-   */
-  @Override
-  protected Object doTransform(Dataset dataset, MessageCollection errors) {
-    boolean			result;
-
-    result = false;
-
-    if (isLoggingEnabled())
-      getLogger().info("Reinstating image classification dataset: " + dataset);
-
-    try {
-      result = getDatasetsAction().reinstate(dataset);
-    }
-    catch (Exception e) {
-      errors.add("Failed to reinstate image classification dataset: " + dataset, e);
-    }
-
-    return result;
+  protected ImageClassificationDatasets getDatasetsAction() throws Exception {
+    return m_Client.action(ImageClassificationDatasets.class);
   }
 }
