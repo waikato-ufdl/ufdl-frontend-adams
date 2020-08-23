@@ -70,7 +70,7 @@ public class ReinstateDataset
       getLogger().info("Reinstating dataset " + dataset);
 
     try {
-      result = m_Client.datasets().reinstate(dataset);
+      result = getDatasetsAction().reinstate(dataset);
     }
     catch (Exception e) {
       errors.add("Failed to reinstate dataset: " + dataset, e);

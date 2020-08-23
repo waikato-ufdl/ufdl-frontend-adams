@@ -125,7 +125,7 @@ public class DeleteDataset
       getLogger().info("Deleting dataset (hard=" + m_Hard + "): " + dataset);
 
     try {
-      result = m_Client.datasets().delete(dataset, m_Hard);
+      result = getDatasetsAction().delete(dataset, m_Hard);
     }
     catch (Exception e) {
       errors.add("Failed to delete dataset (hard=" + m_Hard + "): " + dataset, e);
