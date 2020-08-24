@@ -55,6 +55,9 @@ public class UFDLJobTemplateParameterEditor
   /** the text field with the options. */
   protected BaseTextField m_TextDefault;
 
+  /** the text field with the help. */
+  protected BaseTextField m_TextHelp;
+
   /**
    * Gets the custom editor component.
    *
@@ -77,6 +80,8 @@ public class UFDLJobTemplateParameterEditor
     panelParams.addParameter("Type", m_TextType);
     m_TextDefault = new BaseTextField(30);
     panelParams.addParameter("Default", m_TextDefault);
+    m_TextHelp = new BaseTextField(30);
+    panelParams.addParameter("Help", m_TextHelp);
 
     panelButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     panelAll.add(panelButtons, BorderLayout.SOUTH);
@@ -108,7 +113,10 @@ public class UFDLJobTemplateParameterEditor
   protected void acceptInput() {
     String 	s;
 
-    s = m_TextName.getText() + UFDLJobTemplateParameter.SEPARATOR + m_TextType.getText() + UFDLJobTemplateParameter.SEPARATOR + m_TextDefault.getText();
+    s = m_TextName.getText()
+      + UFDLJobTemplateParameter.SEPARATOR + m_TextType.getText()
+      + UFDLJobTemplateParameter.SEPARATOR + m_TextDefault.getText()
+      + UFDLJobTemplateParameter.SEPARATOR + m_TextHelp.getText();
     if (isValid(s) && !isUnchanged(s))
       setValue(parse(s));
     closeDialog(APPROVE_OPTION);
@@ -131,6 +139,8 @@ public class UFDLJobTemplateParameterEditor
       m_TextType.setText(parameter.typeValue());
     if (!m_TextDefault.getText().equals(parameter.defaultValue()))
       m_TextDefault.setText(parameter.defaultValue());
+    if (!m_TextHelp.getText().equals(parameter.helpValue()))
+      m_TextHelp.setText(parameter.helpValue());
     m_TextName.grabFocus();
   }
 
@@ -184,7 +194,7 @@ public class UFDLJobTemplateParameterEditor
       dialog = new MultiLineValueDialog(GUIHelper.getParentDialog(parent));
     else
       dialog = new MultiLineValueDialog(GUIHelper.getParentFrame(parent));
-    dialog.setInfoText("Enter the parameter definitions, one per line:");
+    dialog.setInfoText("Enter the parameter definitions, one per line (name|type|default|help):");
     dialog.setLocationRelativeTo(parent);
     dialog.setVisible(true);
 

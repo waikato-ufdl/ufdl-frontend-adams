@@ -628,7 +628,7 @@ public class UpdateJobTemplate
 	// add
 	for (UFDLJobTemplateInput input : m_Inputs) {
 	  try {
-	    success = m_Client.jobTemplates().addInput(result, input.nameValue(), input.typeValue(), input.optionsValue());
+	    success = m_Client.jobTemplates().addInput(result, input.nameValue(), input.typeValue(), input.optionsValue(), input.helpValue());
 	    if (!success)
 	      errors.add("Failed to add input '" + input + "' to job template " + result + "!");
 	  }
@@ -656,7 +656,7 @@ public class UpdateJobTemplate
 	// add
 	for (UFDLJobTemplateParameter parameter : m_Parameters) {
 	  try {
-	    success = m_Client.jobTemplates().addParameter(result, parameter.nameValue(), parameter.typeValue(), parameter.defaultValue());
+	    success = m_Client.jobTemplates().addParameter(result, parameter.nameValue(), parameter.typeValue(), parameter.defaultValue(), parameter.helpValue());
 	    if (!success)
 	      errors.add("Failed to add parameter '" + parameter + "' to job template " + result + "!");
 	  }

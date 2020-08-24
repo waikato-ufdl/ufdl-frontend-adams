@@ -54,7 +54,19 @@ public class UFDLJobTemplateParameter
    * @param defValue 	the default value
    */
   public UFDLJobTemplateParameter(String name, String type, String defValue) {
-    this(name + SEPARATOR + type + SEPARATOR + defValue);
+    this(name, type, defValue, "");
+  }
+
+  /**
+   * Initializes the parameter.
+   *
+   * @param name	the name
+   * @param type 	the type
+   * @param defValue 	the default value
+   * @param help 	the help string
+   */
+  public UFDLJobTemplateParameter(String name, String type, String defValue, String help) {
+    this(name + SEPARATOR + type + SEPARATOR + defValue + SEPARATOR + help);
   }
 
   /**
@@ -64,7 +76,7 @@ public class UFDLJobTemplateParameter
    */
   @Override
   protected int[] validNumParts() {
-    return new int[]{2, 3};
+    return new int[]{2, 3, 4};
   }
 
   /**
@@ -92,6 +104,15 @@ public class UFDLJobTemplateParameter
    */
   public String defaultValue() {
     return getPart(2);
+  }
+
+  /**
+   * Returns the help part, if possible.
+   *
+   * @return		the help, empty if not available
+   */
+  public String helpValue() {
+    return getPart(3);
   }
 
   /**

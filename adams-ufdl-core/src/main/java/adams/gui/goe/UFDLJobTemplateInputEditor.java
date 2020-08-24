@@ -55,6 +55,9 @@ public class UFDLJobTemplateInputEditor
   /** the text field with the options. */
   protected BaseTextField m_TextOptions;
 
+  /** the text field with the help. */
+  protected BaseTextField m_TextHelp;
+
   /**
    * Gets the custom editor component.
    *
@@ -77,6 +80,8 @@ public class UFDLJobTemplateInputEditor
     panelParams.addParameter("Type", m_TextType);
     m_TextOptions = new BaseTextField(30);
     panelParams.addParameter("Options", m_TextOptions);
+    m_TextHelp = new BaseTextField(30);
+    panelParams.addParameter("Help", m_TextHelp);
 
     panelButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     panelAll.add(panelButtons, BorderLayout.SOUTH);
@@ -108,7 +113,10 @@ public class UFDLJobTemplateInputEditor
   protected void acceptInput() {
     String 	s;
 
-    s = m_TextName.getText() + UFDLJobTemplateInput.SEPARATOR + m_TextType.getText() + UFDLJobTemplateInput.SEPARATOR + m_TextOptions.getText();
+    s = m_TextName.getText()
+      + UFDLJobTemplateInput.SEPARATOR + m_TextType.getText()
+      + UFDLJobTemplateInput.SEPARATOR + m_TextOptions.getText()
+      + UFDLJobTemplateInput.SEPARATOR + m_TextHelp.getText();
     if (isValid(s) && !isUnchanged(s))
       setValue(parse(s));
     closeDialog(APPROVE_OPTION);
@@ -131,6 +139,8 @@ public class UFDLJobTemplateInputEditor
       m_TextType.setText(input.typeValue());
     if (!m_TextOptions.getText().equals(input.optionsValue()))
       m_TextOptions.setText(input.optionsValue());
+    if (!m_TextHelp.getText().equals(input.helpValue()))
+      m_TextHelp.setText(input.helpValue());
     m_TextName.grabFocus();
   }
 
@@ -184,7 +194,7 @@ public class UFDLJobTemplateInputEditor
       dialog = new MultiLineValueDialog(GUIHelper.getParentDialog(parent));
     else
       dialog = new MultiLineValueDialog(GUIHelper.getParentFrame(parent));
-    dialog.setInfoText("Enter the input definitions, one per line:");
+    dialog.setInfoText("Enter the input definitions, one per line (name|type|options|help):");
     dialog.setLocationRelativeTo(parent);
     dialog.setVisible(true);
 

@@ -42,6 +42,9 @@ public class AddJobTemplateInput
   /** the (optional) options. */
   protected String m_Options;
 
+  /** the help string. */
+  protected String m_Help;
+
   /**
    * Returns a string describing the object.
    *
@@ -69,6 +72,10 @@ public class AddJobTemplateInput
 
     m_OptionManager.add(
       "options", "options",
+      "");
+
+    m_OptionManager.add(
+      "help", "help",
       "");
   }
 
@@ -107,7 +114,7 @@ public class AddJobTemplateInput
    * @param value	the type
    */
   public void setType(String value) {
-    m_Name = value;
+    m_Type = value;
     reset();
   }
 
@@ -160,6 +167,35 @@ public class AddJobTemplateInput
   }
 
   /**
+   * Sets the (optional) help string.
+   *
+   * @param value	the help string
+   */
+  public void setHelp(String value) {
+    m_Help = value;
+    reset();
+  }
+
+  /**
+   * Returns the (optional) help string.
+   *
+   * @return		the help string
+   */
+  public String getHelp() {
+    return m_Help;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String helpTipText() {
+    return "The (optional) help string.";
+  }
+
+  /**
    * Returns the classes that the transformer generates.
    *
    * @return		the classes
@@ -183,7 +219,7 @@ public class AddJobTemplateInput
     try {
       if (isLoggingEnabled())
 	getLogger().info("Adding input " + m_Name + " to job template '" + template + "'");
-      if (!m_Client.jobTemplates().addInput(template, m_Name, m_Type, m_Options))
+      if (!m_Client.jobTemplates().addInput(template, m_Name, m_Type, m_Options, m_Help))
 	errors.add("Failed to add input " + m_Name + " to job template '" + template + "': " + template);
     }
     catch (Exception e) {

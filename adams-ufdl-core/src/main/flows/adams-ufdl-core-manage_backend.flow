@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-08-24 11:08:57
+# Date: 2020-08-24 14:57:47
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -1016,7 +1016,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-jobtemplate-add.props -value-type FILE_FORWARD_SLASHES -expand-value true
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -name "Add Job template version" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name version -display Version -type INTEGER -default-value 1" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name scope -display Scope -value public -value project -value user -default-value public" -value "adams.flow.source.valuedefinition.UFDLFrameworkChooser -name framework -display Framework -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLDomainList -name domain -display Domain -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLDomainList -name type -display Type -help \"For example: train, predict, export\" -filter adams.data.ufdlfilter.AllFilter -default-value train" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name executor -display \"Executor class\" -help \"The Python class that handles this template\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name packages -display \"Required packages\" -help \"Any additional packages to install via pip for running the executor, blank-separated list (eg \\\"numpy<=1.18\\\")\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name template -display Template -help \"The body of the template itself\"" -value "adams.flow.source.valuedefinition.UFDLLicenseFilter -name license -display License -filter adams.data.ufdlfilter.AllFilter" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+        adams.flow.source.EnterManyValues -name "Add Job template version" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name version -display Version -type INTEGER -default-value 1" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name scope -display Scope -value public -value project -value user -default-value public" -value "adams.flow.source.valuedefinition.UFDLFrameworkChooser -name framework -display Framework -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLDomainList -name domain -display Domain -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name type -display Type -help \"For example: train, predict, export\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name executor -display \"Executor class\" -help \"The Python class that handles this template\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name packages -display \"Required packages\" -help \"Any additional packages to install via pip for running the executor, blank-separated list (eg \\\"numpy<=1.18\\\")\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name template -display Template -help \"The body of the template itself\"" -value "adams.flow.source.valuedefinition.UFDLLicenseFilter -name license -display License -filter adams.data.ufdlfilter.AllFilter" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.UFDLExtractAndTransfer -name framework_pk -source framework -target framework_pk
         adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source license -target license_pk
@@ -1025,7 +1025,50 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name add
         adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateJobTemplate -name @{name} -version @{version} -scope @{scope} -framework @{framework_pk} -domain @{domain} -type @{type} -executor-class @{executor} -required-packages @{packages} -template @{template} -license @{license_pk}" -use-error-queue true
-        adams.flow.sink.CallableSink -callable Info
+        adams.flow.transformer.SetStorageValue -storage-name jobtemplate
+        adams.flow.control.Trigger -name "add inputs"
+         adams.flow.standalone.SetVariable -name addmore -var-name addmore -var-value true
+         adams.flow.source.Start
+         adams.flow.control.WhileLoop -condition "adams.flow.condition.bool.Expression -expression \"@{addmore} = true\""
+          adams.flow.standalone.SetVariable -name addmore -var-name addmore -var-value true
+          adams.flow.source.Start
+          adams.flow.control.Trigger -name "prompt user"
+           adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+           adams.flow.source.EnterManyValues -name "Add input" -stop-if-canceled true -message "Please enter values for input" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name -help \"The name of the input (lower case)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name type -display Type -help \"The type of the input (lower case, eg dataset or model)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name options -display Options -help \"The options for the input, eg wai.annotations options\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name help -display Help -help \"The help string for the input\"" -output-type MAP
+           adams.flow.transformer.MapToVariables
+           adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+          adams.flow.control.ConditionalTrigger -name add -condition "adams.flow.condition.bool.Expression -expression \"@{cancelled} = false\""
+           adams.flow.source.StorageValue -storage-name jobtemplate -conversion adams.data.conversion.UnknownToUnknown
+           adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddJobTemplateInput -name @{name} -type @{type} -options @{options} -help @{help}" -use-error-queue true
+          adams.flow.control.Trigger -name another?
+           adams.flow.source.EnterValue -message "Add another input?" -initial-value no -selection-values yes -selection-values no -use-buttons true
+           adams.flow.control.IfThenElse -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"X\\\\\\\" = \\\\\\\"yes\\\\\\\"\""
+            adams.flow.transformer.SetVariable -name then -var-name addmore -var-value true
+            adams.flow.transformer.SetVariable -name else -var-name addmore -var-value false
+        adams.flow.control.Trigger -name "add parameters"
+         adams.flow.standalone.SetVariable -name addmore -var-name addmore -var-value true
+         adams.flow.source.Start
+         adams.flow.control.WhileLoop -condition "adams.flow.condition.bool.Expression -expression \"@{addmore} = true\""
+          adams.flow.standalone.SetVariable -name addmore -var-name addmore -var-value true
+          adams.flow.source.Start
+          adams.flow.control.Trigger -name "prompt user"
+           adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+           adams.flow.source.EnterManyValues -name "Add input" -stop-if-canceled true -message "Please enter values for parameter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name -help \"The name of the input (lower case)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name type -display Type -help \"The type of the input (lower case, eg dataset or model)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name default -display Default -help \"The default value to use\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name help -display Help -help \"The help string for the parameter\"" -output-type MAP
+           adams.flow.transformer.MapToVariables
+           adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+          adams.flow.control.ConditionalTrigger -name add -condition "adams.flow.condition.bool.Expression -expression \"@{cancelled} = false\""
+           adams.flow.source.StorageValue -storage-name jobtemplate -conversion adams.data.conversion.UnknownToUnknown
+           adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddJobTemplateParameter -name @{name} -type @{type} -default @{default} -help @{help}" -use-error-queue true
+          adams.flow.control.Trigger -name another?
+           adams.flow.source.EnterValue -message "Add another parameter?" -initial-value no -selection-values yes -selection-values no -use-buttons true
+           adams.flow.control.IfThenElse -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"X\\\\\\\" = \\\\\\\"yes\\\\\\\"\""
+            adams.flow.transformer.SetVariable -name then -var-name addmore -var-value true
+            adams.flow.transformer.SetVariable -name else -var-name addmore -var-value false
+        adams.flow.control.Trigger -name display
+         adams.flow.source.StorageValue -storage-name jobtemplate -conversion adams.data.conversion.UnknownToUnknown
+         adams.flow.transformer.UFDLGetPK
+         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadJobTemplate -use-error-queue true
+         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Delete
        adams.flow.source.UFDLSource -silent true -action "adams.flow.source.ufdl.ListJobTemplates -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
        adams.flow.transformer.SpreadSheetSelectSubset -message "Please select Job templates to delete" -allow-search true

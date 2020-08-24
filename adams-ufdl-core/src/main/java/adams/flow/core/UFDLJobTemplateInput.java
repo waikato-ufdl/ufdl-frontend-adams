@@ -54,7 +54,19 @@ public class UFDLJobTemplateInput
    * @param options 	the (optional) options
    */
   public UFDLJobTemplateInput(String name, String type, String options) {
-    this(name + SEPARATOR + type + SEPARATOR + options);
+    this(name, type, options, "");
+  }
+
+  /**
+   * Initializes the input.
+   *
+   * @param name	the name
+   * @param type 	the type
+   * @param options 	the (optional) options
+   * @param help 	the help
+   */
+  public UFDLJobTemplateInput(String name, String type, String options, String help) {
+    this(name + SEPARATOR + type + SEPARATOR + options + SEPARATOR + help);
   }
 
   /**
@@ -64,7 +76,7 @@ public class UFDLJobTemplateInput
    */
   @Override
   protected int[] validNumParts() {
-    return new int[]{2, 3};
+    return new int[]{2, 3, 4};
   }
 
   /**
@@ -92,6 +104,15 @@ public class UFDLJobTemplateInput
    */
   public String optionsValue() {
     return getPart(2);
+  }
+
+  /**
+   * Returns the help part, if possible.
+   *
+   * @return		the help, empty if not available
+   */
+  public String helpValue() {
+    return getPart(3);
   }
 
   /**
