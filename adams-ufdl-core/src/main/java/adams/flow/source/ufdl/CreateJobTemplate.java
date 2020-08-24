@@ -23,6 +23,8 @@ package adams.flow.source.ufdl;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import adams.core.base.BaseText;
+import adams.flow.core.UFDLJobTemplateInput;
+import adams.flow.core.UFDLJobTemplateParameter;
 import com.github.waikatoufdl.ufdl4j.action.JobTemplates.JobTemplate;
 
 /**
@@ -58,6 +60,12 @@ public class CreateJobTemplate
 
   /** the required packages. */
   protected String m_RequiredPackages;
+
+  /** the inputs. */
+  protected UFDLJobTemplateInput[] m_Inputs;
+
+  /** the parameters. */
+  protected UFDLJobTemplateParameter[] m_Parameters;
 
   /** the template. */
   protected BaseText m_Template;
@@ -113,6 +121,14 @@ public class CreateJobTemplate
     m_OptionManager.add(
       "required-packages", "requiredPackages",
       "");
+
+    m_OptionManager.add(
+      "input", "inputs",
+      new UFDLJobTemplateInput[0]);
+
+    m_OptionManager.add(
+      "parameter", "parameters",
+      new UFDLJobTemplateParameter[0]);
 
     m_OptionManager.add(
       "template", "template",
@@ -356,6 +372,64 @@ public class CreateJobTemplate
   }
 
   /**
+   * Sets the inputs for the template.
+   *
+   * @param value	the inputs
+   */
+  public void setInputs(UFDLJobTemplateInput[] value) {
+    m_Inputs = value;
+    reset();
+  }
+
+  /**
+   * Returns the inputs for the template.
+   *
+   * @return		the inputs
+   */
+  public UFDLJobTemplateInput[] getInputs() {
+    return m_Inputs;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String inputsTipText() {
+    return "The inputs for the template.";
+  }
+
+  /**
+   * Sets the parameters for the template.
+   *
+   * @param value	the parameters
+   */
+  public void setParameters(UFDLJobTemplateParameter[] value) {
+    m_Parameters = value;
+    reset();
+  }
+
+  /**
+   * Returns the parameters for the template.
+   *
+   * @return		the parameters
+   */
+  public UFDLJobTemplateParameter[] getParameters() {
+    return m_Parameters;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String parametersTipText() {
+    return "The parameters for the template.";
+  }
+
+  /**
    * Sets the template instructions for the executor class.
    *
    * @param value	the template
@@ -450,15 +524,44 @@ public class CreateJobTemplate
   @Override
   protected Object doGenerate(MessageCollection errors) {
     JobTemplate 	result;
+    boolean 		success;
 
     result = null;
     try {
       result = m_Client.jobTemplates().create(
-        m_Name, m_Version, m_Scope, m_Framework, m_Domain, m_Type,
-        m_ExecutorClass, m_RequiredPackages, m_Template.getValue(), m_License);
+	m_Name, m_Version, m_Scope, m_Framework, m_Domain, m_Type,
+	m_ExecutorClass, m_RequiredPackages, m_Template.getValue(), m_License);
     }
     catch (Exception e) {
       errors.add("Failed to create job template!", e);
+    }
+
+    // inputs
+    if (result != null) {
+      for (UFDLJobTemplateInput input: m_Inputs) {
+	try {
+	  success = m_Client.jobTemplates().addInput(result, input.nameValue(), input.typeValue(), input.optionsValue());
+	  if (!success)
+	    errors.add("Failed to add input '" + input + "' to job template " + result + "!");
+	}
+	catch (Exception e) {
+	  errors.add("Failed to add input '" + input + "' to job template " + result + "!", e);
+	}
+      }
+    }
+
+    // parameters
+    if (result != null) {
+      for (UFDLJobTemplateParameter parameter : m_Parameters) {
+	try {
+	  success = m_Client.jobTemplates().addParameter(result, parameter.nameValue(), parameter.typeValue(), parameter.defaultValue());
+	  if (!success)
+	    errors.add("Failed to add parameter '" + parameter + "' to job template " + result + "!");
+	}
+	catch (Exception e) {
+	  errors.add("Failed to add parameter '" + parameter + "' to job template " + result + "!", e);
+	}
+      }
     }
 
     return result;

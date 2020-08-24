@@ -23,8 +23,12 @@ package adams.flow.transformer.ufdl;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import adams.core.base.BaseText;
+import adams.flow.core.UFDLJobTemplateInput;
+import adams.flow.core.UFDLJobTemplateParameter;
 import com.github.waikatoufdl.ufdl4j.action.JobTemplates.JobTemplate;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
+
+import java.util.Map;
 
 /**
  * Updates a job template and forwards the job template object.
@@ -59,6 +63,18 @@ public class UpdateJobTemplate
 
   /** the required packages. */
   protected String m_RequiredPackages;
+
+  /** whether to update the inputs. */
+  protected boolean m_UpdateInputs;
+  
+  /** the inputs. */
+  protected UFDLJobTemplateInput[] m_Inputs;
+
+  /** whether to update the parameters. */
+  protected boolean m_UpdateParameters;
+
+  /** the parameters. */
+  protected UFDLJobTemplateParameter[] m_Parameters;
 
   /** the template. */
   protected BaseText m_Template;
@@ -114,6 +130,22 @@ public class UpdateJobTemplate
     m_OptionManager.add(
       "required-packages", "requiredPackages",
       "");
+
+    m_OptionManager.add(
+      "update-inputs", "updateInputs",
+      false);
+
+    m_OptionManager.add(
+      "input", "inputs",
+      new UFDLJobTemplateInput[0]);
+
+    m_OptionManager.add(
+      "update-parameters", "updateParameters",
+      false);
+
+    m_OptionManager.add(
+      "parameter", "parameters",
+      new UFDLJobTemplateParameter[0]);
 
     m_OptionManager.add(
       "template", "template",
@@ -357,6 +389,122 @@ public class UpdateJobTemplate
   }
 
   /**
+   * Sets whether to update the inputs (first delete old, then add new).
+   *
+   * @param value	true if to update
+   */
+  public void setUpdateInputs(boolean value) {
+    m_UpdateInputs = value;
+    reset();
+  }
+
+  /**
+   * Returns whether to update the inputs (first delete old, then add new).
+   *
+   * @return		true if to update
+   */
+  public boolean getUpdateInputs() {
+    return m_UpdateInputs;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String updateInputsTipText() {
+    return "If enabled, the inputs get updated (first all old inputs get removed and then the new ones added).";
+  }
+
+  /**
+   * Sets the inputs for the template.
+   *
+   * @param value	the inputs
+   */
+  public void setInputs(UFDLJobTemplateInput[] value) {
+    m_Inputs = value;
+    reset();
+  }
+
+  /**
+   * Returns the inputs for the template.
+   *
+   * @return		the inputs
+   */
+  public UFDLJobTemplateInput[] getInputs() {
+    return m_Inputs;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String inputsTipText() {
+    return "The inputs for the template.";
+  }
+
+  /**
+   * Sets whether to update the parameters (first delete old, then add new).
+   *
+   * @param value	true if to update
+   */
+  public void setUpdateParameters(boolean value) {
+    m_UpdateParameters = value;
+    reset();
+  }
+
+  /**
+   * Returns whether to update the parameters (first delete old, then add new).
+   *
+   * @return		true if to update
+   */
+  public boolean getUpdateParameters() {
+    return m_UpdateParameters;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String updateParametersTipText() {
+    return "If enabled, the parameters get updated (first all old parameters get removed and then the new ones added).";
+  }
+
+  /**
+   * Sets the parameters for the template.
+   *
+   * @param value	the parameters
+   */
+  public void setParameters(UFDLJobTemplateParameter[] value) {
+    m_Parameters = value;
+    reset();
+  }
+
+  /**
+   * Returns the parameters for the template.
+   *
+   * @return		the parameters
+   */
+  public UFDLJobTemplateParameter[] getParameters() {
+    return m_Parameters;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String parametersTipText() {
+    return "The parameters for the template.";
+  }
+
+  /**
    * Sets the template instructions for the executor class.
    *
    * @param value	the template
@@ -450,7 +598,8 @@ public class UpdateJobTemplate
    */
   @Override
   protected Object doTransform(JobTemplate template, MessageCollection errors) {
-    JobTemplate result;
+    JobTemplate 	result;
+    boolean 		success;
 
     result = null;
     try {
@@ -459,7 +608,63 @@ public class UpdateJobTemplate
         m_ExecutorClass, m_RequiredPackages, m_Template.getValue(), m_License);
     }
     catch (Exception e) {
-      errors.add("Failed to update license!", e);
+      errors.add("Failed to update job template!", e);
+    }
+
+    // inputs
+    if (m_UpdateInputs) {
+      if (result != null) {
+	// remove
+	for (Map<String, String> input : result.getInputs()) {
+	  try {
+	    success = m_Client.jobTemplates().deleteInput(result, input.get("name"));
+	    if (!success)
+	      errors.add("Failed to remove input '" + input + "' from job template " + result + "!");
+	  }
+	  catch (Exception e) {
+	    errors.add("Failed to remove input '" + input + "' from job template " + result + "!", e);
+	  }
+	}
+	// add
+	for (UFDLJobTemplateInput input : m_Inputs) {
+	  try {
+	    success = m_Client.jobTemplates().addInput(result, input.nameValue(), input.typeValue(), input.optionsValue());
+	    if (!success)
+	      errors.add("Failed to add input '" + input + "' to job template " + result + "!");
+	  }
+	  catch (Exception e) {
+	    errors.add("Failed to add input '" + input + "' to job template " + result + "!", e);
+	  }
+	}
+      }
+    }
+
+    // parameters
+    if (m_UpdateParameters) {
+      if (result != null) {
+	// remove
+	for (Map<String, String> parameter : result.getParameters()) {
+	  try {
+	    success = m_Client.jobTemplates().deleteInput(result, parameter.get("name"));
+	    if (!success)
+	      errors.add("Failed to remove parameter '" + parameter + "' from job template " + result + "!");
+	  }
+	  catch (Exception e) {
+	    errors.add("Failed to remove parameter '" + parameter + "' from job template " + result + "!", e);
+	  }
+	}
+	// add
+	for (UFDLJobTemplateParameter parameter : m_Parameters) {
+	  try {
+	    success = m_Client.jobTemplates().addParameter(result, parameter.nameValue(), parameter.typeValue(), parameter.defaultValue());
+	    if (!success)
+	      errors.add("Failed to add parameter '" + parameter + "' to job template " + result + "!");
+	  }
+	  catch (Exception e) {
+	    errors.add("Failed to add parameter '" + parameter + "' to job template " + result + "!", e);
+	  }
+	}
+      }
     }
 
     return result;
