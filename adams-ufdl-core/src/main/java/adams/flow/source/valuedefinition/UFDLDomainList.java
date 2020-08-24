@@ -22,6 +22,7 @@ package adams.flow.source.valuedefinition;
 
 import adams.core.ClassCrossReference;
 import adams.core.MessageCollection;
+import adams.flow.core.UFDLListSorting;
 import adams.flow.transformer.UFDLExtractAndTransfer;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.Domains.Domain;
@@ -59,6 +60,16 @@ public class UFDLDomainList
   @Override
   public Class[] getClassCrossReferences() {
     return new Class[]{UFDLExtractAndTransfer.class};
+  }
+
+  /**
+   * Returns the default sorting.
+   *
+   * @return		the default
+   */
+  @Override
+  protected UFDLListSorting getDefaultSorting() {
+    return UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE_NO_ID;
   }
 
   /**

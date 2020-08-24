@@ -21,6 +21,7 @@
 package adams.flow.source.valuedefinition;
 
 import adams.core.ObjectCopyHelper;
+import adams.flow.core.UFDLListSorting;
 import adams.gui.chooser.UFDLDomainChooserPanel;
 import adams.gui.core.PropertiesParameterPanel;
 
@@ -42,6 +43,16 @@ public class UFDLDomainChooser
   @Override
   public String globalInfo() {
     return "For selecting UFDL domains.";
+  }
+
+  /**
+   * Returns the default sorting.
+   *
+   * @return		the default
+   */
+  @Override
+  protected UFDLListSorting getDefaultSorting() {
+    return UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE_NO_ID;
   }
 
   /**

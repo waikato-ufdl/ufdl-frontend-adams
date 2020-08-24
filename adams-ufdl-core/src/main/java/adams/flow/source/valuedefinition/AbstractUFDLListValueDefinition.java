@@ -72,7 +72,7 @@ public abstract class AbstractUFDLListValueDefinition
 
     m_OptionManager.add(
       "sorting", "sorting",
-      UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE);
+      getDefaultSorting());
 
     m_OptionManager.add(
       "default-value", "defaultValue",
@@ -108,6 +108,15 @@ public abstract class AbstractUFDLListValueDefinition
    */
   public String filterTipText() {
     return "The filter to apply.";
+  }
+
+  /**
+   * Returns the default sorting.
+   *
+   * @return		the default
+   */
+  protected UFDLListSorting getDefaultSorting() {
+    return UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE;
   }
 
   /**
@@ -206,6 +215,7 @@ public abstract class AbstractUFDLListValueDefinition
 	};
 	break;
       case BY_DESCRIPTION_CASE_SENSITIVE:
+      case BY_DESCRIPTION_CASE_SENSITIVE_NO_ID:
 	comp = new Comparator<Struct2<Integer, String>>() {
 	  @Override
 	  public int compare(Struct2<Integer, String> o1, Struct2<Integer, String> o2) {
@@ -214,6 +224,7 @@ public abstract class AbstractUFDLListValueDefinition
 	};
 	break;
       case BY_DESCRIPTION_CASE_INSENSITIVE:
+      case BY_DESCRIPTION_CASE_INSENSITIVE_NO_ID:
 	comp = new Comparator<Struct2<Integer, String>>() {
 	  @Override
 	  public int compare(Struct2<Integer, String> o1, Struct2<Integer, String> o2) {

@@ -73,7 +73,7 @@ public abstract class AbstractUFDLSpreadSheetBasedValueDefinition
 
     m_OptionManager.add(
       "sorting", "sorting",
-      UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE);
+      getDefaultSorting());
 
     m_OptionManager.add(
       "multi-selection", "multiSelection",
@@ -117,6 +117,15 @@ public abstract class AbstractUFDLSpreadSheetBasedValueDefinition
    */
   public String filterTipText() {
     return "The filter to apply.";
+  }
+
+  /**
+   * Returns the default sorting.
+   *
+   * @return		the default
+   */
+  protected UFDLListSorting getDefaultSorting() {
+    return UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE;
   }
 
   /**

@@ -30,7 +30,9 @@ public enum UFDLListSorting {
   BY_ID,
   BY_ID_ONLY,
   BY_DESCRIPTION_CASE_SENSITIVE,
-  BY_DESCRIPTION_CASE_INSENSITIVE;
+  BY_DESCRIPTION_CASE_INSENSITIVE,
+  BY_DESCRIPTION_CASE_SENSITIVE_NO_ID,
+  BY_DESCRIPTION_CASE_INSENSITIVE_NO_ID;
 
   /**
    * Assembles the list item into string ('ID: DESC' or 'DESC [ID]').
@@ -49,6 +51,10 @@ public enum UFDLListSorting {
       case BY_DESCRIPTION_CASE_SENSITIVE:
       case BY_DESCRIPTION_CASE_INSENSITIVE:
 	return item.value2 + " [" + item.value1 + "]";
+
+      case BY_DESCRIPTION_CASE_SENSITIVE_NO_ID:
+      case BY_DESCRIPTION_CASE_INSENSITIVE_NO_ID:
+	return item.value2;
 
       default:
         throw new IllegalStateException("Unhandled sorting: " + this);
@@ -103,6 +109,16 @@ public enum UFDLListSorting {
 	}
 	id   = Integer.parseInt(idStr);
         desc = s.substring(0, s.indexOf('[')).trim();
+	break;
+
+      case BY_DESCRIPTION_CASE_SENSITIVE_NO_ID:
+      case BY_DESCRIPTION_CASE_INSENSITIVE_NO_ID:
+        if (s.contains("[") || s.contains("]")) {
+	  System.err.println("Failed to parse item '" + s + "', expected format: 'DESC'");
+	  return null;
+	}
+        id   = -1;
+        desc = s;
 	break;
 
       default:
