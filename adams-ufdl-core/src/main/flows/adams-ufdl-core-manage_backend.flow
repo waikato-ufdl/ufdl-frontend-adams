@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-08-26 12:06:29
+# Date: 2020-08-27 09:13:05
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -9,7 +9,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
   adams.flow.sink.Display -name Info -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
   adams.flow.sink.HistoryDisplay -name Errors -short-title true -display-type adams.flow.core.displaytype.Default -y -3
   adams.flow.sink.ProgressBar -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -max @{max}
-  adams.flow.sink.SpreadSheetDisplay -name Current -short-title true -display-type adams.flow.core.displaytype.Default -height 600 -x -3 -cell-rendering-customizer adams.gui.core.spreadsheettable.DefaultCellRenderingCustomizer -allow-search true -writer adams.data.io.output.NullWriter -preview adams.gui.core.spreadsheetpreview.SimpleText
+  adams.flow.sink.SpreadSheetDisplay -name Current -short-title true -display-type adams.flow.core.displaytype.Default -height 600 -x -3 -cell-rendering-customizer adams.gui.core.spreadsheettable.DefaultCellRenderingCustomizer -allow-search true -writer adams.data.io.output.NullWriter -preview "adams.gui.core.spreadsheetpreview.SimpleText -missing-value N/A"
   adams.flow.control.Tee -name "clear output"
    adams.flow.control.ClearCallableDisplay -name "clear info" -callable Info
    adams.flow.control.CloseCallableDisplay -name "close info" -callable Info
