@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-08-04 11:34:47
+# Date: 2020-08-28 11:10:11
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-audio,adams-compress,adams-core,adams-event,adams-ffmpeg,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-ufdl-speech,adams-xml
@@ -7,9 +7,9 @@
 adams.flow.control.Flow -annotation "Populates the database with users, teams and projects.\\nUses host/user/password from the global UFDL Preferences." -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
  adams.flow.standalone.CallableActors
   adams.flow.control.Sequence -name Info
-   adams.flow.sink.Display -name Info -skip true -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
+   adams.flow.sink.Display -name Info -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
   adams.flow.control.Sequence -name Errors
-   adams.flow.sink.HistoryDisplay -name Errors -skip true -short-title true -display-type adams.flow.core.displaytype.Default -y -3
+   adams.flow.sink.HistoryDisplay -name Errors -short-title true -display-type adams.flow.core.displaytype.Default -y -3
  adams.flow.standalone.UFDLConnection
  adams.flow.standalone.QueueInit -storage-name errors
  adams.flow.standalone.SetVariable -name "log file" -var-name logfile -var-value @{flow_filename_long}.log -value-type FILE_FORWARD_SLASHES -expand-value true
