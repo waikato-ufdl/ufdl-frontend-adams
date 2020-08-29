@@ -1,4 +1,4 @@
 name,members
-imageclass,"admin:A;fracpete:W;jobexec:X"
-objdet,"admin:A;fracpete:W;jobexec:X"
-speech,"admin:A;fracpete:W;jobexec:X"
+imageclass,"admin:A;fracpete:W;jobexec:X;viewer:R"
+objdet,"admin:A;fracpete:W;jobexec:X;viewer:R"
+speech,"admin:A;fracpete:W;jobexec:X;viewer:R"
