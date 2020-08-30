@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-08-28 11:10:11
+# Date: 2020-08-31 09:53:28
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-audio,adams-compress,adams-core,adams-event,adams-ffmpeg,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-ufdl-speech,adams-xml
@@ -37,7 +37,7 @@ adams.flow.control.Flow -annotation "Populates the database with users, teams an
  adams.flow.source.Start
  adams.flow.control.Trigger -name "prompt user"
   adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
-  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name user_file -display \"CSV with users\" -help \"columns: username,first_name,last_name,email\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name team_file -display \"CSV with teams\" -help \"columns: name,members (members contains semi-colon separated user names)\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name project_file -display \"CSV with projects\" -help \"columns: name,team\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name license_file -display \"CSV with licenses\" -help \"columns: name,domains,permissions,limitations,conditions (use semi-colon to separate multiple values in a column)\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -output-type MAP -non-interactive true -restoration-enabled true -restoration-file @{restore}
+  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name user_file -display \"CSV with users\" -help \"columns: username,first_name,last_name,email\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name team_file -display \"CSV with teams\" -help \"columns: name,members (members contains semi-colon separated user names)\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name project_file -display \"CSV with projects\" -help \"columns: name,team\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name license_file -display \"CSV with licenses\" -help \"columns: name,domains,permissions,limitations,conditions (use semi-colon to separate multiple values in a column)\" -type FILE_ABSOLUTE -default-value . -use-forward-slashes true" -output-type MAP -restoration-enabled true -restoration-file @{restore}
   adams.flow.transformer.MapToVariables
  adams.flow.control.Trigger -name users
   adams.flow.source.Variable -var-name user_file -conversion adams.data.conversion.StringToString
