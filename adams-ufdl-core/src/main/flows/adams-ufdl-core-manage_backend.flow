@@ -1,8 +1,8 @@
 # Project: adams
-# Date: 2020-08-27 09:13:05
+# Date: 2020-09-02 08:47:14
 # User: fracpete
 # Charset: UTF-8
-# Modules: adams-compress,adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
+# Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
 #
 adams.flow.control.Flow -annotation "For managing users, teams, projects and licenses.\\nUses host/user/password from the global UFDL Preferences." -error-handling ACTORS_DECIDE_TO_STOP_ON_ERROR -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
  adams.flow.standalone.CallableActors
@@ -1053,7 +1053,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
           adams.flow.source.Start
           adams.flow.control.Trigger -name "prompt user"
            adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-           adams.flow.source.EnterManyValues -name "Add input" -stop-if-canceled true -message "Please enter values for parameter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name -help \"The name of the input (lower case)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name type -display Type -help \"The type of the input (lower case, eg dataset or model)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name default -display Default -help \"The default value to use\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name help -display Help -help \"The help string for the parameter\"" -output-type MAP
+           adams.flow.source.EnterManyValues -name "Add parameter" -stop-if-canceled true -message "Please enter values for parameter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name -help \"The name of the input (lower case)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name type -display Type -help \"The type of the input (lower case, eg dataset or model)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name default -display Default -help \"The default value to use\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name help -display Help -help \"The help string for the parameter\"" -output-type MAP
            adams.flow.transformer.MapToVariables
            adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
           adams.flow.control.ConditionalTrigger -name add -condition "adams.flow.condition.bool.Expression -expression \"@{cancelled} = false\""
