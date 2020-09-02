@@ -48,6 +48,18 @@ public class UFDLLicenseChooserPanel
   }
 
   /**
+   * Loads the object based on the ID string.
+   *
+   * @param id		the ID to load
+   * @return		the object, null if failed to load
+   * @throws Exception	if loading failed
+   */
+  @Override
+  protected License loadObject(String id) throws Exception {
+    return m_Connection.getClient().licenses().load(id);
+  }
+
+  /**
    * Loads the object based on the ID.
    *
    * @param pk		the ID to load

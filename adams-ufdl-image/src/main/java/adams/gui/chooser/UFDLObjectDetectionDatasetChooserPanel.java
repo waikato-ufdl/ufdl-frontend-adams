@@ -53,6 +53,18 @@ public class UFDLObjectDetectionDatasetChooserPanel
   }
 
   /**
+   * Loads the object based on the ID string.
+   *
+   * @param id		the ID to load
+   * @return		the object, null if failed to load
+   * @throws Exception	if loading failed
+   */
+  @Override
+  protected ObjectDetectionDataset loadObject(String id) throws Exception {
+    return m_Connection.getClient().action(ObjectDetectionDatasets.class).load(id).as(ObjectDetectionDataset.class);
+  }
+
+  /**
    * Loads the object based on the ID.
    *
    * @param pk		the ID to load

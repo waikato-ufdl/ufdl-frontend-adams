@@ -43,6 +43,10 @@ public abstract class AbstractUFDLPKChooserPanel<T>
   /** the default separator. */
   public final static String DEFAULT_SEPARATOR = "|";
 
+  public static final String NO_ENTRIES = "No entries";
+
+  public static final int NO_PK = -1;
+
   /** the filter to apply. */
   protected AbstractUFDLFilter m_Filter;
 
@@ -173,6 +177,17 @@ public abstract class AbstractUFDLPKChooserPanel<T>
   }
 
   /**
+   * Loads the object based on the ID string.
+   *
+   * @param id		the ID to load
+   * @return		the object, null if failed to load
+   * @throws Exception	if loading failed
+   */
+  protected  T loadObject(String id) throws Exception {
+    throw new IllegalStateException("Not supported!");
+  }
+
+  /**
    * Loads the object based on the ID.
    *
    * @param pk		the ID to load
@@ -197,9 +212,10 @@ public abstract class AbstractUFDLPKChooserPanel<T>
    */
   @Override
   protected T[] fromString(String value) {
-    T[]		result;
-    String[]	parts;
-    int		i;
+    T[]				result;
+    String[]			parts;
+    int				i;
+    Struct2<Integer,String> 	parsed;
 
     if (value.trim().isEmpty())
       return newArray(0);
@@ -207,8 +223,17 @@ public abstract class AbstractUFDLPKChooserPanel<T>
     parts = Utils.split(value, m_Separator);
     try {
       result = newArray(parts.length);
-      for (i = 0; i < parts.length; i++)
-        result[i] = loadObject(m_Sorting.fromString(parts[i]).value1);
+      for (i = 0; i < parts.length; i++) {
+        parsed = m_Sorting.fromString(parts[i]);
+        if (parsed == null)
+          return null;
+        if (parsed.value1 != NO_PK)
+	  result[i] = loadObject(parsed.value1);
+        else if (!parsed.value2.equals(NO_ENTRIES))
+          result[i] = loadObject(parsed.value2);
+        else
+          return null;
+      }
       return result;
     }
     catch (Exception e) {
