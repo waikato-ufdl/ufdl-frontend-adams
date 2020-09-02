@@ -464,7 +464,7 @@ public class UFDLCreateJob
     addToPanel(false, template.getParameters(), props, domain, framework);
     m_PropertiesPanel.addPropertyType(PROPS_DESCRIPTION, PropertyType.STRING);
     m_PropertiesPanel.setLabel(PROPS_DESCRIPTION, "Description");
-    props.setProperty(PROPS_DESCRIPTION, template.getDescription());
+    props.setProperty(PROPS_DESCRIPTION, "");
     m_PropertiesPanel.setProperties(props);
   }
 
