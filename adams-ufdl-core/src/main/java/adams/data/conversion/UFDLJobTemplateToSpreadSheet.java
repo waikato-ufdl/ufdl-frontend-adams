@@ -87,6 +87,7 @@ public class UFDLJobTemplateToSpreadSheet
     row.addCell("pk").setContentAsString("pk");
     row.addCell("na").setContentAsString("name");
     row.addCell("ve").setContentAsString("version");
+    row.addCell("de").setContentAsString("description");
     row.addCell("li").setContentAsString("license");
     row.addCell("cr").setContentAsString("creator");
     row.addCell("ct").setContentAsString("creation_time");
@@ -122,6 +123,7 @@ public class UFDLJobTemplateToSpreadSheet
     row.addCell("pk").setContent(template.getPK());
     row.addCell("na").setContentAsString(template.getName());
     row.addCell("ve").setContent(template.getVersion());
+    row.addCell("de").setContent(template.getDescription());
     row.addCell("li").setContent(getLicense(template.getLicense()));
     row.addCell("cr").setContent(getUser(template.getCreator()));
     if (template.getCreationTime() != null)

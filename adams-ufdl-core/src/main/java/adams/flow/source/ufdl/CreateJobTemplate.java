@@ -43,6 +43,9 @@ public class CreateJobTemplate
   /** the job template version. */
   protected int m_Version;
 
+  /** the description. */
+  protected String m_Description;
+
   /** the scope. */
   protected String m_Scope;
 
@@ -97,6 +100,10 @@ public class CreateJobTemplate
     m_OptionManager.add(
       "version", "version",
       1);
+
+    m_OptionManager.add(
+      "description", "description",
+      "");
 
     m_OptionManager.add(
       "scope", "scope",
@@ -195,6 +202,35 @@ public class CreateJobTemplate
    */
   public String versionTipText() {
     return "The job template version.";
+  }
+
+  /**
+   * Sets the job template description.
+   *
+   * @param value	the description
+   */
+  public void setDescription(String value) {
+    m_Description = value;
+    reset();
+  }
+
+  /**
+   * Returns the job template description.
+   *
+   * @return		the description
+   */
+  public String getDescription() {
+    return m_Description;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String descriptionTipText() {
+    return "The job template description (ignored if empty).";
   }
 
   /**
@@ -529,7 +565,7 @@ public class CreateJobTemplate
     result = null;
     try {
       result = m_Client.jobTemplates().create(
-	m_Name, m_Version, m_Scope, m_Framework, m_Domain, m_Type,
+	m_Name, m_Version, m_Description, m_Scope, m_Framework, m_Domain, m_Type,
 	m_ExecutorClass, m_RequiredPackages, m_Template.getValue(), m_License);
     }
     catch (Exception e) {

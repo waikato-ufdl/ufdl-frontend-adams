@@ -185,6 +185,8 @@ public class UFDLCreateJob
 
   public static final String TYPE_MODEL = "model";
 
+  public static final String PROPS_DESCRIPTION = "description";
+
   /** the connection to use. */
   protected transient UFDLConnection m_Connection;
 
@@ -460,6 +462,9 @@ public class UFDLCreateJob
     props = new Properties();
     addToPanel(true, template.getInputs(), props, domain, framework);
     addToPanel(false, template.getParameters(), props, domain, framework);
+    m_PropertiesPanel.addPropertyType(PROPS_DESCRIPTION, PropertyType.STRING);
+    m_PropertiesPanel.setLabel(PROPS_DESCRIPTION, "Description");
+    props.setProperty(PROPS_DESCRIPTION, template.getDescription());
     m_PropertiesPanel.setProperties(props);
   }
 
@@ -507,6 +512,7 @@ public class UFDLCreateJob
     Map<String,String>	params;
     String		name;
     String		value;
+    String		description;
 
     if (isLoggingEnabled())
       getLogger().info("Data for job: " + props);
@@ -514,6 +520,7 @@ public class UFDLCreateJob
     dockerImage = -1;
     inputs      = new HashMap<>();
     params      = new HashMap<>();
+    description = props.getProperty(PROPS_DESCRIPTION, "");
     for (String key: props.keySetAll()) {
       value = props.getProperty(key);
       if (key.startsWith(PROPS_PREFIX_INPUT)) {
@@ -529,7 +536,7 @@ public class UFDLCreateJob
       }
     }
 
-    result = m_Connection.getClient().jobTemplates().newJob(template.getPK(), dockerImage, inputs, params);
+    result = m_Connection.getClient().jobTemplates().newJob(template.getPK(), dockerImage, inputs, params, description);
     if (isLoggingEnabled())
       getLogger().info("Job: " + result);
 

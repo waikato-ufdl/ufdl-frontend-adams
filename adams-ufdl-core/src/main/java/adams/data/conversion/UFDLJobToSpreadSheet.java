@@ -96,6 +96,7 @@ public class UFDLJobToSpreadSheet
     row.addCell("iv").setContentAsString("input_values");
     row.addCell("pv").setContentAsString("parameter_values");
     row.addCell("ou").setContentAsString("outputs");
+    row.addCell("de").setContentAsString("description");
 
     return result;
   }
@@ -131,6 +132,7 @@ public class UFDLJobToSpreadSheet
     row.addCell("iv").setContentAsString(job.getInputValues().toString());
     row.addCell("pv").setContentAsString(job.getParameterValues().toString());
     row.addCell("ou").setContentAsString(job.getOutputs().toString());
+    row.addCell("de").setContentAsString(job.getDescription());
 
     return result;
   }
