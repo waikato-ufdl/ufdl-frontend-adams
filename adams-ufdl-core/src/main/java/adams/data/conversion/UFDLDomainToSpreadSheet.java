@@ -70,6 +70,7 @@ public class UFDLDomainToSpreadSheet
     row = result.getHeaderRow();
     row.addCell("pk").setContentAsString("pk");
     row.addCell("n").setContentAsString("name");
+    row.addCell("d").setContentAsString("description");
 
     return result;
   }
@@ -91,6 +92,7 @@ public class UFDLDomainToSpreadSheet
     row     = result.addRow();
     row.addCell("pk").setContent(domain.getPK());
     row.addCell("n").setContentAsString(domain.getName());
+    row.addCell("d").setContentAsString(domain.getDescription());
 
     return result;
   }
