@@ -168,6 +168,8 @@ public abstract class AbstractUFDLPKChooserPanel<T>
 
     result = new StringBuilder();
     for (i = 0; i < value.length; i++) {
+      if (value[i] == null)
+        return "";
       if (i > 0)
         result.append(m_Separator);
       result.append(m_Sorting.toString(toStruct(value[i])));
