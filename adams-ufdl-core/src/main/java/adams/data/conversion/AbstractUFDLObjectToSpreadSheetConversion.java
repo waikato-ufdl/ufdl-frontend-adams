@@ -88,12 +88,32 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
   protected Map<Integer,String> m_CacheUser;
 
   /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    if (allowIDResolution()) {
+      m_OptionManager.add(
+	"resolve-ids", "resolveIDs",
+	false);
+    }
+  }
+
+  /**
    * Initializes the members.
    */
   @Override
   protected void initialize() {
     super.initialize();
+    resetCaches();
+  }
 
+  /**
+   * Resets the caches.
+   */
+  protected void resetCaches() {
     m_CacheCudaVersion = new HashMap<>();
     m_CacheDockerImage = new HashMap<>();
     m_CacheFramework   = new HashMap<>();
@@ -114,6 +134,13 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
 
     m_Connection = null;
   }
+
+  /**
+   * Returns whether ID resolution is available.
+   *
+   * @return		true if available
+   */
+  protected abstract boolean allowIDResolution();
 
   /**
    * Sets the flow context.

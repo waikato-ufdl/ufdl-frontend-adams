@@ -52,15 +52,13 @@ public class UFDLSpeechDatasetToSpreadSheet
   }
 
   /**
-   * Adds options to the internal list of options.
+   * Returns whether ID resolution is available.
+   *
+   * @return		true if available
    */
   @Override
-  public void defineOptions() {
-    super.defineOptions();
-
-    m_OptionManager.add(
-      "resolve-ids", "resolveIDs",
-      false);
+  protected boolean allowIDResolution() {
+    return true;
   }
 
   /**

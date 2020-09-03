@@ -48,6 +48,16 @@ public class UFDLImageClassificationDatasetFilesToSpreadSheet
   }
 
   /**
+   * Returns whether ID resolution is available.
+   *
+   * @return		true if available
+   */
+  @Override
+  protected boolean allowIDResolution() {
+    return false;
+  }
+
+  /**
    * Returns the class that is accepted as input.
    *
    * @return		the class
