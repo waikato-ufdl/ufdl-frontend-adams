@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-09-03 17:04:00
+# Date: 2020-09-04 11:17:46
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -950,11 +950,11 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
      adams.flow.source.Start
      adams.flow.control.Trigger -name "menu prompt"
-      adams.flow.source.EnterValue -name "Job menu" -message "Please select Job operation" -selection-values List -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
+      adams.flow.source.EnterValue -name "Job menu" -message "Please select Job operation" -selection-values List -selection-values Add -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
       adams.flow.transformer.SetVariable -var-name choice
       adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
-     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
+     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
       adams.flow.control.Trigger -name List
        adams.flow.source.Start
        adams.flow.transformer.SetVariable -var-name none -var-value true
@@ -965,6 +965,28 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
        adams.flow.control.ConditionalTrigger -name "nothing to list" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name none"
         adams.flow.source.CombineVariables -expression "No jobs available yet!" -conversion adams.data.conversion.StringToString
         adams.flow.sink.InformationDialog
+      adams.flow.control.Trigger -name Add
+       adams.flow.source.Start
+       adams.flow.control.Trigger -name "domain PK"
+        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListDomains -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
+        adams.flow.transformer.SpreadSheetSelectSubset -name Domain -short-title true -message "Please select the job domain" -allow-search true -multi-selection false
+        adams.flow.transformer.SpreadSheetGetCell -col pk
+        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+        adams.flow.transformer.SetVariable -var-name domain_pk
+       adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+       adams.flow.control.Trigger -name "prompt user"
+        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+        adams.flow.source.EnterManyValues -name "Select job template" -stop-if-canceled true -message "Please select job template" -value "adams.flow.source.valuedefinition.UFDLJobTemplateChooser -name template -display Template -filter \"adams.data.ufdlfilter.DomainFilter -domain @{domain_pk}\"" -output-type MAP
+        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+        adams.flow.transformer.MapToVariables
+        adams.flow.transformer.UFDLExtractAndTransfer -name template_pk -source template -target template_pk
+       adams.flow.control.Block -name "block if cancelled (2)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+       adams.flow.control.Trigger -name "create job"
+        adams.flow.source.Variable -var-name template_pk -conversion adams.data.conversion.StringToInt
+        adams.flow.transformer.UFDLCreateJob -name "Create job" -x -2 -y -2
+        adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLJsonObjectToString
+        adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Delete
        adams.flow.source.UFDLSource -silent true -action "adams.flow.source.ufdl.ListJobs -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
        adams.flow.transformer.SpreadSheetSelectSubset -message "Please select jobs to delete" -allow-search true
