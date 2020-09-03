@@ -88,13 +88,12 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
   protected Map<Integer,String> m_CacheUser;
 
   /**
-   * Resets the members.
+   * Initializes the members.
    */
   @Override
-  protected void reset() {
-    super.reset();
+  protected void initialize() {
+    super.initialize();
 
-    m_Connection       = null;
     m_CacheCudaVersion = new HashMap<>();
     m_CacheDockerImage = new HashMap<>();
     m_CacheFramework   = new HashMap<>();
@@ -104,6 +103,16 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
     m_CacheProject     = new HashMap<>();
     m_CacheTeam        = new HashMap<>();
     m_CacheUser        = new HashMap<>();
+  }
+
+  /**
+   * Resets the members.
+   */
+  @Override
+  protected void reset() {
+    super.reset();
+
+    m_Connection = null;
   }
 
   /**
@@ -220,25 +229,22 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
    */
   protected String getUser(int id) {
     String	result;
-    User 	user;
 
     result = "" + id;
 
     if (m_ResolveIDs && (id > -1)) {
-      if (m_CacheUser.containsKey(id)) {
-	result = m_CacheUser.get(id);
-      }
-      else {
+      if (!m_CacheUser.containsKey(id)) {
+        m_CacheUser.clear();
 	try {
-	  user = m_Connection.getClient().users().load(id);
-	  if (!user.getUserName().isEmpty())
-	    result = user.getUserName();
+	  for (User user: m_Connection.getClient().users().list())
+	    m_CacheUser.put(user.getPK(), user.getUserName());
 	}
 	catch (Exception e) {
-	  getLogger().severe("Failed to resolve user ID: " + id);
+	  getLogger().severe("Failed to list users for caching!");
 	}
-	m_CacheUser.put(id, result);
       }
+      if (m_CacheUser.containsKey(id))
+	result = m_CacheUser.get(id);
     }
 
     return result;
@@ -252,25 +258,22 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
    */
   protected String getLicense(int id) {
     String	result;
-    License 	license;
 
     result = "" + id;
 
     if (m_ResolveIDs && (id > -1)) {
-      if (m_CacheLicense.containsKey(id)) {
-	result = m_CacheLicense.get(id);
-      }
-      else {
+      if (!m_CacheLicense.containsKey(id)) {
 	try {
-	  license = m_Connection.getClient().licenses().load(id);
-	  if (!license.getName().isEmpty())
-	    result = license.getName();
+	  m_CacheLicense.clear();
+	  for (License license: m_Connection.getClient().licenses().list())
+	    m_CacheLicense.put(license.getPK(), license.getName());
 	}
 	catch (Exception e) {
-	  getLogger().severe("Failed to resolve license ID: " + id);
+	  getLogger().severe("Failed to list licenses for caching!");
 	}
-	m_CacheLicense.put(id, result);
       }
+      if (m_CacheLicense.containsKey(id))
+	result = m_CacheLicense.get(id);
     }
 
     return result;
@@ -284,25 +287,22 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
    */
   protected String getTeam(int id) {
     String	result;
-    Team 	team;
 
     result = "" + id;
 
     if (m_ResolveIDs && (id > -1)) {
-      if (m_CacheTeam.containsKey(id)) {
-	result = m_CacheTeam.get(id);
-      }
-      else {
+      if (!m_CacheTeam.containsKey(id)) {
+        m_CacheTeam.clear();
 	try {
-	  team = m_Connection.getClient().teams().load(id);
-	  if (!team.getName().isEmpty())
-	    result = team.getName();
+	  for (Team team: m_Connection.getClient().teams().list())
+	    m_CacheTeam.put(team.getPK(), team.getName());
 	}
 	catch (Exception e) {
-	  getLogger().severe("Failed to resolve team ID: " + id);
+	  getLogger().severe("Failed to list teams for caching!");
 	}
-	m_CacheTeam.put(id, result);
       }
+      if (m_CacheTeam.containsKey(id))
+	result = m_CacheTeam.get(id);
     }
 
     return result;
@@ -316,25 +316,22 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
    */
   protected String getProject(int id) {
     String	result;
-    Project 	project;
 
     result = "" + id;
 
     if (m_ResolveIDs && (id > -1)) {
-      if (m_CacheProject.containsKey(id)) {
-	result = m_CacheProject.get(id);
-      }
-      else {
+      if (!m_CacheProject.containsKey(id)) {
 	try {
-	  project = m_Connection.getClient().projects().load(id);
-	  if (!project.getName().isEmpty())
-	    result = project.getName();
+	  m_CacheProject.clear();
+	  for (Project project: m_Connection.getClient().projects().list())
+	    m_CacheProject.put(project.getPK(), project.getName());
 	}
 	catch (Exception e) {
-	  getLogger().severe("Failed to resolve project ID: " + id);
+	  getLogger().severe("Failed to list projects for caching!");
 	}
-	m_CacheProject.put(id, result);
       }
+      if (m_CacheProject.containsKey(id))
+	result = m_CacheProject.get(id);
     }
 
     return result;
@@ -348,24 +345,22 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
    */
   protected String getFramework(int id) {
     String	result;
-    Framework 	framework;
 
     result = "" + id;
 
     if (m_ResolveIDs && (id > -1)) {
-      if (m_CacheFramework.containsKey(id)) {
-	result = m_CacheFramework.get(id);
-      }
-      else {
+      if (!m_CacheFramework.containsKey(id)) {
+        m_CacheFramework.clear();
 	try {
-	  framework = m_Connection.getClient().frameworks().load(id);
-	  result = framework.getName() + "/" + framework.getVersion();
+	  for (Framework framework: m_Connection.getClient().frameworks().list())
+	    m_CacheFramework.put(framework.getPK(), framework.getName() + "/" + framework.getVersion());
 	}
 	catch (Exception e) {
-	  getLogger().severe("Failed to resolve framework ID: " + id);
+	  getLogger().severe("Failed to list frameworks for caching!");
 	}
-	m_CacheFramework.put(id, result);
       }
+      if (m_CacheFramework.containsKey(id))
+	result = m_CacheFramework.get(id);
     }
 
     return result;
@@ -379,24 +374,22 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
    */
   protected String getCudaVersion(int id) {
     String	result;
-    CudaVersion cuda;
 
     result = "" + id;
 
     if (m_ResolveIDs && (id > -1)) {
-      if (m_CacheCudaVersion.containsKey(id)) {
-	result = m_CacheCudaVersion.get(id);
-      }
-      else {
-	try {
-	  cuda = m_Connection.getClient().cuda().load(id);
-	  result = cuda.getVersion();
+      if (!m_CacheCudaVersion.containsKey(id)) {
+        m_CacheCudaVersion.clear();
+        try {
+	  for (CudaVersion cuda : m_Connection.getClient().cuda().list())
+	    m_CacheCudaVersion.put(cuda.getPK(), cuda.getVersion());
 	}
 	catch (Exception e) {
-	  getLogger().severe("Failed to resolve cuda version ID: " + id);
+	  getLogger().severe("Failed to list cuda versions for caching!");
 	}
-	m_CacheCudaVersion.put(id, result);
       }
+      if (m_CacheCudaVersion.containsKey(id))
+	result = m_CacheCudaVersion.get(id);
     }
 
     return result;
@@ -410,24 +403,22 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
    */
   protected String getHardwareGeneration(int id) {
     String		result;
-    HardwareGeneration 	gen;
 
     result = "" + id;
 
     if (m_ResolveIDs && (id > -1)) {
-      if (m_CacheHardware.containsKey(id)) {
-	result = m_CacheHardware.get(id);
-      }
-      else {
+      if (!m_CacheHardware.containsKey(id)) {
+        m_CacheHardware.clear();
 	try {
-	  gen = m_Connection.getClient().hardware().load(id);
-	  result = gen.getGeneration();
+	  for (HardwareGeneration gen: m_Connection.getClient().hardware().list())
+	    m_CacheHardware.put(gen.getPK(), gen.getGeneration());
 	}
 	catch (Exception e) {
-	  getLogger().severe("Failed to resolve hardware generation ID: " + id);
+	  getLogger().severe("Failed to list hardware generations for caching!");
 	}
-	m_CacheHardware.put(id, result);
       }
+      if (m_CacheHardware.containsKey(id))
+	result = m_CacheHardware.get(id);
     }
 
     return result;
@@ -441,24 +432,22 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
    */
   protected String getDockerImage(int id) {
     String	result;
-    DockerImage img;
 
     result = "" + id;
 
     if (m_ResolveIDs && (id > -1)) {
-      if (m_CacheDockerImage.containsKey(id)) {
-	result = m_CacheDockerImage.get(id);
-      }
-      else {
+      if (!m_CacheDockerImage.containsKey(id)) {
+        m_CacheDockerImage.clear();
 	try {
-	  img = m_Connection.getClient().docker().load(id);
-	  result = img.getName() + "/" + img.getVersion();
+	  for (DockerImage img: m_Connection.getClient().docker().list())
+	    m_CacheDockerImage.put(img.getPK(), img.getName() + "/" + img.getVersion());
 	}
 	catch (Exception e) {
-	  getLogger().severe("Failed to resolve docker image ID: " + id);
+	  getLogger().severe("Failed to list docker images for caching!");
 	}
-	m_CacheDockerImage.put(id, result);
       }
+      if (m_CacheDockerImage.containsKey(id))
+	result = m_CacheDockerImage.get(id);
     }
 
     return result;
@@ -472,24 +461,22 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
    */
   protected String getJobTemplate(int id) {
     String	result;
-    JobTemplate template;
 
     result = "" + id;
 
     if (m_ResolveIDs && (id > -1)) {
-      if (m_CacheJobTemplate.containsKey(id)) {
-	result = m_CacheJobTemplate.get(id);
-      }
-      else {
+      if (!m_CacheJobTemplate.containsKey(id)) {
+        m_CacheJobTemplate.clear();
 	try {
-	  template = m_Connection.getClient().jobTemplates().load(id);
-	  result = template.getName() + "/" + template.getVersion();
+	  for (JobTemplate template: m_Connection.getClient().jobTemplates().list())
+	    m_CacheJobTemplate.put(template.getPK(), template.getName() + "/" + template.getVersion());
 	}
 	catch (Exception e) {
-	  getLogger().severe("Failed to resolve job template ID: " + id);
+	  getLogger().severe("Failed to list job templates for caching!");
 	}
-	m_CacheJobTemplate.put(id, result);
       }
+      if (m_CacheJobTemplate.containsKey(id))
+	result = m_CacheJobTemplate.get(id);
     }
 
     return result;
