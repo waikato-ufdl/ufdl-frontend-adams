@@ -20,6 +20,11 @@
 # hooks #
 #########
 
+# UFDLJobOutput objects
+adams.flow.core.UFDLJobOutput=true
+adams.flow.core.UFDLJobOutput#toString=adams.core.option.parsing.BaseObjectParsing#toString
+adams.flow.core.UFDLJobOutput#valueOf=adams.core.option.parsing.BaseObjectParsing#valueOf
+
 # UFDLJobTemplateInput objects
 adams.flow.core.UFDLJobTemplateInput=true
 adams.flow.core.UFDLJobTemplateInput#toString=adams.core.option.parsing.BaseObjectParsing#toString

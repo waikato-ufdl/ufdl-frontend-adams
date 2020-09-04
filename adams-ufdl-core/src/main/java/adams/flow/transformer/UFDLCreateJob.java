@@ -34,6 +34,7 @@ import adams.flow.core.UFDLListSorting;
 import adams.flow.source.valuedefinition.AbstractUFDLSpreadSheetBasedSoftDeleteValueDefinition;
 import adams.flow.source.valuedefinition.UFDLDatasetChooser;
 import adams.flow.source.valuedefinition.UFDLDockerImageChooser;
+import adams.flow.source.valuedefinition.UFDLJobOutputChooser;
 import adams.flow.source.valuedefinition.UFDLPretrainedModelChooser;
 import adams.flow.standalone.UFDLConnection;
 import adams.gui.core.BaseButton;
@@ -185,6 +186,8 @@ public class UFDLCreateJob
 
   public static final String TYPE_MODEL = "model";
 
+  public static final String TYPE_JOBOUTPUT = "joboutput";
+
   public static final String PROPS_DESCRIPTION = "description";
 
   /** the connection to use. */
@@ -306,6 +309,7 @@ public class UFDLCreateJob
     String			help;
     AbstractUFDLSpreadSheetBasedSoftDeleteValueDefinition dataset;
     UFDLPretrainedModelChooser 	model;
+    UFDLJobOutputChooser	jobOutput;
     UFDLDockerImageChooser	dockerImage;
     String 			propsPrefix;
     String			displPrefix;
@@ -374,6 +378,15 @@ public class UFDLCreateJob
 	  model.addToPanel(m_PropertiesPanel);
 	  if (isInput)
 	    value = "-1";
+	  break;
+	case TYPE_JOBOUTPUT:
+	  jobOutput = new UFDLJobOutputChooser();
+	  jobOutput.setFlowContext(this);
+	  jobOutput.setName(propsPrefix + name);
+	  jobOutput.setDisplay(displPrefix + name);
+	  jobOutput.addToPanel(m_PropertiesPanel);
+	  if (isInput)
+	    value = "-1||";
 	  break;
 	default:
 	  getLogger().warning("Unhandled type '" + type + "' for input '" + name + "'!");

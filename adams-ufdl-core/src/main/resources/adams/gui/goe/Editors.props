@@ -14,5 +14,6 @@
 #
 # Author: FracPete (fracpete at waikato dot ac dot nz)
 
+adams.flow.core.UFDLJobOutput=adams.gui.goe.UFDLJobOutputEditor
 adams.flow.core.UFDLJobTemplateInput=adams.gui.goe.UFDLJobTemplateInputEditor
 adams.flow.core.UFDLJobTemplateParameter=adams.gui.goe.UFDLJobTemplateParameterEditor
