@@ -83,6 +83,7 @@ public class UFDLJobToSpreadSheet
 
     row = result.getHeaderRow();
     row.addCell("pk").setContentAsString("pk");
+    row.addCell("de").setContentAsString("description");
     row.addCell("cr").setContentAsString("creator");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
@@ -94,7 +95,6 @@ public class UFDLJobToSpreadSheet
     row.addCell("iv").setContentAsString("input_values");
     row.addCell("pv").setContentAsString("parameter_values");
     row.addCell("ou").setContentAsString("outputs");
-    row.addCell("de").setContentAsString("description");
 
     return result;
   }
@@ -115,6 +115,7 @@ public class UFDLJobToSpreadSheet
     result  = getTemplate();
     row     = result.addRow();
     row.addCell("pk").setContent(job.getPK());
+    row.addCell("de").setContentAsString(job.getDescription());
     row.addCell("cr").setContent(getUser(job.getCreator()));
     if (job.getCreationTime() != null)
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(job.getCreationTime().toInstant(ZoneOffset.UTC))));
@@ -130,7 +131,6 @@ public class UFDLJobToSpreadSheet
     row.addCell("iv").setContentAsString(job.getInputValues().toString());
     row.addCell("pv").setContentAsString(job.getParameterValues().toString());
     row.addCell("ou").setContentAsString(job.getOutputs().toString());
-    row.addCell("de").setContentAsString(job.getDescription());
 
     return result;
   }
