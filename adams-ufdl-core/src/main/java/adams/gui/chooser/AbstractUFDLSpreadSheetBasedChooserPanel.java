@@ -49,6 +49,37 @@ public abstract class AbstractUFDLSpreadSheetBasedChooserPanel<T>
   /** the dialog for selecting the projects. */
   protected SpreadSheetDialog m_Dialog;
 
+  /** whether to resolve IDs to names. */
+  protected boolean m_ResolveIDs;
+
+  /**
+   * Initializes the members.
+   */
+  @Override
+  protected void initialize() {
+    super.initialize();
+
+    m_ResolveIDs = true;
+  }
+
+  /**
+   * Sets whether to resolve any IDs.
+   *
+   * @param value	true if to resolve
+   */
+  public void setResolveIDs(boolean value) {
+    m_ResolveIDs = value;
+  }
+
+  /**
+   * Returns whether to resolve any IDs.
+   *
+   * @return 		true if to resolve
+   */
+  public boolean getResolveIDs() {
+    return m_ResolveIDs;
+  }
+
   /**
    * Returns the conversion to use for generating a spreadsheet from an object.
    *
@@ -105,6 +136,8 @@ public abstract class AbstractUFDLSpreadSheetBasedChooserPanel<T>
     String					msg;
 
     conv   = getConversion();
+    conv.setFlowContext(getConnection());
+    conv.setResolveIDs(getResolveIDs());
     result = conv.getTemplate();
     for (i = 0; i < objects.length; i++) {
       try {
