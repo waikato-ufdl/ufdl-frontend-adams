@@ -76,7 +76,7 @@ public class UFDLJobList
       for (Job job: m_Connection.getClient().jobs().list(m_Filter.generate(new MessageCollection()))) {
         if (!m_State.accept(job))
           continue;
-        result.add(new Struct2<>(job.getPK(), job.getNode()));
+        result.add(new Struct2<>(job.getPK(), job.getDescription()));
       }
     }
     catch (Exception e) {

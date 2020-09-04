@@ -44,7 +44,7 @@ public class UFDLJobChooserPanel
    */
   @Override
   protected Struct2<Integer, String> toStruct(Job value) {
-    return new Struct2<>(value.getPK(), value.getNode());
+    return new Struct2<>(value.getPK(), value.getDescription());
   }
 
   /**
