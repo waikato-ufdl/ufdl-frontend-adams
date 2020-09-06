@@ -1,8 +1,8 @@
 # Project: adams
-# Date: 2020-09-04 11:45:16
+# Date: 2020-09-07 11:23:40
 # User: fracpete
 # Charset: UTF-8
-# Modules: adams-compress,adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
+# Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
 #
 adams.flow.control.Flow -annotation "For managing users, teams, projects and licenses.\\nUses host/user/password from the global UFDL Preferences." -error-handling ACTORS_DECIDE_TO_STOP_ON_ERROR -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
  adams.flow.standalone.CallableActors
@@ -1084,7 +1084,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects and lic
        adams.flow.source.Start
        adams.flow.transformer.SetVariable -var-name none -var-value true
        adams.flow.control.Trigger -name display
-        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListJobs -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListJobs -filter adams.data.ufdlfilter.AllFilter -resolve-ids true" -use-error-queue true
         adams.flow.transformer.SetVariable -var-name none -var-value false
         adams.flow.sink.CallableSink -callable Current
        adams.flow.control.ConditionalTrigger -name "nothing to list" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name none"
