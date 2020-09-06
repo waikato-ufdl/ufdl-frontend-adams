@@ -365,9 +365,9 @@ public class UFDLCreateJob
 	  dataset.setFlowContext(this);
 	  dataset.setName(propsPrefix + name);
 	  dataset.setDisplay(displPrefix + name);
-	  dataset.addToPanel(m_PropertiesPanel);
 	  if (isInput)
 	    value = "-1";
+	  dataset.addToPanel(m_PropertiesPanel);
 	  break;
 	case TYPE_MODEL:
 	  model = new UFDLPretrainedModelChooser();
@@ -375,18 +375,20 @@ public class UFDLCreateJob
 	  model.setFlowContext(this);
 	  model.setName(propsPrefix + name);
 	  model.setDisplay(displPrefix + name);
-	  model.addToPanel(m_PropertiesPanel);
 	  if (isInput)
 	    value = "-1";
+	  model.addToPanel(m_PropertiesPanel);
 	  break;
 	case TYPE_JOBOUTPUT:
 	  jobOutput = new UFDLJobOutputChooser();
 	  jobOutput.setFlowContext(this);
 	  jobOutput.setName(propsPrefix + name);
 	  jobOutput.setDisplay(displPrefix + name);
-	  jobOutput.addToPanel(m_PropertiesPanel);
-	  if (isInput)
+	  if (isInput) {
 	    value = "-1||";
+	    jobOutput.setOutputType(spec.getOrDefault("options", ""));
+	  }
+	  jobOutput.addToPanel(m_PropertiesPanel);
 	  break;
 	default:
 	  getLogger().warning("Unhandled type '" + type + "' for input '" + name + "'!");
@@ -477,6 +479,7 @@ public class UFDLCreateJob
     addToPanel(false, template.getParameters(), props, domain, framework);
     m_PropertiesPanel.addPropertyType(PROPS_DESCRIPTION, PropertyType.STRING);
     m_PropertiesPanel.setLabel(PROPS_DESCRIPTION, "Description");
+    m_PropertiesPanel.setHelp(PROPS_DESCRIPTION, "A description to better identify the job");
     props.setProperty(PROPS_DESCRIPTION, "");
     m_PropertiesPanel.setProperties(props);
   }
