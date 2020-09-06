@@ -38,6 +38,9 @@ public class UFDLJobOutputChooser
   /** the default value. */
   protected String m_DefaultValue;
 
+  /** the type to filter on. */
+  protected String m_OutputType;
+
   /**
    * Returns a string describing the object.
    *
@@ -57,6 +60,10 @@ public class UFDLJobOutputChooser
 
     m_OptionManager.add(
       "default-value", "defaultValue",
+      "");
+
+    m_OptionManager.add(
+      "output-type", "outputType",
       "");
   }
 
@@ -87,6 +94,35 @@ public class UFDLJobOutputChooser
    */
   public String defaultValueTipText() {
     return "The default value to use.";
+  }
+
+  /**
+   * Sets the type to filter on.
+   *
+   * @param value	the filter, null or empty to disable filtering
+   */
+  public void setOutputType(String value) {
+    m_OutputType = value;
+    reset();
+  }
+
+  /**
+   * Returns the type to filter on.
+   *
+   * @return		the filter, empty string if no filtering
+   */
+  public String getOutputType() {
+    return m_OutputType;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return		tip text for this property suitable for
+   *             	displaying in the GUI or for listing the options.
+   */
+  public String outputTypeTipText() {
+    return "The output type to filter on, ignored if empty string.";
   }
 
   /**
@@ -137,6 +173,7 @@ public class UFDLJobOutputChooser
 
     chooser  = new UFDLJobOutputChooserPanel();
     chooser.setConnection(m_Connection);
+    chooser.setOutputType(m_OutputType);
 
     panel.addPropertyType(getName(), getType());
     panel.setComponent(getName(), chooser);

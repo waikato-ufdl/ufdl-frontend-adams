@@ -50,6 +50,39 @@ public class UFDLJobOutputChooserPanel
 
   private static final long serialVersionUID = -5265818418046987726L;
 
+  /** the type to filter on. */
+  protected String m_OutputType;
+
+  /**
+   * Initializes the members.
+   */
+  @Override
+  protected void initialize() {
+    super.initialize();
+
+    m_OutputType = "";
+  }
+
+  /**
+   * Sets the type to filter on.
+   *
+   * @param value	the filter, null or empty to disable filtering
+   */
+  public void setOutputType(String value) {
+    if (value == null)
+      value = "";
+    m_OutputType = value;
+  }
+
+  /**
+   * Returns the type to filter on.
+   *
+   * @return		the filter, empty string if no filtering
+   */
+  public String getOutputType() {
+    return m_OutputType;
+  }
+
   /**
    * Converts the value into its string representation.
    *
@@ -89,6 +122,10 @@ public class UFDLJobOutputChooserPanel
     conv.setResolveIDs(true);
     conv.setFlowContext(getConnection());
     for (JobOutput output: job.getOutputs()) {
+      if (!m_OutputType.isEmpty()) {
+        if (!output.getType().equals(m_OutputType))
+          continue;
+      }
       try {
 	conv.setInput(output);
 	msg = conv.convert();
