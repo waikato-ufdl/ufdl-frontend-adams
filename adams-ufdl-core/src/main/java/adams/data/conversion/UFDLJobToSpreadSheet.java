@@ -90,6 +90,7 @@ public class UFDLJobToSpreadSheet
     row.addCell("jt").setContentAsString("job_template");
     row.addCell("di").setContentAsString("docker_image");
     row.addCell("no").setContentAsString("node");
+    row.addCell("er").setContentAsString("error");
     row.addCell("st").setContentAsString("start_time");
     row.addCell("et").setContentAsString("end_time");
     row.addCell("iv").setContentAsString("input_values");
@@ -124,6 +125,7 @@ public class UFDLJobToSpreadSheet
     row.addCell("jt").setContent(getJobTemplate(job.getJobTemplate()));
     row.addCell("di").setContent(getDockerImage(job.getDockerImage()));
     row.addCell("no").setContentAsString(job.getNode());
+    row.addCell("er").setContentAsString(job.getError());
     if (job.getStartTime() != null)
       row.addCell("st").setContent(new DateTimeMsec(Date.from(job.getStartTime().toInstant(ZoneOffset.UTC))));
     if (job.getEndTime() != null)
