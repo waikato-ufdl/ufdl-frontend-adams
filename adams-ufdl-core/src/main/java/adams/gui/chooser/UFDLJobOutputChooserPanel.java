@@ -24,6 +24,9 @@ import adams.core.logging.LoggingLevel;
 import adams.data.conversion.UFDLJobOutputToSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
+import adams.data.ufdlfilter.AllFilter;
+import adams.data.ufdlfilter.GenericFilter;
+import adams.data.ufdlfilter.field.ExactString;
 import adams.flow.core.UFDLJobOutput;
 import adams.flow.core.UFDLListSorting;
 import adams.flow.core.UFDLSoftDeleteObjectState;
@@ -169,6 +172,7 @@ public class UFDLJobOutputChooserPanel
     int				row;
     String			type;
     String			name;
+    GenericFilter		filter;
 
     panelAll = new JPanel(new BorderLayout(5, 5));
     panelAll.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -180,6 +184,14 @@ public class UFDLJobOutputChooserPanel
     panelAll.add(panelOutputs, BorderLayout.CENTER);
 
     panelJob = new UFDLJobChooserPanel();
+    if (m_OutputType.isEmpty()) {
+      panelJob.setFilter(new AllFilter());
+    }
+    else {
+      filter = new GenericFilter();
+      filter.addExpression(new ExactString("outputs.type", m_OutputType, false));
+      panelJob.setFilter(filter);
+    }
     panelJob.setConnection(m_Connection);
     panelJob.setSorting(UFDLListSorting.BY_ID_ONLY);
     panelJob.setMultiSelection(false);
