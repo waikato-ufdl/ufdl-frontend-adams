@@ -29,6 +29,7 @@ import adams.flow.control.Flow;
 import adams.flow.core.OptionalPasswordPrompt;
 import adams.flow.core.StopHelper;
 import adams.flow.core.StopMode;
+import adams.flow.standalone.ufdlcache.CacheManager;
 import adams.gui.dialog.PasswordDialog;
 import adams.ml.ufdl.UfdlHelper;
 import com.github.waikatoufdl.ufdl4j.Client;
@@ -151,8 +152,14 @@ public class UFDLConnection
   /** how to perform the stop. */
   protected StopMode m_StopMode;
 
+  /** the expiry in seconds for the ID cache. */
+  protected int m_TimeToLive;
+
   /** the client initialized with the details. */
   protected transient Client m_Client;
+
+  /** the cache manager. */
+  protected transient CacheManager m_CacheManager;
 
   /**
    * Returns a string describing the object.
@@ -198,6 +205,10 @@ public class UFDLConnection
     m_OptionManager.add(
       "stop-mode", "stopMode",
       StopMode.GLOBAL);
+
+    m_OptionManager.add(
+      "time-to-live", "timeToLive",
+      60, -1, null);
   }
 
   /**
@@ -207,7 +218,8 @@ public class UFDLConnection
   protected void reset() {
     super.reset();
 
-    m_Client = null;
+    m_Client       = null;
+    m_CacheManager = null;
   }
 
   /**
@@ -269,7 +281,7 @@ public class UFDLConnection
   }
 
   /**
-   * Sets the SMTP user to use.
+   * Sets the UFDL user to use.
    *
    * @param value	the user name
    */
@@ -279,7 +291,7 @@ public class UFDLConnection
   }
 
   /**
-   * Returns the SMTP user name to use.
+   * Returns the UFDL user name to use.
    *
    * @return		the user name
    */
@@ -294,7 +306,7 @@ public class UFDLConnection
    * 			displaying in the GUI or for listing the options.
    */
   public String userTipText() {
-    return "The SMTP user to use.";
+    return "The UFDL user to use.";
   }
 
   /**
@@ -450,6 +462,35 @@ public class UFDLConnection
   }
 
   /**
+   * Sets the expiry of the ID resolution caches.
+   *
+   * @param value	the expiry in seconds
+   */
+  public void setTimeToLive(int value) {
+    m_TimeToLive = value;
+    reset();
+  }
+
+  /**
+   * Returns the expiry of the ID resolution caches.
+   *
+   * @return		the expiry in seconds
+   */
+  public int getTimeToLive() {
+    return m_TimeToLive;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String timeToLiveTipText() {
+    return "The expiry in seconds for the ID resolution caches (for displaying strings rather than numeric IDs).";
+  }
+
+  /**
    * Performs the interaction with the user.
    *
    * @return		true if successfully interacted
@@ -546,6 +587,9 @@ public class UFDLConnection
         result = "No valid API tokens available!";
     }
 
+    if (result == null)
+      m_CacheManager = new CacheManager(this, m_TimeToLive);
+
     return result;
   }
 
@@ -556,5 +600,14 @@ public class UFDLConnection
    */
   public Client getClient() {
     return m_Client;
+  }
+
+  /**
+   * Returns the cache manager in use.
+   *
+   * @return      the manager, null if not yet instantiated
+   */
+  public CacheManager getCacheManager() {
+    return m_CacheManager;
   }
 }

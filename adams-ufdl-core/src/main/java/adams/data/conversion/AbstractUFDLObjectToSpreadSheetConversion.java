@@ -27,18 +27,6 @@ import adams.flow.core.Actor;
 import adams.flow.core.ActorUtils;
 import adams.flow.core.FlowContextHandler;
 import adams.flow.standalone.UFDLConnection;
-import com.github.waikatoufdl.ufdl4j.action.CudaVersions.CudaVersion;
-import com.github.waikatoufdl.ufdl4j.action.DockerImages.DockerImage;
-import com.github.waikatoufdl.ufdl4j.action.Frameworks.Framework;
-import com.github.waikatoufdl.ufdl4j.action.HardwareGenerations.HardwareGeneration;
-import com.github.waikatoufdl.ufdl4j.action.JobTemplates.JobTemplate;
-import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
-import com.github.waikatoufdl.ufdl4j.action.Projects.Project;
-import com.github.waikatoufdl.ufdl4j.action.Teams.Team;
-import com.github.waikatoufdl.ufdl4j.action.Users.User;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Ancestor for conversions that convert UFDL objects into spreadsheets.
@@ -60,33 +48,6 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
   /** the connection. */
   protected transient UFDLConnection m_Connection;
 
-  /** the cuda version cache. */
-  protected Map<Integer,String> m_CacheCudaVersion;
-
-  /** the docker image cache. */
-  protected Map<Integer,String> m_CacheDockerImage;
-
-  /** the framework cache. */
-  protected Map<Integer,String> m_CacheFramework;
-
-  /** the hardware generation cache. */
-  protected Map<Integer,String> m_CacheHardware;
-
-  /** the job template cache. */
-  protected Map<Integer,String> m_CacheJobTemplate;
-
-  /** the license cache. */
-  protected Map<Integer,String> m_CacheLicense;
-
-  /** the project cache. */
-  protected Map<Integer,String> m_CacheProject;
-
-  /** the team cache. */
-  protected Map<Integer,String> m_CacheTeam;
-
-  /** the user cache. */
-  protected Map<Integer,String> m_CacheUser;
-
   /**
    * Adds options to the internal list of options.
    */
@@ -107,22 +68,6 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
   @Override
   protected void initialize() {
     super.initialize();
-    resetCaches();
-  }
-
-  /**
-   * Resets the caches.
-   */
-  protected void resetCaches() {
-    m_CacheCudaVersion = new HashMap<>();
-    m_CacheDockerImage = new HashMap<>();
-    m_CacheFramework   = new HashMap<>();
-    m_CacheHardware    = new HashMap<>();
-    m_CacheJobTemplate = new HashMap<>();
-    m_CacheLicense     = new HashMap<>();
-    m_CacheProject     = new HashMap<>();
-    m_CacheTeam        = new HashMap<>();
-    m_CacheUser        = new HashMap<>();
   }
 
   /**
@@ -259,20 +204,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
 
     result = "" + id;
 
-    if (m_ResolveIDs && (id > -1)) {
-      if (!m_CacheUser.containsKey(id)) {
-        m_CacheUser.clear();
-	try {
-	  for (User obj : m_Connection.getClient().users().list())
-	    m_CacheUser.put(obj.getPK(), obj.getShortDescription());
-	}
-	catch (Exception e) {
-	  getLogger().severe("Failed to list users for caching!");
-	}
-      }
-      if (m_CacheUser.containsKey(id))
-	result = m_CacheUser.get(id);
-    }
+    if (m_ResolveIDs && (id > -1))
+      result = m_Connection.getCacheManager().users().resolve(id);
 
     return result;
   }
@@ -288,20 +221,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
 
     result = "" + id;
 
-    if (m_ResolveIDs && (id > -1)) {
-      if (!m_CacheLicense.containsKey(id)) {
-	try {
-	  m_CacheLicense.clear();
-	  for (License obj : m_Connection.getClient().licenses().list())
-	    m_CacheLicense.put(obj.getPK(), obj.getShortDescription());
-	}
-	catch (Exception e) {
-	  getLogger().severe("Failed to list licenses for caching!");
-	}
-      }
-      if (m_CacheLicense.containsKey(id))
-	result = m_CacheLicense.get(id);
-    }
+    if (m_ResolveIDs && (id > -1))
+      result = m_Connection.getCacheManager().licenses().resolve(id);
 
     return result;
   }
@@ -317,20 +238,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
 
     result = "" + id;
 
-    if (m_ResolveIDs && (id > -1)) {
-      if (!m_CacheTeam.containsKey(id)) {
-        m_CacheTeam.clear();
-	try {
-	  for (Team obj : m_Connection.getClient().teams().list())
-	    m_CacheTeam.put(obj.getPK(), obj.getShortDescription());
-	}
-	catch (Exception e) {
-	  getLogger().severe("Failed to list teams for caching!");
-	}
-      }
-      if (m_CacheTeam.containsKey(id))
-	result = m_CacheTeam.get(id);
-    }
+    if (m_ResolveIDs && (id > -1))
+      result = m_Connection.getCacheManager().teams().resolve(id);
 
     return result;
   }
@@ -346,20 +255,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
 
     result = "" + id;
 
-    if (m_ResolveIDs && (id > -1)) {
-      if (!m_CacheProject.containsKey(id)) {
-	try {
-	  m_CacheProject.clear();
-	  for (Project obj : m_Connection.getClient().projects().list())
-	    m_CacheProject.put(obj.getPK(), obj.getShortDescription());
-	}
-	catch (Exception e) {
-	  getLogger().severe("Failed to list projects for caching!");
-	}
-      }
-      if (m_CacheProject.containsKey(id))
-	result = m_CacheProject.get(id);
-    }
+    if (m_ResolveIDs && (id > -1))
+      result = m_Connection.getCacheManager().projects().resolve(id);
 
     return result;
   }
@@ -375,20 +272,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
 
     result = "" + id;
 
-    if (m_ResolveIDs && (id > -1)) {
-      if (!m_CacheFramework.containsKey(id)) {
-        m_CacheFramework.clear();
-	try {
-	  for (Framework obj : m_Connection.getClient().frameworks().list())
-	    m_CacheFramework.put(obj.getPK(), obj.getShortDescription());
-	}
-	catch (Exception e) {
-	  getLogger().severe("Failed to list frameworks for caching!");
-	}
-      }
-      if (m_CacheFramework.containsKey(id))
-	result = m_CacheFramework.get(id);
-    }
+    if (m_ResolveIDs && (id > -1))
+      result = m_Connection.getCacheManager().frameworks().resolve(id);
 
     return result;
   }
@@ -404,20 +289,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
 
     result = "" + id;
 
-    if (m_ResolveIDs && (id > -1)) {
-      if (!m_CacheCudaVersion.containsKey(id)) {
-        m_CacheCudaVersion.clear();
-        try {
-	  for (CudaVersion obj : m_Connection.getClient().cuda().list())
-	    m_CacheCudaVersion.put(obj.getPK(), obj.getShortDescription());
-	}
-	catch (Exception e) {
-	  getLogger().severe("Failed to list cuda versions for caching!");
-	}
-      }
-      if (m_CacheCudaVersion.containsKey(id))
-	result = m_CacheCudaVersion.get(id);
-    }
+    if (m_ResolveIDs && (id > -1))
+      result = m_Connection.getCacheManager().cuda().resolve(id);
 
     return result;
   }
@@ -433,20 +306,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
 
     result = "" + id;
 
-    if (m_ResolveIDs && (id > -1)) {
-      if (!m_CacheHardware.containsKey(id)) {
-        m_CacheHardware.clear();
-	try {
-	  for (HardwareGeneration obj : m_Connection.getClient().hardware().list())
-	    m_CacheHardware.put(obj.getPK(), obj.getShortDescription());
-	}
-	catch (Exception e) {
-	  getLogger().severe("Failed to list hardware generations for caching!");
-	}
-      }
-      if (m_CacheHardware.containsKey(id))
-	result = m_CacheHardware.get(id);
-    }
+    if (m_ResolveIDs && (id > -1))
+      result = m_Connection.getCacheManager().hardware().resolve(id);
 
     return result;
   }
@@ -462,20 +323,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
 
     result = "" + id;
 
-    if (m_ResolveIDs && (id > -1)) {
-      if (!m_CacheDockerImage.containsKey(id)) {
-        m_CacheDockerImage.clear();
-	try {
-	  for (DockerImage obj : m_Connection.getClient().docker().list())
-	    m_CacheDockerImage.put(obj.getPK(), obj.getShortDescription());
-	}
-	catch (Exception e) {
-	  getLogger().severe("Failed to list docker images for caching!");
-	}
-      }
-      if (m_CacheDockerImage.containsKey(id))
-	result = m_CacheDockerImage.get(id);
-    }
+    if (m_ResolveIDs && (id > -1))
+      result = m_Connection.getCacheManager().docker().resolve(id);
 
     return result;
   }
@@ -491,20 +340,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
 
     result = "" + id;
 
-    if (m_ResolveIDs && (id > -1)) {
-      if (!m_CacheJobTemplate.containsKey(id)) {
-        m_CacheJobTemplate.clear();
-	try {
-	  for (JobTemplate obj : m_Connection.getClient().jobTemplates().list())
-	    m_CacheJobTemplate.put(obj.getPK(), obj.getShortDescription());
-	}
-	catch (Exception e) {
-	  getLogger().severe("Failed to list job templates for caching!");
-	}
-      }
-      if (m_CacheJobTemplate.containsKey(id))
-	result = m_CacheJobTemplate.get(id);
-    }
+    if (m_ResolveIDs && (id > -1))
+      result = m_Connection.getCacheManager().jobTemplates().resolve(id);
 
     return result;
   }
