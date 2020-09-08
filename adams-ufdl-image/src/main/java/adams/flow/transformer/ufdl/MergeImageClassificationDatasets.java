@@ -205,7 +205,7 @@ public class MergeImageClassificationDatasets
       getLogger().info("Merging dataset PK " + dataset.getPK() + " with source PK " + m_Source + " (delete=" + m_Delete + ")");
 
     try {
-      result = getDatasetsAction().merge(dataset.getPK(), m_Source, m_Delete);  // TODO hard/soft delete
+      result = getDatasetsAction().merge(dataset.getPK(), m_Source, m_Delete, m_Hard);
     }
     catch (Exception e) {
       errors.add("Failed to merge dataset PK " + dataset.getPK() + " with source PK " + m_Source + " (delete=" + m_Delete + ")", e);

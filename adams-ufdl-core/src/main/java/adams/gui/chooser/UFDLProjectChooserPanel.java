@@ -44,7 +44,7 @@ public class UFDLProjectChooserPanel
    */
   @Override
   protected Struct2<Integer, String> toStruct(Project value) {
-    return new Struct2<>(value.getPK(), value.getName());
+    return new Struct2<>(value.getPK(), value.getShortDescription());
   }
 
   /**

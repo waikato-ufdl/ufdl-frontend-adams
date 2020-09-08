@@ -44,7 +44,7 @@ public class UFDLPretrainedModelChooserPanel
    */
   @Override
   protected Struct2<Integer, String> toStruct(PretrainedModel value) {
-    return new Struct2<>(value.getPK(), value.getName());
+    return new Struct2<>(value.getPK(), value.getShortDescription());
   }
 
   /**

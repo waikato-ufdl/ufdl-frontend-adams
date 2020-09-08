@@ -44,7 +44,7 @@ public class UFDLDatasetChooserPanel
    */
   @Override
   protected Struct2<Integer, String> toStruct(Dataset value) {
-    return new Struct2<>(value.getPK(), value.getName());
+    return new Struct2<>(value.getPK(), value.getShortDescription());
   }
 
   /**

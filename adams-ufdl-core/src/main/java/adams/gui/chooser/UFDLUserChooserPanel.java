@@ -69,7 +69,7 @@ public class UFDLUserChooserPanel
    */
   @Override
   protected Struct2<Integer, String> toStruct(User value) {
-    return new Struct2<>(value.getPK(), value.getUserName());
+    return new Struct2<>(value.getPK(), value.getShortDescription());
   }
 
   /**

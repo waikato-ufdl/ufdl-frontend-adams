@@ -44,7 +44,7 @@ public class UFDLCudaVersionChooserPanel
    */
   @Override
   protected Struct2<Integer, String> toStruct(CudaVersion value) {
-    return new Struct2<>(value.getPK(), value.getVersion());
+    return new Struct2<>(value.getPK(), value.getShortDescription());
   }
 
   /**

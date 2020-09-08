@@ -44,7 +44,7 @@ public class UFDLHardwareGenerationChooserPanel
    */
   @Override
   protected Struct2<Integer, String> toStruct(HardwareGeneration value) {
-    return new Struct2<>(value.getPK(), value.getGeneration());
+    return new Struct2<>(value.getPK(), value.getShortDescription());
   }
 
   /**
