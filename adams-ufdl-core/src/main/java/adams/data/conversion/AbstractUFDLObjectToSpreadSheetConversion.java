@@ -263,8 +263,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
       if (!m_CacheUser.containsKey(id)) {
         m_CacheUser.clear();
 	try {
-	  for (User user: m_Connection.getClient().users().list())
-	    m_CacheUser.put(user.getPK(), user.getUserName());
+	  for (User obj : m_Connection.getClient().users().list())
+	    m_CacheUser.put(obj.getPK(), obj.getShortDescription());
 	}
 	catch (Exception e) {
 	  getLogger().severe("Failed to list users for caching!");
@@ -292,8 +292,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
       if (!m_CacheLicense.containsKey(id)) {
 	try {
 	  m_CacheLicense.clear();
-	  for (License license: m_Connection.getClient().licenses().list())
-	    m_CacheLicense.put(license.getPK(), license.getName());
+	  for (License obj : m_Connection.getClient().licenses().list())
+	    m_CacheLicense.put(obj.getPK(), obj.getShortDescription());
 	}
 	catch (Exception e) {
 	  getLogger().severe("Failed to list licenses for caching!");
@@ -321,8 +321,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
       if (!m_CacheTeam.containsKey(id)) {
         m_CacheTeam.clear();
 	try {
-	  for (Team team: m_Connection.getClient().teams().list())
-	    m_CacheTeam.put(team.getPK(), team.getName());
+	  for (Team obj : m_Connection.getClient().teams().list())
+	    m_CacheTeam.put(obj.getPK(), obj.getShortDescription());
 	}
 	catch (Exception e) {
 	  getLogger().severe("Failed to list teams for caching!");
@@ -350,8 +350,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
       if (!m_CacheProject.containsKey(id)) {
 	try {
 	  m_CacheProject.clear();
-	  for (Project project: m_Connection.getClient().projects().list())
-	    m_CacheProject.put(project.getPK(), project.getName());
+	  for (Project obj : m_Connection.getClient().projects().list())
+	    m_CacheProject.put(obj.getPK(), obj.getShortDescription());
 	}
 	catch (Exception e) {
 	  getLogger().severe("Failed to list projects for caching!");
@@ -379,8 +379,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
       if (!m_CacheFramework.containsKey(id)) {
         m_CacheFramework.clear();
 	try {
-	  for (Framework framework: m_Connection.getClient().frameworks().list())
-	    m_CacheFramework.put(framework.getPK(), framework.getName() + "/" + framework.getVersion());
+	  for (Framework obj : m_Connection.getClient().frameworks().list())
+	    m_CacheFramework.put(obj.getPK(), obj.getShortDescription());
 	}
 	catch (Exception e) {
 	  getLogger().severe("Failed to list frameworks for caching!");
@@ -408,8 +408,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
       if (!m_CacheCudaVersion.containsKey(id)) {
         m_CacheCudaVersion.clear();
         try {
-	  for (CudaVersion cuda : m_Connection.getClient().cuda().list())
-	    m_CacheCudaVersion.put(cuda.getPK(), cuda.getVersion());
+	  for (CudaVersion obj : m_Connection.getClient().cuda().list())
+	    m_CacheCudaVersion.put(obj.getPK(), obj.getShortDescription());
 	}
 	catch (Exception e) {
 	  getLogger().severe("Failed to list cuda versions for caching!");
@@ -437,8 +437,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
       if (!m_CacheHardware.containsKey(id)) {
         m_CacheHardware.clear();
 	try {
-	  for (HardwareGeneration gen: m_Connection.getClient().hardware().list())
-	    m_CacheHardware.put(gen.getPK(), gen.getGeneration());
+	  for (HardwareGeneration obj : m_Connection.getClient().hardware().list())
+	    m_CacheHardware.put(obj.getPK(), obj.getShortDescription());
 	}
 	catch (Exception e) {
 	  getLogger().severe("Failed to list hardware generations for caching!");
@@ -466,8 +466,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
       if (!m_CacheDockerImage.containsKey(id)) {
         m_CacheDockerImage.clear();
 	try {
-	  for (DockerImage img: m_Connection.getClient().docker().list())
-	    m_CacheDockerImage.put(img.getPK(), img.getName() + "/" + img.getVersion());
+	  for (DockerImage obj : m_Connection.getClient().docker().list())
+	    m_CacheDockerImage.put(obj.getPK(), obj.getShortDescription());
 	}
 	catch (Exception e) {
 	  getLogger().severe("Failed to list docker images for caching!");
@@ -495,8 +495,8 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
       if (!m_CacheJobTemplate.containsKey(id)) {
         m_CacheJobTemplate.clear();
 	try {
-	  for (JobTemplate template: m_Connection.getClient().jobTemplates().list())
-	    m_CacheJobTemplate.put(template.getPK(), template.getName() + "/" + template.getVersion());
+	  for (JobTemplate obj : m_Connection.getClient().jobTemplates().list())
+	    m_CacheJobTemplate.put(obj.getPK(), obj.getShortDescription());
 	}
 	catch (Exception e) {
 	  getLogger().severe("Failed to list job templates for caching!");
