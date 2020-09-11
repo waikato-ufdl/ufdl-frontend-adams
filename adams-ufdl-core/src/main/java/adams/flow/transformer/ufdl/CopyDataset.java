@@ -60,6 +60,7 @@ public class CopyDataset
 
   /**
    * Sets the new name of the dataset.
+   * If left empty, simply increments the version number
    *
    * @param value	the new name
    */
@@ -70,6 +71,7 @@ public class CopyDataset
 
   /**
    * Returns the new name of the dataset.
+   * If left empty, simply increments the version number
    *
    * @return		the new name
    */
@@ -84,7 +86,7 @@ public class CopyDataset
    * 			displaying in the GUI or for listing the options.
    */
   public String newNameTipText() {
-    return "The new name of the dataset.";
+    return "The new name of the dataset; if left empty, simply increments the version number.";
   }
 
   /**
