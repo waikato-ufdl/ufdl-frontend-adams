@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-09-11 09:49:05
+# Date: 2020-09-11 13:42:34
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -10,7 +10,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
   adams.flow.sink.HistoryDisplay -name Errors -short-title true -display-type adams.flow.core.displaytype.Default -y -3
   adams.flow.sink.SpreadSheetDisplay -name Current -short-title true -display-type adams.flow.core.displaytype.Default -x -3 -cell-rendering-customizer adams.gui.core.spreadsheettable.DefaultCellRenderingCustomizer -allow-search true -writer adams.data.io.output.NullWriter
   adams.flow.sink.ProgressBar -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -max @{max}
-  adams.flow.sink.DisplayPanelManager -name Images -display-type adams.flow.core.displaytype.Default -width 800 -height 600 -provider "adams.flow.sink.ImageViewer -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -zoom -1.0 -show-properties true -selection-processor adams.gui.visualization.image.selection.NullProcessor -left-click-processor adams.gui.visualization.image.leftclick.NullProcessor -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -image-overlay adams.gui.visualization.image.NullOverlay" -entry-name-variable image -allow-search true
+  adams.flow.sink.DisplayPanelManager -name Images -short-title true -display-type adams.flow.core.displaytype.Default -width 800 -height 600 -provider "adams.flow.sink.ImageViewer -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -zoom -1.0 -show-properties true -selection-processor adams.gui.visualization.image.selection.NullProcessor -left-click-processor adams.gui.visualization.image.leftclick.NullProcessor -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -image-overlay adams.gui.visualization.image.NullOverlay" -entry-name-variable image -allow-search true
   adams.flow.control.Tee -name "clear output"
    adams.flow.control.ClearCallableDisplay -name "clear info" -callable Info
    adams.flow.control.ClearCallableDisplay -name "clear errors" -callable Errors
@@ -35,10 +35,13 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.transformer.Convert -conversion adams.data.conversion.JoinOptions
     adams.flow.transformer.SetVariable -var-name file_escaped
    adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
-   adams.flow.transformer.ImageLabeler -x -2 -y -2 -label @{categories} -use-buttons @{use_buttons} -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
+   adams.flow.transformer.ImageLabeler -name "Add image" -short-title true -x -2 -y -2 -label @{categories} -use-buttons @{use_buttons} -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
+   adams.flow.control.Trigger -name "reset category/metadata"
+    adams.flow.standalone.SetVariable -name category -var-name category -var-value ""
+    adams.flow.standalone.DeleteStorageValue -storage-name metadata
    adams.flow.control.Tee -name "get label"
     adams.flow.transformer.GetReportValue -field Classification[S]
-    adams.flow.transformer.SetVariable -var-name category
+    adams.flow.transformer.SetVariable -name set -var-name category
    adams.flow.control.Tee -name "get interaction"
     adams.flow.transformer.GetReportValue -field interaction-log[S]
     adams.flow.transformer.SetStorageValue -storage-name metadata
@@ -55,7 +58,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.control.Trigger -name "add metadata to file"
      adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageClassificationMetadataForImage -name @{image}"
-  adams.flow.control.Trigger -name "add files - by category"
+  adams.flow.control.Trigger -name "add files - by category" -annotation "uses \\\"dataset\\\" from storage"
    adams.flow.standalone.SetVariable -var-name keep_adding_files -var-value true
    adams.flow.source.Start
    adams.flow.control.WhileLoop -condition "adams.flow.condition.bool.VariableFlagSet -variable-name keep_adding_files"
@@ -89,7 +92,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
      adams.flow.transformer.SetVariable -name reset -var-name keep_adding_files -var-value false
      adams.flow.transformer.ConfirmationDialog -message "Add more files?"
      adams.flow.transformer.SetVariable -name set -var-name keep_adding_files -var-value true
-  adams.flow.control.Trigger -name "add files - unlabeled"
+  adams.flow.control.Trigger -name "add files - unlabeled" -annotation "uses \\\"dataset\\\" from storage"
    adams.flow.standalone.SetVariable -var-name keep_adding_files -var-value true
    adams.flow.source.Start
    adams.flow.control.WhileLoop -condition "adams.flow.condition.bool.VariableFlagSet -variable-name keep_adding_files"
@@ -276,15 +279,22 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
        adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
         adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
         adams.flow.control.Trigger -name "load categories"
+         adams.flow.standalone.SetVariable -name reset -var-name current_categories -var-value ""
          adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationCategoriesForImage -name @{image}" -use-error-queue true
          adams.flow.transformer.CollectionToArray
          adams.flow.transformer.StringJoin -glue " "
-         adams.flow.transformer.SetVariable -var-name current_categories
+         adams.flow.transformer.SetVariable -name set -var-name current_categories
         adams.flow.control.Trigger -name "load interactions from metadata"
+         adams.flow.standalone.SetVariable -name reset -var-name interaction -var-value ""
          adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationMetadataForImage -name @{image}" -use-error-queue true
-         adams.flow.transformer.SetVariable -var-name interaction
+         adams.flow.transformer.SetVariable -name set -var-name interaction
+        adams.flow.control.Trigger -name "escape image"
+         adams.flow.source.Variable -var-name image -conversion adams.data.conversion.StringToString
+         adams.flow.transformer.SequenceToArray
+         adams.flow.transformer.Convert -conversion adams.data.conversion.JoinOptions
+         adams.flow.transformer.SetVariable -var-name image_escaped
         adams.flow.control.Trigger -name "update image"
          adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
          adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
@@ -294,14 +304,16 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
          adams.flow.transformer.SetReportValue -name "set label" -field Classification[S] -value @{current_categories}
          adams.flow.transformer.SetReportValue -name "set interaction log" -field interaction-log[S] -value @{interaction}
          adams.flow.control.Cast
-         adams.flow.transformer.ImageLabeler -x -2 -y -2 -label @{categories} -use-buttons @{use_buttons} -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
+         adams.flow.transformer.ImageLabeler -name "Update image" -short-title true -x -2 -y -2 -label @{categories} -use-buttons @{use_buttons} -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
          adams.flow.control.Tee -name "get label"
           adams.flow.transformer.GetReportValue -field Classification[S]
           adams.flow.transformer.SetVariable -var-name category
          adams.flow.control.Trigger -name "update labels"
           adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
-          adams.flow.transformer.UFDLTransformer -name "remove old" -action "adams.flow.transformer.ufdl.DeleteImageClassificationCategoriesForFile -name @{image} -category @{current_categories}"
-          adams.flow.transformer.UFDLTransformer -name "add new" -action "adams.flow.transformer.ufdl.AddImageClassificationCategoriesForFile -name @{image} -category @{category}"
+          adams.flow.control.ConditionalSubProcess -name "anything to remove?" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{current_categories}\\\\\\\" != \\\\\\\"\\\\\\\"\""
+           adams.flow.transformer.UFDLTransformer -name "remove old" -action "adams.flow.transformer.ufdl.DeleteImageClassificationCategoriesForFile -name @{image_escaped} -category @{current_categories}"
+          adams.flow.control.ConditionalSubProcess -name "anything to add?" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{category}\\\\\\\" != \\\\\\\"\\\\\\\"\""
+           adams.flow.transformer.UFDLTransformer -name "add new" -action "adams.flow.transformer.ufdl.AddImageClassificationCategoriesForFile -name @{image_escaped} -category @{category}"
          adams.flow.control.Tee -name "get interaction"
           adams.flow.transformer.GetReportValue -field interaction-log[S]
           adams.flow.transformer.SetStorageValue -storage-name metadata
