@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-07-21 17:12:25
+# Date: 2020-09-11 16:00:50
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -95,9 +95,9 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
   adams.flow.source.Start
   adams.flow.control.CloseCallableDisplay -callable ProgressBar
   adams.flow.control.Trigger -name "menu prompt"
-   adams.flow.source.EnterValue -name "Object detection" -message "Please select dataset operation" -selection-values List -selection-values Create -selection-values Update -selection-values View -selection-values Delete -selection-values Reinstate -selection-values Download -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
+   adams.flow.source.EnterValue -name "Object detection" -message "Please select dataset operation" -selection-values List -selection-values Create -selection-values Update -selection-values View -selection-values Copy -selection-values Merge -selection-values Delete -selection-values Reinstate -selection-values Download -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
    adams.flow.transformer.SetVariable -var-name choice
-  adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value List" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Create" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Update" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value View" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Delete" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Reinstate" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Download" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value \"Clear output\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Exit" -lenient true
+  adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value List" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Create" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Update" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value View" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Copy" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Merge" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Delete" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Reinstate" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Download" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value \"Clear output\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Exit" -lenient true
    adams.flow.control.Trigger -name List
     adams.flow.standalone.SetVariable -name reset -var-name no_datasets -var-value true
     adams.flow.source.Start
@@ -312,6 +312,45 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
        adams.flow.transformer.SetReportValue -name "set interaction log" -field interaction-log[S] -value @{interaction}
        adams.flow.control.Cast
        adams.flow.sink.CallableSink -callable Images
+   adams.flow.control.Trigger -name Copy
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name current
+     adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListObjectDetectionDatasets -filter adams.data.ufdlfilter.AllFilter -resolve-ids true" -use-error-queue true
+     adams.flow.sink.CallableSink -callable Current
+    adams.flow.control.Trigger -name "prompt user"
+     adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-copy.props -value-type FILE_FORWARD_SLASHES -expand-value true
+     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+     adams.flow.source.EnterManyValues -name "Copy dataset" -value "adams.flow.source.valuedefinition.UFDLObjectDetectionDatasetChooser -name dataset -display Dataset -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name new_name -display \"New name\" -help \"Leave empty if you just want to increment the version\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.transformer.MapToVariables
+     adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+     adams.flow.transformer.UFDLExtractAndTransfer -source dataset -target dataset_pk
+    adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
+    adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+    adams.flow.control.Trigger -name copy
+     adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+     adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.CopyObjectDetectionDataset -new-name @{new_name}" -use-error-queue true
+     adams.flow.transformer.SetVariable -var-name success
+     adams.flow.control.Trigger -name info
+      adams.flow.source.CombineVariables -expression "copied dataset @{dataset_pk} to \\\"@{new_name}\\\": @{success}" -conversion adams.data.conversion.StringToString
+      adams.flow.sink.CallableSink -callable Info
+   adams.flow.control.Trigger -name Merge
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name "select datasets"
+     adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-merge.props -value-type FILE_FORWARD_SLASHES -expand-value true
+     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+     adams.flow.source.EnterManyValues -name "Select datasets to merge" -value "adams.flow.source.valuedefinition.UFDLObjectDetectionDatasetChooser -name dataset_first -display \"First dataset\" -help \"This dataset gets enriched with the second one\" -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLObjectDetectionDatasetChooser -name dataset_second -display \"Second dataset\" -help \"This dataset gets merged into the first one\" -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name delete_second -display \"Delete second dataset after merge?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name hard_delete -display \"Perform hard delete?\" -help \"A hard delete completely removes the dataset, not only flags it as deleted.\" -type BOOLEAN -default-value false" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.transformer.MapToVariables
+     adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+     adams.flow.transformer.UFDLExtractAndTransfer -name dataset_first_pk -source dataset_first -target dataset_first_pk
+     adams.flow.transformer.UFDLExtractAndTransfer -name dataset_second_pk -source dataset_second -target dataset_second_pk
+    adams.flow.control.Block -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+    adams.flow.control.Trigger -name merge
+     adams.flow.source.Variable -var-name dataset_first_pk -conversion adams.data.conversion.StringToInt
+     adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.MergeObjectDetectionDatasets -source @{dataset_second_pk} -delete @{delete_second} -hard @{hard_delete}" -use-error-queue true
+     adams.flow.transformer.SetVariable -var-name success
+     adams.flow.control.Trigger -name info
+      adams.flow.source.CombineVariables -expression "merged dataset @{dataset_second_pk} into @{dataset_first_pk}: @{success}" -conversion adams.data.conversion.StringToString
+      adams.flow.sink.CallableSink -callable Info
    adams.flow.control.Trigger -name Delete
     adams.flow.source.Start
     adams.flow.control.Trigger -name "select datasets"
