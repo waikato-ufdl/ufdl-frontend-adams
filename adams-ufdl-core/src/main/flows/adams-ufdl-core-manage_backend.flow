@@ -1,8 +1,8 @@
 # Project: adams
-# Date: 2020-09-11 16:15:39
+# Date: 2020-09-15 14:07:57
 # User: fracpete
 # Charset: UTF-8
-# Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
+# Modules: adams-compress,adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
 #
 adams.flow.control.Flow -annotation "For managing users, teams, projects, licenses, docker images, job templates, jobs, job outputs, etc.\\nUses host/user/password from the global UFDL Preferences." -error-handling ACTORS_DECIDE_TO_STOP_ON_ERROR -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
  adams.flow.standalone.CallableActors
@@ -941,7 +941,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-license-add.props -value-type FILE_FORWARD_SLASHES -expand-value true
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -name "Add CUDA version" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name version -display Version" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name full_version -display \"Full version\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name min_driver_version -display \"Minimum driver version\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+        adams.flow.source.EnterManyValues -name "Add Framework" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name version -display Version" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name full_version -display \"Full version\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name min_driver_version -display \"Minimum driver version\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
        adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
@@ -1180,11 +1180,11 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
      adams.flow.source.Start
      adams.flow.control.Trigger -name "menu prompt"
-      adams.flow.source.EnterValue -name "Job template menu" -message "Please select Job template operation" -selection-values List -selection-values Add -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
+      adams.flow.source.EnterValue -name "Job template menu" -message "Please select Job template operation" -selection-values List -selection-values Add -selection-values Import -selection-values Export -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
       adams.flow.transformer.SetVariable -var-name choice
       adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
-     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
+     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Import\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Export\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
       adams.flow.control.Trigger -name List
        adams.flow.source.Start
        adams.flow.transformer.SetVariable -var-name none -var-value true
@@ -1198,12 +1198,12 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
       adams.flow.control.Trigger -name Add
        adams.flow.source.Start
        adams.flow.control.Trigger -name current
-        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListJobTemplates -filter adams.data.ufdlfilter.AllFilter -state ANY" -use-error-queue true
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListJobTemplates -filter adams.data.ufdlfilter.AllFilter -state ANY -resolve-ids true" -use-error-queue true
         adams.flow.sink.CallableSink -callable Current
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-jobtemplate-add.props -value-type FILE_FORWARD_SLASHES -expand-value true
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -name "Add Job template version" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name version -display Version -type INTEGER -default-value 1" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name description -display Description" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name scope -display Scope -value public -value project -value user -default-value public" -value "adams.flow.source.valuedefinition.UFDLFrameworkChooser -name framework -display Framework -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLDomainChooser -name domain -display Domain -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name type -display Type -help \"For example: train, predict, export\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name executor -display \"Executor class\" -help \"The Python class that handles this template\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name packages -display \"Required packages\" -help \"Any additional packages to install via pip for running the executor, blank-separated list (eg \\\"numpy<=1.18\\\")\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name template -display Template -help \"The body of the template itself\"" -value "adams.flow.source.valuedefinition.UFDLLicenseFilter -name license -display License -filter adams.data.ufdlfilter.AllFilter" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+        adams.flow.source.EnterManyValues -name "Add Job template" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name version -display Version -type INTEGER -default-value 1" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name description -display Description" -value "adams.flow.source.valuedefinition.ListSelectionValueDefinition -name scope -display Scope -value public -value project -value user -default-value public" -value "adams.flow.source.valuedefinition.UFDLFrameworkChooser -name framework -display Framework -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLDomainChooser -name domain -display Domain -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name type -display Type -help \"For example: train, predict, export\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name executor -display \"Executor class\" -help \"The Python class that handles this template\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name packages -display \"Required packages\" -help \"Any additional packages to install via pip for running the executor, blank-separated list (eg \\\"numpy<=1.18\\\")\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name template -display Template -help \"The body of the template itself\"" -value "adams.flow.source.valuedefinition.UFDLLicenseFilter -name license -display License -filter adams.data.ufdlfilter.AllFilter" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.UFDLExtractAndTransfer -name framework_pk -source framework -target framework_pk
         adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source license -target license_pk
@@ -1256,8 +1256,44 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
          adams.flow.transformer.UFDLGetPK
          adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.LoadJobTemplate -use-error-queue true
          adams.flow.sink.CallableSink -callable Info
+      adams.flow.control.Trigger -name Import
+       adams.flow.source.Start
+       adams.flow.control.Trigger -name current
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListJobTemplates -filter adams.data.ufdlfilter.AllFilter -state ANY -resolve-ids true" -use-error-queue true
+        adams.flow.sink.CallableSink -callable Current
+       adams.flow.control.Trigger -name "prompt user"
+        adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-jobtemplate-import.props -value-type FILE_FORWARD_SLASHES -expand-value true
+        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+        adams.flow.source.EnterManyValues -name "Import Job template" -value "adams.flow.source.valuedefinition.FileValueDefinition -name template_file -display \"Template file (JSON)\" -help \"The template to import from JSON\" -file-chooser-title \"Import Job template\" -extension json -use-forward-slashes true" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+        adams.flow.transformer.MapToVariables
+        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+       adams.flow.control.CloseCallableDisplay -name "close current" -callable Current
+       adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+       adams.flow.control.Trigger -name import
+        adams.flow.source.Variable -var-name template_file -conversion adams.data.conversion.StringToString
+        adams.flow.transformer.TextFileReader -reader adams.data.io.input.SingleStringTextReader
+        adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ImportJobTemplate -use-error-queue true
+        adams.flow.sink.CallableSink -callable Info
+      adams.flow.control.Trigger -name Export
+       adams.flow.source.Start
+       adams.flow.control.Trigger -name "prompt user"
+        adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-jobtemplate-export.props -value-type FILE_FORWARD_SLASHES -expand-value true
+        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+        adams.flow.source.EnterManyValues -name "Export Job template" -value "adams.flow.source.valuedefinition.UFDLJobTemplateChooser -name template -display Template -help \"The job template to export as JSON\" -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.FileValueDefinition -name output_file -display \"Output file\" -help \"The file to store the template in\" -file-chooser-title \"Export job template\" -extension json -use-forward-slashes true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name pretty_print -display \"Pretty print?\" -help \"Output JSON in pretty printed format?\" -type BOOLEAN -default-value true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name file_browser -display \"Display in file browser?\" -type BOOLEAN -default-value false" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+        adams.flow.transformer.MapToVariables
+        adams.flow.transformer.UFDLExtractAndTransfer -name template_pk -source template -target template_pk
+        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+       adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+       adams.flow.control.Trigger -name export
+        adams.flow.source.Variable -var-name template_pk -conversion adams.data.conversion.StringToInt
+        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.ExportJobTemplate -pretty-printing @{pretty_print}" -use-error-queue true
+        adams.flow.control.Tee -name write
+         adams.flow.sink.TextWriter -writer "adams.data.io.output.TextFileWriter -filename-generator \"adams.core.io.SimpleFixedFilenameGenerator -name @{output_file}\""
+        adams.flow.control.Trigger -name "display in browser"
+         adams.flow.source.Variable -var-name output_file -conversion adams.data.conversion.StringToString
+         adams.flow.sink.FileBrowser
       adams.flow.control.Trigger -name Delete
-       adams.flow.source.UFDLSource -silent true -action "adams.flow.source.ufdl.ListJobTemplates -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
+       adams.flow.source.UFDLSource -silent true -action "adams.flow.source.ufdl.ListJobTemplates -filter adams.data.ufdlfilter.AllFilter -resolve-ids true" -use-error-queue true
        adams.flow.transformer.SpreadSheetSelectSubset -message "Please select Job templates to delete" -allow-search true
        adams.flow.control.Tee -name "# items"
         adams.flow.transformer.SpreadSheetInfo
