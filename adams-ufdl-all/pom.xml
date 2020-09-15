@@ -183,6 +183,19 @@
               <includeGroupIds>${project.groupId}</includeGroupIds>
             </configuration>
           </execution>
+          <execution>
+            <id>flows-ufdl</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <classifier>flows</classifier>
+              <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
+              <outputDirectory>${project.build.directory}/flows</outputDirectory>
+              <includeArtifactIds>adams-ufdl-core,adams-ufdl-image,adams-ufdl-speech</includeArtifactIds>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
 
