@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-09-11 16:00:50
+# Date: 2020-09-18 15:56:25
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -217,9 +217,20 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
          adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLAnnotationsToReport
          adams.flow.transformer.SetStorageValue -storage-name annotations
         adams.flow.control.Trigger -name "load interactions from metadata"
+         adams.flow.standalone.SetVariable -name reset -var-name interaction -var-value ""
          adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetObjectDetectionMetadataForImage -name @{image}" -use-error-queue true
-         adams.flow.transformer.SetVariable -var-name interaction
+         adams.flow.transformer.SetStorageValue -storage-name metadata
+         adams.flow.control.Tee -name length
+          adams.flow.transformer.StringLength
+          adams.flow.transformer.SetVariable -var-name length
+         adams.flow.control.IfThenElse -name "any interactions?" -condition "adams.flow.condition.bool.Expression -expression \"@{length} > 0\""
+          adams.flow.control.Sequence -name then
+           adams.flow.transformer.GetJsonValue -path interaction-log -data-type ARRAY
+           adams.flow.transformer.SetVariable -name set -var-name interaction
+          adams.flow.control.Sequence -name else
+           adams.flow.transformer.StringReplace -find .* -replace {}
+           adams.flow.transformer.SetStorageValue -storage-name metadata
         adams.flow.control.Trigger -name "update image"
          adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
          adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
@@ -231,8 +242,8 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
          adams.flow.transformer.SetReportValue -name "set interaction log" -field interaction-log[S] -value @{interaction}
          adams.flow.control.Cast
          adams.flow.control.Switch -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{selection_type}\\\\\\\" = \\\\\\\"bounding_box\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{selection_type}\\\\\\\" = \\\\\\\"object_shape\\\\\\\"\"" -condition adams.flow.condition.bool.True
-          adams.flow.transformer.ImageAnnotator -name "bounding box" -width 1400 -height 800 -label @{labels} -selection-processor adams.gui.visualization.image.selection.SelectObjects -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -overlay "adams.gui.visualization.image.ObjectLocationsOverlayFromReport -color #ffffff -use-colors-per-type true -type-color-provider \"adams.gui.visualization.core.CustomColorProvider -color #0000ff -color #00ffff -color #00ff00 -color #ff00ff -color #ffc800 -color #ff0000 -color #9999ff\" -label-format \"# $\" -predefined-labels @{labels}" -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
-          adams.flow.transformer.ImageAnnotator -name "object shape" -width 1400 -height 800 -label @{labels} -selection-processor adams.gui.visualization.image.selection.SelectObjects -selection-shape-painter adams.gui.visualization.image.selectionshape.PolygonPainter -overlay "adams.gui.visualization.image.ObjectLocationsOverlayFromReport -color #ffffff -use-colors-per-type true -type-color-provider \"adams.gui.visualization.core.CustomColorProvider -color #0000ff -color #00ffff -color #00ff00 -color #ff00ff -color #ffc800 -color #ff0000 -color #9999ff\" -label-format \"# $\" -predefined-labels @{labels}" -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
+          adams.flow.transformer.ImageAnnotator -name "bounding box" -width 1400 -height 800 -label @{categories} -selection-processor adams.gui.visualization.image.selection.SelectObjects -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -overlay "adams.gui.visualization.image.ObjectLocationsOverlayFromReport -color #ffffff -use-colors-per-type true -type-color-provider \"adams.gui.visualization.core.CustomColorProvider -color #0000ff -color #00ffff -color #00ff00 -color #ff00ff -color #ffc800 -color #ff0000 -color #9999ff\" -label-format \"# $\" -predefined-labels @{categories}" -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
+          adams.flow.transformer.ImageAnnotator -name "object shape" -width 1400 -height 800 -label @{categories} -selection-processor adams.gui.visualization.image.selection.SelectObjects -selection-shape-painter adams.gui.visualization.image.selectionshape.PolygonPainter -overlay "adams.gui.visualization.image.ObjectLocationsOverlayFromReport -color #ffffff -use-colors-per-type true -type-color-provider \"adams.gui.visualization.core.CustomColorProvider -color #0000ff -color #00ffff -color #00ff00 -color #ff00ff -color #ffc800 -color #ff0000 -color #9999ff\" -label-format \"# $\" -predefined-labels @{categories}" -zoom -1.0 -interaction-logging-filter adams.gui.visualization.image.interactionlogging.All
           adams.flow.control.Stop -stop-msg "Unknonwn selection type: @{selection_type}"
          adams.flow.control.Tee -name "get annotations"
           adams.flow.transformer.GetReport
@@ -243,7 +254,12 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
           adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetObjectDetectionAnnotationsForImage -name @{image}" -use-error-queue true
          adams.flow.control.Tee -name "get interaction"
           adams.flow.transformer.GetReportValue -field interaction-log[S]
-          adams.flow.transformer.SetStorageValue -storage-name metadata
+          adams.flow.transformer.SetVariable -var-name interaction
+          adams.flow.control.Trigger -name "insert in metadata"
+           adams.flow.source.StorageValue -storage-name metadata -conversion adams.data.conversion.UnknownToUnknown
+           adams.flow.transformer.SetJsonValue -path interaction-log -value @{interaction} -conversion adams.data.conversion.ObjectToObject
+           adams.flow.transformer.Convert -conversion adams.data.conversion.JsonToString
+           adams.flow.transformer.SetStorageValue -storage-name metadata
          adams.flow.control.Trigger -name "add interaction as metadata"
           adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
           adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetObjectDetectionMetadataForImage -name @{image}" -use-error-queue true

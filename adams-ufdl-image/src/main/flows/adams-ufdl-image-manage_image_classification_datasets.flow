@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-09-11 15:58:09
+# Date: 2020-09-18 15:51:20
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -289,7 +289,17 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
          adams.flow.standalone.SetVariable -name reset -var-name interaction -var-value ""
          adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationMetadataForImage -name @{image}" -use-error-queue true
-         adams.flow.transformer.SetVariable -name set -var-name interaction
+         adams.flow.transformer.SetStorageValue -storage-name metadata
+         adams.flow.control.Tee -name length
+          adams.flow.transformer.StringLength
+          adams.flow.transformer.SetVariable -var-name length
+         adams.flow.control.IfThenElse -name "any interactions?" -condition "adams.flow.condition.bool.Expression -expression \"@{length} > 0\""
+          adams.flow.control.Sequence -name then
+           adams.flow.transformer.GetJsonValue -path interaction-log -data-type ARRAY
+           adams.flow.transformer.SetVariable -name set -var-name interaction
+          adams.flow.control.Sequence -name else
+           adams.flow.transformer.StringReplace -find .* -replace {}
+           adams.flow.transformer.SetStorageValue -storage-name metadata
         adams.flow.control.Trigger -name "escape image"
          adams.flow.source.Variable -var-name image -conversion adams.data.conversion.StringToString
          adams.flow.transformer.SequenceToArray
@@ -316,7 +326,12 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
            adams.flow.transformer.UFDLTransformer -name "add new" -action "adams.flow.transformer.ufdl.AddImageClassificationCategoriesForFile -name @{image_escaped} -category @{category}"
          adams.flow.control.Tee -name "get interaction"
           adams.flow.transformer.GetReportValue -field interaction-log[S]
-          adams.flow.transformer.SetStorageValue -storage-name metadata
+          adams.flow.transformer.SetVariable -var-name interaction
+          adams.flow.control.Trigger -name "insert in metadata"
+           adams.flow.source.StorageValue -storage-name metadata -conversion adams.data.conversion.UnknownToUnknown
+           adams.flow.transformer.SetJsonValue -path interaction-log -value @{interaction} -conversion adams.data.conversion.ObjectToObject
+           adams.flow.transformer.Convert -conversion adams.data.conversion.JsonToString
+           adams.flow.transformer.SetStorageValue -storage-name metadata
          adams.flow.control.Trigger -name "add interaction as metadata"
           adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
           adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageClassificationMetadataForImage -name @{image}" -use-error-queue true
