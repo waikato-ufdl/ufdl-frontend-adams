@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-09-21 20:07:38
+# Date: 2020-09-22 09:11:12
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -275,7 +275,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
        adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.transformer.CallableTransformer -callable "buttons or combobox for categories?"
        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.ListImageClassificationFiles -meta-data-key $.confidence.top_score -meta-data-key $.confidence.entropy" -use-error-queue true
-       adams.flow.transformer.SpreadSheetSelectSubset -message "Please select images to update" -allow-search true
+       adams.flow.transformer.SpreadSheetSelectSubset -name "Update images" -short-title true -message "Please select images to update" -allow-search true
        adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
         adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
         adams.flow.control.Trigger -name "load categories"
@@ -338,7 +338,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
       adams.flow.control.Trigger -name "delete images"
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
        adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles -use-error-queue true
-       adams.flow.transformer.SpreadSheetSelectSubset -message "Please select images to delete" -allow-search true
+       adams.flow.transformer.SpreadSheetSelectSubset -name "Delete images" -short-title true -message "Please select images to delete" -allow-search true
        adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
         adams.flow.control.Tee -name "# images"
          adams.flow.transformer.SpreadSheetInfo
@@ -370,7 +370,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.control.Trigger -name "view selected dataset"
      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
      adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.ListImageClassificationFiles -meta-data-key $.confidence.top_score -meta-data-key $.confidence.entropy" -use-error-queue true
-     adams.flow.transformer.SpreadSheetSelectSubset -message "Please select image(s) to view"
+     adams.flow.transformer.SpreadSheetSelectSubset -name "View images" -short-title true -message "Please select image(s) to view"
      adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
       adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
       adams.flow.control.Trigger -name "load categories"

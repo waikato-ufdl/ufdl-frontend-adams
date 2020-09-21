@@ -1,8 +1,8 @@
 # Project: adams
-# Date: 2020-09-15 14:07:57
+# Date: 2020-09-22 09:06:46
 # User: fracpete
 # Charset: UTF-8
-# Modules: adams-compress,adams-core,adams-event,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
+# Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
 #
 adams.flow.control.Flow -annotation "For managing users, teams, projects, licenses, docker images, job templates, jobs, job outputs, etc.\\nUses host/user/password from the global UFDL Preferences." -error-handling ACTORS_DECIDE_TO_STOP_ON_ERROR -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
  adams.flow.standalone.CallableActors
@@ -1063,7 +1063,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -name "Select job template" -stop-if-canceled true -message "Please select job template" -value "adams.flow.source.valuedefinition.UFDLJobTemplateChooser -name template -display Template -filter \"adams.data.ufdlfilter.DomainFilter -domain @{domain_pk}\"" -output-type MAP
+        adams.flow.source.EnterManyValues -name "Select job template" -message "Please select job template" -value "adams.flow.source.valuedefinition.UFDLJobTemplateChooser -name template -display Template -filter \"adams.data.ufdlfilter.DomainFilter -domain @{domain_pk}\"" -output-type MAP
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.UFDLExtractAndTransfer -name template_pk -source template -target template_pk
@@ -1221,7 +1221,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
           adams.flow.source.Start
           adams.flow.control.Trigger -name "prompt user"
            adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-           adams.flow.source.EnterManyValues -name "Add input" -stop-if-canceled true -message "Please enter values for input" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name -help \"The name of the input (lower case)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name type -display Type -help \"The type of the input (lower case, eg dataset or model)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name options -display Options -help \"The options for the input, eg wai.annotations options\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name help -display Help -help \"The help string for the input\"" -output-type MAP
+           adams.flow.source.EnterManyValues -name "Add input" -stop-if-canceled false -message "Please enter values for input" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name -help \"The name of the input (lower case)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name type -display Type -help \"The type of the input (lower case, eg dataset or model)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name options -display Options -help \"The options for the input, eg wai.annotations options\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name help -display Help -help \"The help string for the input\"" -output-type MAP
            adams.flow.transformer.MapToVariables
            adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
           adams.flow.control.ConditionalTrigger -name add -condition "adams.flow.condition.bool.Expression -expression \"@{cancelled} = false\""
@@ -1240,7 +1240,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
           adams.flow.source.Start
           adams.flow.control.Trigger -name "prompt user"
            adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-           adams.flow.source.EnterManyValues -name "Add parameter" -stop-if-canceled true -message "Please enter values for parameter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name -help \"The name of the input (lower case)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name type -display Type -help \"The type of the input (lower case, eg dataset or model)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name default -display Default -help \"The default value to use\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name help -display Help -help \"The help string for the parameter\"" -output-type MAP
+           adams.flow.source.EnterManyValues -name "Add parameter" -stop-if-canceled false -message "Please enter values for parameter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name -help \"The name of the input (lower case)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name type -display Type -help \"The type of the input (lower case, eg dataset or model)\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name default -display Default -help \"The default value to use\"" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name help -display Help -help \"The help string for the parameter\"" -output-type MAP
            adams.flow.transformer.MapToVariables
            adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
           adams.flow.control.ConditionalTrigger -name add -condition "adams.flow.condition.bool.Expression -expression \"@{cancelled} = false\""
