@@ -135,6 +135,15 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
   }
 
   /**
+   * Returns whether an UFDL connection is required.
+   *
+   * @return		true if connection required
+   */
+  protected boolean requiresConnection() {
+    return false;
+  }
+
+  /**
    * Returns the class that is generated as output.
    *
    * @return		the class
@@ -183,7 +192,7 @@ public abstract class AbstractUFDLObjectToSpreadSheetConversion
     result = super.checkData();
 
     if (result == null) {
-      if (m_ResolveIDs) {
+      if (m_ResolveIDs || requiresConnection()) {
 	m_Connection = (UFDLConnection) ActorUtils.findClosestType(m_FlowContext, UFDLConnection.class, true);
 	if (m_Connection == null)
 	  result = "Failed to locate an instance of " + Utils.classToString(UFDLConnection.class) + "!";
