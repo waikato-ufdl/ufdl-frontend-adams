@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-09-18 15:51:20
+# Date: 2020-09-21 20:07:38
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -274,7 +274,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
         adams.flow.transformer.MapToVariables
        adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.transformer.CallableTransformer -callable "buttons or combobox for categories?"
-       adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles
+       adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.ListImageClassificationFiles -meta-data-key $.confidence.top_score -meta-data-key $.confidence.entropy" -use-error-queue true
        adams.flow.transformer.SpreadSheetSelectSubset -message "Please select images to update" -allow-search true
        adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
         adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
@@ -293,7 +293,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
          adams.flow.control.Tee -name length
           adams.flow.transformer.StringLength
           adams.flow.transformer.SetVariable -var-name length
-         adams.flow.control.IfThenElse -name "any interactions?" -condition "adams.flow.condition.bool.Expression -expression \"@{length} > 0\""
+         adams.flow.control.IfThenElse -name "any metadata?" -condition "adams.flow.condition.bool.Expression -expression \"@{length} > 0\""
           adams.flow.control.Sequence -name then
            adams.flow.transformer.GetJsonValue -path interaction-log -data-type ARRAY
            adams.flow.transformer.SetVariable -name set -var-name interaction
@@ -369,7 +369,7 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
     adams.flow.control.Block -name "Block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
     adams.flow.control.Trigger -name "view selected dataset"
      adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
-     adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageClassificationFiles -use-error-queue true
+     adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.ListImageClassificationFiles -meta-data-key $.confidence.top_score -meta-data-key $.confidence.entropy" -use-error-queue true
      adams.flow.transformer.SpreadSheetSelectSubset -message "Please select image(s) to view"
      adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
       adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
@@ -379,10 +379,28 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
        adams.flow.transformer.CollectionToArray
        adams.flow.transformer.StringJoin -glue " "
        adams.flow.transformer.SetVariable -var-name current_categories
-      adams.flow.control.Trigger -name "load interactions from metadata"
+      adams.flow.control.Trigger -name "load metadata"
+       adams.flow.standalone.SetVariable -name reset -var-name interaction -var-value ""
+       adams.flow.standalone.DeleteStorageValue -storage-name confidence
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageClassificationMetadataForImage -name @{image}" -use-error-queue true
-       adams.flow.transformer.SetVariable -var-name interaction
+       adams.flow.transformer.SetStorageValue -storage-name metadata
+       adams.flow.control.Tee -name length
+        adams.flow.transformer.StringLength
+        adams.flow.transformer.SetVariable -var-name length
+       adams.flow.control.IfThenElse -name "any metadata?" -condition "adams.flow.condition.bool.Expression -expression \"@{length} > 0\""
+        adams.flow.control.Sequence -name then
+         adams.flow.control.Tee -name interactions
+          adams.flow.transformer.GetJsonValue -path interaction-log -data-type ARRAY
+          adams.flow.transformer.SetVariable -name set -var-name interaction
+         adams.flow.control.Tee -name confidence
+          adams.flow.transformer.GetJsonValue -path confidence
+          adams.flow.transformer.Convert -name "Convert (2)" -conversion adams.data.conversion.AnyToString
+          adams.flow.transformer.Convert -conversion "adams.data.conversion.JsonToReport -prefix confidence."
+          adams.flow.transformer.SetStorageValue -storage-name confidence
+        adams.flow.control.Sequence -name else
+         adams.flow.transformer.StringReplace -find .* -replace {}
+         adams.flow.transformer.SetStorageValue -storage-name metadata
       adams.flow.control.Trigger -name "load image"
        adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
@@ -390,6 +408,8 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
        adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
        adams.flow.transformer.SetReportValue -name "set category" -field Classification[S] -value @{current_categories}
        adams.flow.transformer.SetReportValue -name "set interaction log" -field interaction-log[S] -value @{interaction}
+       adams.flow.control.ConditionalSubProcess -name "confidence available?" -condition "adams.flow.condition.bool.HasStorageValue -storage-name confidence"
+        adams.flow.transformer.MergeReport -type STORAGE -storage confidence
        adams.flow.control.Cast
        adams.flow.sink.CallableSink -callable Images
    adams.flow.control.Trigger -name Copy
