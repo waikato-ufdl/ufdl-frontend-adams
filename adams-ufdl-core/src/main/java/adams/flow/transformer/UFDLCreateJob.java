@@ -55,6 +55,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -298,11 +299,12 @@ public class UFDLCreateJob
    * @param isInput	whether input or parameter
    * @param specs	the specs to use
    * @param props	for storing default values
+   * @param order 	for storing the order of the parameters
    * @param domain	the data domain
    * @param framework 	the framework
    * @throws Exception	if setting up of panel fails
    */
-  protected void addToPanel(boolean isInput, List<Map<String,String>> specs, Properties props, Domain domain, Framework framework) throws Exception {
+  protected void addToPanel(boolean isInput, List<Map<String,String>> specs, Properties props, List<String> order, Domain domain, Framework framework) throws Exception {
     String			name;
     String			type;
     String			value;
@@ -336,6 +338,7 @@ public class UFDLCreateJob
       value = "";
       if (!isInput)
 	value = spec.getOrDefault("default", "");
+      order.add(propsPrefix + name);
       m_PropertiesPanel.setLabel(propsPrefix + name, displPrefix + name);
       if (!help.isEmpty())
         m_PropertiesPanel.setHelp(propsPrefix + name, help);
@@ -448,6 +451,7 @@ public class UFDLCreateJob
     Framework		framework;
     License 		license;
     Properties 		props;
+    List<String>	order;
 
     // clear
     m_PanelInfo.clearParameters();
@@ -475,11 +479,14 @@ public class UFDLCreateJob
       addInfo("Required packages", template.getRequiredPackages());
 
     props = new Properties();
-    addToPanel(true, template.getInputs(), props, domain, framework);
-    addToPanel(false, template.getParameters(), props, domain, framework);
+    order = new ArrayList<>();
+    addToPanel(true, template.getInputs(), props, order, domain, framework);
+    addToPanel(false, template.getParameters(), props, order, domain, framework);
+    order.add(0, PROPS_DESCRIPTION);
     m_PropertiesPanel.addPropertyType(PROPS_DESCRIPTION, PropertyType.STRING);
     m_PropertiesPanel.setLabel(PROPS_DESCRIPTION, "Description");
     m_PropertiesPanel.setHelp(PROPS_DESCRIPTION, "A description to better identify the job");
+    m_PropertiesPanel.setPropertyOrder(order);
     props.setProperty(PROPS_DESCRIPTION, "");
     m_PropertiesPanel.setProperties(props);
   }
