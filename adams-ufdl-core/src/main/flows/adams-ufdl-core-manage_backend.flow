@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-09-22 20:12:13
+# Date: 2020-09-23 09:35:15
 # User: fracpete
 # Charset: UTF-8
 #
@@ -1069,7 +1069,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.control.Block -name "block if cancelled (2)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name "create job"
         adams.flow.source.Variable -var-name template_pk -conversion adams.data.conversion.StringToInt
-        adams.flow.transformer.UFDLCreateJob -name "Create job" -x -2 -y -2
+        adams.flow.transformer.UFDLCreateJob -name "Create job" -short-title true -x -2 -y -2
         adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLJsonObjectToString
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Delete
