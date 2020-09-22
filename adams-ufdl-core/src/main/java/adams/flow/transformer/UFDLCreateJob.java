@@ -566,7 +566,7 @@ public class UFDLCreateJob
     for (String key: propsParams.keySetAll()) {
       value = propsParams.getProperty(key);
       if (key.equals(PROPS_DOCKERIMAGE))
-	dockerImage = propsInputs.getInteger(key, -1);
+	dockerImage = propsParams.getInteger(key, -1);
       else
 	params.put(key, value);
     }
