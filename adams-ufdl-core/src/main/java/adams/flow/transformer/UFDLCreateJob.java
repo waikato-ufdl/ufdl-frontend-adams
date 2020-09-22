@@ -40,8 +40,9 @@ import adams.flow.standalone.UFDLConnection;
 import adams.gui.core.BaseButton;
 import adams.gui.core.BaseDialog;
 import adams.gui.core.BasePanel;
-import adams.gui.core.BaseTextField;
-import adams.gui.core.ParameterPanel;
+import adams.gui.core.BaseScrollPane;
+import adams.gui.core.BaseTextArea;
+import adams.gui.core.GUIHelper;
 import adams.gui.core.PropertiesParameterPanel;
 import adams.gui.core.PropertiesParameterPanel.PropertyType;
 import com.github.waikatoufdl.ufdl4j.action.Domains.Domain;
@@ -169,11 +170,7 @@ public class UFDLCreateJob
 
   private static final long serialVersionUID = 7467922709474210365L;
 
-  public static final String PROPS_PREFIX_INPUT = "input-";
-
-  public static final String PROPS_PREFIX_PARAM = "param-";
-
-  public static final String PROPS_SUFFIX_DOCKERIMAGE = "dockerimage";
+  public static final String PROPS_DOCKERIMAGE = "dockerimage";
 
   public static final String TYPE_BOOL = "bool";
 
@@ -189,16 +186,20 @@ public class UFDLCreateJob
 
   public static final String TYPE_JOBOUTPUT = "joboutput";
 
-  public static final String PROPS_DESCRIPTION = "description";
-
   /** the connection to use. */
   protected transient UFDLConnection m_Connection;
 
-  /** the job template info. */
-  protected ParameterPanel m_PanelInfo;
+  /** the template info. */
+  protected StringBuilder m_TemplateInfo;
 
-  /** the properties parameter panel. */
-  protected PropertiesParameterPanel m_PropertiesPanel;
+  /** the description for the job. */
+  protected BaseTextArea m_TextDescription;
+
+  /** the properties parameter panel (inputs). */
+  protected PropertiesParameterPanel m_PropertiesPanelInputs;
+
+  /** the properties parameter panel (parameters). */
+  protected PropertiesParameterPanel m_PropertiesPanelParameters;
 
   /** whether the dialog got accepted. */
   protected boolean m_Accepted;
@@ -268,8 +269,14 @@ public class UFDLCreateJob
    */
   @Override
   public void clearPanel() {
-    if (m_PropertiesPanel != null)
-      m_PropertiesPanel.clearPropertyTypes();
+    if (m_TemplateInfo != null)
+      m_TemplateInfo.delete(0, m_TemplateInfo.length());
+    if (m_TextDescription != null)
+      m_TextDescription.setText("");
+    if (m_PropertiesPanelInputs != null)
+      m_PropertiesPanelInputs.clearPropertyTypes();
+    if (m_PropertiesPanelParameters != null)
+      m_PropertiesPanelParameters.clearPropertyTypes();
   }
 
   /**
@@ -280,15 +287,29 @@ public class UFDLCreateJob
   @Override
   protected BasePanel newPanel() {
     BasePanel 	result;
+    BasePanel	panelDesc;
+    BasePanel	panelInputsParams;
 
     result = new BasePanel(new BorderLayout());
 
-    m_PanelInfo = new ParameterPanel();
-    m_PanelInfo.setBorder(BorderFactory.createTitledBorder("Template info"));
-    result.add(m_PanelInfo, BorderLayout.NORTH);
+    m_TemplateInfo = new StringBuilder();
 
-    m_PropertiesPanel = new PropertiesParameterPanel();
-    result.add(m_PropertiesPanel, BorderLayout.CENTER);
+    panelDesc = new BasePanel(new BorderLayout());
+    panelDesc.setBorder(BorderFactory.createTitledBorder("Job description"));
+    result.add(panelDesc, BorderLayout.NORTH);
+    m_TextDescription = new BaseTextArea(4, 40);
+    panelDesc.add(new BaseScrollPane(m_TextDescription), BorderLayout.CENTER);
+
+    panelInputsParams = new BasePanel(new BorderLayout());
+    result.add(panelInputsParams, BorderLayout.CENTER);
+    
+    m_PropertiesPanelInputs = new PropertiesParameterPanel();
+    m_PropertiesPanelInputs.setBorder(BorderFactory.createTitledBorder("Inputs"));
+    panelInputsParams.add(m_PropertiesPanelInputs, BorderLayout.NORTH);
+
+    m_PropertiesPanelParameters = new PropertiesParameterPanel();
+    m_PropertiesPanelParameters.setBorder(BorderFactory.createTitledBorder("Parameters"));
+    panelInputsParams.add(m_PropertiesPanelParameters, BorderLayout.CENTER);
 
     return result;
   }
@@ -296,6 +317,7 @@ public class UFDLCreateJob
   /**
    * Interprets the input/parameter specs and adds them to the panel.
    *
+   * @param panel	the panel to add to
    * @param isInput	whether input or parameter
    * @param specs	the specs to use
    * @param props	for storing default values
@@ -304,7 +326,7 @@ public class UFDLCreateJob
    * @param framework 	the framework
    * @throws Exception	if setting up of panel fails
    */
-  protected void addToPanel(boolean isInput, List<Map<String,String>> specs, Properties props, List<String> order, Domain domain, Framework framework) throws Exception {
+  protected void addToPanel(PropertiesParameterPanel panel, boolean isInput, List<Map<String,String>> specs, Properties props, List<String> order, Domain domain, Framework framework) throws Exception {
     String			name;
     String			type;
     String			value;
@@ -313,23 +335,12 @@ public class UFDLCreateJob
     UFDLPretrainedModelChooser 	model;
     UFDLJobOutputChooser	jobOutput;
     UFDLDockerImageChooser	dockerImage;
-    String 			propsPrefix;
-    String			displPrefix;
     DomainFilter		domainFilter;
     GenericFilter		genericFilter;
 
     // filter
     domainFilter = new DomainFilter();
     domainFilter.setDomain(domain.getPK());
-
-    if (isInput) {
-      propsPrefix = PROPS_PREFIX_INPUT;
-      displPrefix = "Input: ";
-    }
-    else {
-      propsPrefix = PROPS_PREFIX_PARAM;
-      displPrefix = "Parameter: ";
-    }
 
     for (Map<String,String> spec : specs) {
       name  = spec.get("name");
@@ -338,72 +349,72 @@ public class UFDLCreateJob
       value = "";
       if (!isInput)
 	value = spec.getOrDefault("default", "");
-      order.add(propsPrefix + name);
-      m_PropertiesPanel.setLabel(propsPrefix + name, displPrefix + name);
+      order.add(name);
+      panel.setLabel(name, name);
       if (!help.isEmpty())
-        m_PropertiesPanel.setHelp(propsPrefix + name, help);
+        panel.setHelp(name, help);
       switch (type) {
 	case TYPE_BOOL:
-	  m_PropertiesPanel.addPropertyType(propsPrefix + name, PropertyType.BOOLEAN);
+	  panel.addPropertyType(name, PropertyType.BOOLEAN);
 	  if (isInput)
 	    value = "false";
 	  break;
 	case TYPE_INT:
-	  m_PropertiesPanel.addPropertyType(propsPrefix + name, PropertyType.INTEGER);
+	  panel.addPropertyType(name, PropertyType.INTEGER);
 	  if (isInput)
 	    value = "-1";
 	  break;
 	case TYPE_FLOAT:
-	  m_PropertiesPanel.addPropertyType(propsPrefix + name, PropertyType.DOUBLE);
+	  panel.addPropertyType(name, PropertyType.DOUBLE);
 	  if (isInput)
 	    value = "0.0";
 	  break;
 	case TYPE_STR:
-	  m_PropertiesPanel.addPropertyType(propsPrefix + name, PropertyType.STRING);
+	  panel.addPropertyType(name, PropertyType.STRING);
 	  break;
 	case TYPE_DATASET:
 	  dataset = new UFDLDatasetChooser();
 	  dataset.setFilter(domainFilter);
 	  dataset.setSorting(UFDLListSorting.BY_ID_ONLY);
 	  dataset.setFlowContext(this);
-	  dataset.setName(propsPrefix + name);
-	  dataset.setDisplay(displPrefix + name);
+	  dataset.setName(name);
+	  dataset.setDisplay(name);
 	  if (isInput)
 	    value = "-1";
-	  dataset.addToPanel(m_PropertiesPanel);
+	  dataset.addToPanel(panel);
 	  break;
 	case TYPE_MODEL:
 	  model = new UFDLPretrainedModelChooser();
 	  model.setFilter(ObjectCopyHelper.copyObject(domainFilter));
 	  model.setFlowContext(this);
-	  model.setName(propsPrefix + name);
-	  model.setDisplay(displPrefix + name);
+	  model.setName(name);
+	  model.setDisplay(name);
 	  if (isInput)
 	    value = "-1";
-	  model.addToPanel(m_PropertiesPanel);
+	  model.addToPanel(panel);
 	  break;
 	case TYPE_JOBOUTPUT:
 	  jobOutput = new UFDLJobOutputChooser();
 	  jobOutput.setFlowContext(this);
-	  jobOutput.setName(propsPrefix + name);
-	  jobOutput.setDisplay(displPrefix + name);
+	  jobOutput.setName(name);
+	  jobOutput.setDisplay(name);
 	  if (isInput) {
 	    value = "-1||";
 	    jobOutput.setOutputType(spec.getOrDefault("options", ""));
 	  }
-	  jobOutput.addToPanel(m_PropertiesPanel);
+	  jobOutput.addToPanel(panel);
 	  break;
 	default:
 	  getLogger().warning("Unhandled type '" + type + "' for input '" + name + "'!");
-	  m_PropertiesPanel.addPropertyType(propsPrefix + name, PropertyType.STRING);
+	  panel.addPropertyType(name, PropertyType.STRING);
 	  break;
       }
-      props.setProperty(propsPrefix + name, value);
+      props.setProperty(name, value);
     }
 
     // docker image
     if (!isInput) {
-      name  = PROPS_SUFFIX_DOCKERIMAGE;
+      name  = PROPS_DOCKERIMAGE;
       value = "-1";
       // filter for domain/framework
       genericFilter = new GenericFilter()
@@ -415,29 +426,26 @@ public class UFDLCreateJob
       dockerImage = new UFDLDockerImageChooser();
       dockerImage.setSorting(UFDLListSorting.BY_ID_ONLY);
       dockerImage.setFlowContext(this);
-      dockerImage.setName(propsPrefix + name);
-      dockerImage.setDisplay(displPrefix + name);
+      dockerImage.setName(name);
+      dockerImage.setDisplay(name);
       dockerImage.setFilter(genericFilter);
       dockerImage.setHelp("The docker image to use for executing the job.");
-      dockerImage.addToPanel(m_PropertiesPanel);
-      props.setProperty(propsPrefix + name, value);
+      dockerImage.addToPanel(panel);
+      props.setProperty(name, value);
     }
   }
 
   /**
-   * Creates a new read-only text field with the specified text and adds it to the info panel.
+   * Adds the info to the info string.
    *
    * @param label	the label to use
    * @param text	the text to display
    */
   protected void addInfo(String label, String text) {
-    BaseTextField 	textField;
-
-    textField = new BaseTextField();
-    textField.setEditable(false);
-    textField.setText(text);
-
-    m_PanelInfo.addParameter(label, textField);
+    if (m_TemplateInfo.length() > 0)
+      m_TemplateInfo.append("\n");
+    m_TemplateInfo.append(label).append("\n");
+    m_TemplateInfo.append("  ").append(text).append("\n");
   }
 
   /**
@@ -450,12 +458,12 @@ public class UFDLCreateJob
     Domain 		domain;
     Framework		framework;
     License 		license;
-    Properties 		props;
-    List<String>	order;
+    Properties 		propsInputs;
+    Properties 		propsParams;
+    List<String> 	orderInputs;
+    List<String> 	orderParams;
 
-    // clear
-    m_PanelInfo.clearParameters();
-    m_PropertiesPanel.clearPropertyTypes();
+    clearPanel();
 
     // resolve
     domain = m_Connection.getClient().domains().load(template.getDomain());
@@ -478,17 +486,19 @@ public class UFDLCreateJob
     if (!template.getRequiredPackages().isEmpty())
       addInfo("Required packages", template.getRequiredPackages());
 
-    props = new Properties();
-    order = new ArrayList<>();
-    addToPanel(true, template.getInputs(), props, order, domain, framework);
-    addToPanel(false, template.getParameters(), props, order, domain, framework);
-    order.add(0, PROPS_DESCRIPTION);
-    m_PropertiesPanel.addPropertyType(PROPS_DESCRIPTION, PropertyType.STRING);
-    m_PropertiesPanel.setLabel(PROPS_DESCRIPTION, "Description");
-    m_PropertiesPanel.setHelp(PROPS_DESCRIPTION, "A description to better identify the job");
-    m_PropertiesPanel.setPropertyOrder(order);
-    props.setProperty(PROPS_DESCRIPTION, "");
-    m_PropertiesPanel.setProperties(props);
+    // inputs
+    propsInputs = new Properties();
+    orderInputs = new ArrayList<>();
+    addToPanel(m_PropertiesPanelInputs, true, template.getInputs(), propsInputs, orderInputs, domain, framework);
+    m_PropertiesPanelInputs.setPropertyOrder(orderInputs);
+    m_PropertiesPanelInputs.setProperties(propsInputs);
+
+    // parameters
+    propsParams = new Properties();
+    orderParams = new ArrayList<>();
+    addToPanel(m_PropertiesPanelParameters, false, template.getParameters(), propsParams, orderParams, domain, framework);
+    m_PropertiesPanelParameters.setPropertyOrder(orderParams);
+    m_PropertiesPanelParameters.setProperties(propsParams);
   }
 
   /**
@@ -497,13 +507,19 @@ public class UFDLCreateJob
    * @param dialog	the dialog that got just created
    * @param panel	the panel displayed in the frame
    */
-  protected void postCreateDialog(final BaseDialog dialog, BasePanel panel) {
-    BaseButton buttonOK;
-    BaseButton	buttonCancel;
-    JPanel panelButtons;
+  protected void postCreateDialog(final BaseDialog dialog, final BasePanel panel) {
+    BaseButton 		buttonInfo;
+    BaseButton 		buttonOK;
+    BaseButton		buttonCancel;
+    JPanel 		panelButtons;
 
     panelButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     dialog.getContentPane().add(panelButtons, BorderLayout.SOUTH);
+
+    buttonInfo = new BaseButton("Info");
+    buttonInfo.addActionListener((ActionEvent e) ->
+      GUIHelper.showInformationMessage(panel, m_TemplateInfo.toString(), "Template info"));
+    panelButtons.add(buttonInfo);
 
     buttonOK = new BaseButton("OK");
     buttonOK.addActionListener((ActionEvent e) -> {
@@ -524,39 +540,35 @@ public class UFDLCreateJob
    * Creates a job from the template and the provided inputs/parameters.
    *
    * @param template	the template the job is based on
-   * @param props	the inputs/parameters selected by the user
+   * @param description the job description
+   * @param propsInputs	the inputs selected by the user
+   * @param propsParams	the parameters selected by the user
    * @return		the job, null if failed to create
    * @throws Exception	if API calls fails
    */
-  protected Job createJob(JobTemplate template, Properties props) throws Exception {
+  protected Job createJob(JobTemplate template, String description, Properties propsInputs, Properties propsParams) throws Exception {
     Job			result;
     int			dockerImage;
     Map<String,String>	inputs;
     Map<String,String>	params;
-    String		name;
     String		value;
-    String		description;
 
     if (isLoggingEnabled())
-      getLogger().info("Data for job: " + props);
+      getLogger().info("Data for job: " + propsInputs);
 
     dockerImage = -1;
     inputs      = new HashMap<>();
     params      = new HashMap<>();
-    description = props.getProperty(PROPS_DESCRIPTION, "");
-    for (String key: props.keySetAll()) {
-      value = props.getProperty(key);
-      if (key.startsWith(PROPS_PREFIX_INPUT)) {
-        name = key.substring(PROPS_PREFIX_INPUT.length());
-	inputs.put(name, value);
-      }
-      else if (key.startsWith(PROPS_PREFIX_PARAM)) {
-        name = key.substring(PROPS_PREFIX_PARAM.length());
-        if (name.equals(PROPS_SUFFIX_DOCKERIMAGE))
-	  dockerImage = props.getInteger(key, -1);
-	else
-	  params.put(name, value);
-      }
+    for (String key: propsInputs.keySetAll()) {
+      value = propsInputs.getProperty(key);
+      inputs.put(key, value);
+    }
+    for (String key: propsParams.keySetAll()) {
+      value = propsParams.getProperty(key);
+      if (key.equals(PROPS_DOCKERIMAGE))
+	dockerImage = propsInputs.getInteger(key, -1);
+      else
+	params.put(key, value);
     }
 
     result = m_Connection.getClient().jobTemplates().newJob(template.getPK(), dockerImage, inputs, params, description);
@@ -599,7 +611,7 @@ public class UFDLCreateJob
 
     if (m_Accepted) {
       try {
-        job = createJob(template, m_PropertiesPanel.getProperties());
+        job = createJob(template, m_TextDescription.getText(), m_PropertiesPanelInputs.getProperties(), m_PropertiesPanelParameters.getProperties());
 	if (job != null)
 	  m_OutputToken = new Token(job);
 	else
