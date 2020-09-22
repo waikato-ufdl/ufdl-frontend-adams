@@ -32,6 +32,7 @@ import adams.flow.core.UFDLListSorting;
 import adams.flow.core.UFDLSoftDeleteObjectState;
 import adams.gui.core.ConsolePanel;
 import adams.gui.core.GUIHelper;
+import adams.gui.core.MouseUtils;
 import adams.gui.dialog.ApprovalDialog;
 import adams.gui.dialog.SpreadSheetPanel;
 import com.github.waikatoufdl.ufdl4j.action.Jobs.Job;
@@ -42,6 +43,8 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * Chooser for panel for selecting a job output.
@@ -163,7 +166,7 @@ public class UFDLJobOutputChooserPanel
   @Override
   protected UFDLJobOutput doChoose() {
     UFDLJobOutput		result;
-    ApprovalDialog		dialog;
+    final ApprovalDialog	dialog;
     JPanel			panelAll;
     final UFDLJobChooserPanel	panelJob;
     final SpreadSheetPanel	panelOutputs;
@@ -207,6 +210,17 @@ public class UFDLJobOutputChooserPanel
       dialog = new ApprovalDialog(getParentDialog(), ModalityType.DOCUMENT_MODAL);
     else
       dialog = new ApprovalDialog(getParentFrame(), true);
+    panelOutputs.getTable().addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (MouseUtils.isDoubleClick(e)) {
+          if (panelOutputs.getTable().getSelectedRowCount() == 1)
+            dialog.getApproveButton().doClick();
+        }
+        if (!e.isConsumed())
+          super.mouseClicked(e);
+      }
+    });
     dialog.setTitle("Select job output");
     dialog.setDefaultCloseOperation(ApprovalDialog.DISPOSE_ON_CLOSE);
     dialog.setApproveVisible(true);
