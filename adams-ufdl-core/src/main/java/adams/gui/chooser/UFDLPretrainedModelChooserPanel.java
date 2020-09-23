@@ -121,7 +121,7 @@ public class UFDLPretrainedModelChooserPanel
    */
   @Override
   protected PretrainedModel[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().jobs().list(m_Filter.generate(new MessageCollection())).toArray(new PretrainedModel[0]);
+    return m_Connection.getClient().pretrainedModels().list(m_Filter.generate(new MessageCollection())).toArray(new PretrainedModel[0]);
   }
 
   /**
