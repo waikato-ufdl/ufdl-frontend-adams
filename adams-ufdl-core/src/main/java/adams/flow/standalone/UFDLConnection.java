@@ -33,6 +33,7 @@ import adams.flow.standalone.ufdlcache.CacheManager;
 import adams.gui.dialog.PasswordDialog;
 import adams.ml.ufdl.UfdlHelper;
 import com.github.waikatoufdl.ufdl4j.Client;
+import com.github.waikatoufdl.ufdl4j.auth.LocalStorage;
 
 import java.awt.Dialog;
 import java.awt.Dialog.ModalityType;
@@ -143,6 +144,15 @@ public class UFDLConnection
   /** whether to prompt the user for a password if none provided. */
   protected boolean m_PromptForPassword;
 
+  /** the connect timeout. */
+  protected int m_ConnectTimeout;
+
+  /** the read timeout. */
+  protected int m_ReadTimeout;
+
+  /** the write timeout. */
+  protected int m_WriteTimeout;
+
   /** whether to stop the flow if canceled. */
   protected boolean m_StopFlowIfCanceled;
 
@@ -205,6 +215,18 @@ public class UFDLConnection
     m_OptionManager.add(
       "stop-mode", "stopMode",
       StopMode.GLOBAL);
+
+    m_OptionManager.add(
+      "connect-timeout", "connectTimeout",
+      30, -1, null);
+
+    m_OptionManager.add(
+      "read-timeout", "readTimeout",
+      120, -1, null);
+
+    m_OptionManager.add(
+      "write-timeout", "writeTimeout",
+      30, -1, null);
 
     m_OptionManager.add(
       "time-to-live", "timeToLive",
@@ -462,6 +484,99 @@ public class UFDLConnection
   }
 
   /**
+   * Sets the timeout in seconds for connecting.
+   *
+   * @param value	the timeout
+   */
+  public void setConnectTimeout(int value) {
+    if (getOptionManager().isValid("connectTimeout", value)) {
+      m_ConnectTimeout = value;
+      reset();
+    }
+  }
+
+  /**
+   * Returns the timeout in seconds for connecting.
+   *
+   * @return		the timeout
+   */
+  public int getConnectTimeout() {
+    return m_ConnectTimeout;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String connectTimeoutTipText() {
+    return "The timeout in seconds for connecting.";
+  }
+
+  /**
+   * Sets the timeout in seconds for reading.
+   *
+   * @param value	the timeout
+   */
+  public void setReadTimeout(int value) {
+    if (getOptionManager().isValid("readTimeout", value)) {
+      m_ReadTimeout = value;
+      reset();
+    }
+  }
+
+  /**
+   * Returns the timeout in seconds for reading.
+   *
+   * @return		the timeout
+   */
+  public int getReadTimeout() {
+    return m_ReadTimeout;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String readTimeoutTipText() {
+    return "The timeout in seconds for reading.";
+  }
+
+  /**
+   * Sets the timeout in seconds for writing.
+   *
+   * @param value	the timeout
+   */
+  public void setWriteTimeout(int value) {
+    if (getOptionManager().isValid("writeTimeout", value)) {
+      m_WriteTimeout = value;
+      reset();
+    }
+  }
+
+  /**
+   * Returns the timeout in seconds for writing.
+   *
+   * @return		the timeout
+   */
+  public int getWriteTimeout() {
+    return m_WriteTimeout;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String writeTimeoutTipText() {
+    return "The timeout in seconds for writing.";
+  }
+
+  /**
    * Sets the expiry of the ID resolution caches.
    *
    * @param value	the expiry in seconds
@@ -580,9 +695,7 @@ public class UFDLConnection
 
     if (result == null) {
       if (m_Client == null)
-        m_Client = new Client();
-      m_Client.connection().server(m_Host.getValue());
-      m_Client.connection().authentication(m_User, m_Password.getValue());
+        m_Client = new Client(m_Host.getValue(), m_User, m_Password.getValue(), new LocalStorage(), m_ConnectTimeout, m_ReadTimeout, m_WriteTimeout);
       if (!m_Client.connection().authentication().getTokens().isValid())
         result = "No valid API tokens available!";
     }
