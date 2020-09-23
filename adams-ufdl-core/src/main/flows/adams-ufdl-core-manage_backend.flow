@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-09-23 09:35:15
+# Date: 2020-09-23 16:08:58
 # User: fracpete
 # Charset: UTF-8
 #
@@ -1371,7 +1371,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.source.Start
        adams.flow.transformer.SetVariable -var-name none -var-value true
        adams.flow.control.Trigger -name display
-        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListPretrainedModels -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListPretrainedModels -filter adams.data.ufdlfilter.AllFilter -resolve-ids true" -use-error-queue true
         adams.flow.transformer.SetVariable -var-name none -var-value false
         adams.flow.sink.CallableSink -callable Current
        adams.flow.control.ConditionalTrigger -name "nothing to list" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name none"
@@ -1380,7 +1380,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
       adams.flow.control.Trigger -name Add
        adams.flow.source.Start
        adams.flow.control.Trigger -name current
-        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListPretrainedModels -filter adams.data.ufdlfilter.AllFilter -state ANY" -use-error-queue true
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListPretrainedModels -filter adams.data.ufdlfilter.AllFilter -state ANY -resolve-ids true" -use-error-queue true
         adams.flow.sink.CallableSink -callable Current
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-pretrainedmodel-add.props -value-type FILE_FORWARD_SLASHES -expand-value true
@@ -1396,7 +1396,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
         adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreatePretrainedModel -name @{name} -framework @{framework_pk} -domain @{domain} -license @{license_pk} -url @{url} -description @{description}" -use-error-queue true
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Delete
-       adams.flow.source.UFDLSource -silent true -action "adams.flow.source.ufdl.ListPretrainedModels -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
+       adams.flow.source.UFDLSource -silent true -action "adams.flow.source.ufdl.ListPretrainedModels -filter adams.data.ufdlfilter.AllFilter -resolve-ids true" -use-error-queue true
        adams.flow.transformer.SpreadSheetSelectSubset -message "Please select pretrained models to delete" -allow-search true
        adams.flow.control.Tee -name "# items"
         adams.flow.transformer.SpreadSheetInfo
