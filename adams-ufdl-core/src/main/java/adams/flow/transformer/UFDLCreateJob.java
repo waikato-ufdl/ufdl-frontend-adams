@@ -374,7 +374,7 @@ public class UFDLCreateJob
 	  break;
 	case TYPE_DATASET:
 	  dataset = new UFDLDatasetChooser();
-	  dataset.setFilter(domainFilter);
+	  dataset.setFilter(ObjectCopyHelper.copyObject(domainFilter));
 	  dataset.setSorting(UFDLListSorting.BY_ID_ONLY);
 	  dataset.setFlowContext(this);
 	  dataset.setName(name);
@@ -386,6 +386,7 @@ public class UFDLCreateJob
 	case TYPE_MODEL:
 	  model = new UFDLPretrainedModelChooser();
 	  model.setFilter(ObjectCopyHelper.copyObject(domainFilter));
+	  model.setSorting(UFDLListSorting.BY_ID_ONLY);
 	  model.setFlowContext(this);
 	  model.setName(name);
 	  model.setDisplay(name);
