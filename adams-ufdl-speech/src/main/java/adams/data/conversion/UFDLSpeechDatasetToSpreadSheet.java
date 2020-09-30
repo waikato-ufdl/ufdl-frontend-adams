@@ -97,6 +97,7 @@ public class UFDLSpeechDatasetToSpreadSheet
     row.addCell("pu").setContentAsString("public");
     row.addCell("fs").setContentAsString("files");
     row.addCell("ts").setContentAsString("transcripts");
+    row.addCell("fi").setContentAsString("files");
 
     return result;
   }
@@ -135,6 +136,7 @@ public class UFDLSpeechDatasetToSpreadSheet
       row.addCell("fs").setContent(Utils.flatten(spdataset.files(), "|"));
     if (spdataset.transcripts().size() > 0)
       row.addCell("ts").setContent(spdataset.transcripts().toString());
+    row.addCell("fi").setContent(Utils.flatten(dataset.getFiles(), ","));
 
     return result;
   }

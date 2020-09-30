@@ -95,6 +95,7 @@ public class UFDLObjectDetectionDatasetToSpreadSheet
     row.addCell("ta").setContentAsString("tags");
     row.addCell("pu").setContentAsString("public");
     row.addCell("fs").setContentAsString("files");
+    row.addCell("fi").setContentAsString("files");
 
     return result;
   }
@@ -131,6 +132,7 @@ public class UFDLObjectDetectionDatasetToSpreadSheet
     row.addCell("pu").setContent(dataset.isPublic());
     if (icdataset.files().size() > 0)
       row.addCell("fs").setContent(Utils.flatten(icdataset.files(), ","));
+    row.addCell("fi").setContent(Utils.flatten(dataset.getFiles(), ","));
 
     return result;
   }

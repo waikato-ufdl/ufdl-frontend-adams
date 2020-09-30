@@ -21,6 +21,7 @@
 package adams.data.conversion;
 
 import adams.core.DateTimeMsec;
+import adams.core.Utils;
 import adams.data.spreadsheet.DefaultSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
@@ -93,6 +94,7 @@ public class UFDLDatasetToSpreadSheet
     row.addCell("ve").setContentAsString("version");
     row.addCell("ta").setContentAsString("tags");
     row.addCell("pu").setContentAsString("public");
+    row.addCell("fi").setContentAsString("files");
 
     return result;
   }
@@ -125,6 +127,7 @@ public class UFDLDatasetToSpreadSheet
     row.addCell("ve").setContent(dataset.getVersion());
     row.addCell("ta").setContent(dataset.getTags());
     row.addCell("pu").setContent(dataset.isPublic());
+    row.addCell("fi").setContent(Utils.flatten(dataset.getFiles(), ","));
 
     return result;
   }
