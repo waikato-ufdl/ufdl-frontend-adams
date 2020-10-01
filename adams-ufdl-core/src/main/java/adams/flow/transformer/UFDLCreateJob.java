@@ -20,6 +20,7 @@
 
 package adams.flow.transformer;
 
+import adams.core.MessageCollection;
 import adams.core.ObjectCopyHelper;
 import adams.core.Properties;
 import adams.core.Utils;
@@ -45,11 +46,13 @@ import adams.gui.core.BaseTextArea;
 import adams.gui.core.GUIHelper;
 import adams.gui.core.PropertiesParameterPanel;
 import adams.gui.core.PropertiesParameterPanel.PropertyType;
+import com.github.waikatoufdl.ufdl4j.action.DockerImages.DockerImage;
 import com.github.waikatoufdl.ufdl4j.action.Domains.Domain;
 import com.github.waikatoufdl.ufdl4j.action.Frameworks.Framework;
 import com.github.waikatoufdl.ufdl4j.action.JobTemplates.JobTemplate;
 import com.github.waikatoufdl.ufdl4j.action.Jobs.Job;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
+import com.github.waikatoufdl.ufdl4j.action.PretrainedModels.PretrainedModel;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -337,6 +340,9 @@ public class UFDLCreateJob
     UFDLDockerImageChooser	dockerImage;
     DomainFilter		domainFilter;
     GenericFilter		genericFilter;
+    PretrainedModel 		pretrained;
+    MessageCollection		errors;
+    List<DockerImage>		images;
 
     // filter
     domainFilter = new DomainFilter();
@@ -390,8 +396,28 @@ public class UFDLCreateJob
 	  model.setFlowContext(this);
 	  model.setName(name);
 	  model.setDisplay(name);
-	  if (isInput)
+	  if (isInput) {
 	    value = "-1";
+	  }
+	  else {
+	    // name of pretrained model?
+	    if (!Utils.isInteger(value)) {
+	      try {
+		pretrained = m_Connection.getClient().pretrainedModels().load(value);
+		if (pretrained == null) {
+		  getLogger().severe("Unknown pre-trained model: " + value);
+		  value = "-1";
+		}
+		else {
+		  value = "" + pretrained.getPK();
+		}
+	      }
+	      catch (Exception e) {
+	        getLogger().log(Level.SEVERE, "Failed to load pre-trained model: " + value, e);
+	        value = "-1";
+	      }
+	    }
+	  }
 	  model.addToPanel(panel);
 	  break;
 	case TYPE_JOBOUTPUT:
@@ -424,6 +450,11 @@ public class UFDLCreateJob
 	  .addSubExpression(new ExactInteger("framework", framework.getPK()))
 	)
 	.addOrder(new OrderBy("name"));
+      // if only one image then use it
+      errors = new MessageCollection();
+      images = m_Connection.getClient().docker().list(genericFilter.generate(errors));
+      if (images.size() == 1)
+        value = "" + images.get(0).getPK();
       dockerImage = new UFDLDockerImageChooser();
       dockerImage.setSorting(UFDLListSorting.BY_ID_ONLY);
       dockerImage.setFlowContext(this);
