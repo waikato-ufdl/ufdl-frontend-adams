@@ -40,6 +40,9 @@ public class DownloadJobOutput
   /** the name of the output to download. */
   protected String m_Name;
 
+  /** the type of the output to download. */
+  protected String m_Type;
+
   /** the output file to use. */
   protected PlaceholderFile m_OutputFile;
 
@@ -63,6 +66,10 @@ public class DownloadJobOutput
 
     m_OptionManager.add(
       "name", "name",
+      "");
+
+    m_OptionManager.add(
+      "type", "type",
       "");
 
     m_OptionManager.add(
@@ -97,6 +104,35 @@ public class DownloadJobOutput
    */
   public String nameTipText() {
     return "The name of the output to download.";
+  }
+
+  /**
+   * Sets the type of the output to retrieve.
+   *
+   * @param value 	the type
+   */
+  public void setType(String value) {
+    m_Type = value;
+    reset();
+  }
+
+  /**
+   * Returns the type of the output to retrieve.
+   *
+   * @return 		the type
+   */
+  public String getType() {
+    return m_Type;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String typeTipText() {
+    return "The type of the output to download.";
   }
 
   /**
@@ -138,6 +174,7 @@ public class DownloadJobOutput
     String	result;
 
     result = QuickInfoHelper.toString(this, "name", (m_Name.isEmpty() ? "-none-" : m_Name), "name: ");
+    result += QuickInfoHelper.toString(this, "type", (m_Type.isEmpty() ? "-none-" : m_Type), ", type: ");
     result += QuickInfoHelper.toString(this, "outputFile", m_OutputFile, ", output: ");
 
     return result;
@@ -165,7 +202,7 @@ public class DownloadJobOutput
     Job		job;
 
     if (isLoggingEnabled())
-      getLogger().info("Downloading output '" + m_Name + "' from job: " + input);
+      getLogger().info("Downloading output '" + m_Name + "/" + m_Type + "' from job: " + input);
 
     // load job
     try {
@@ -174,13 +211,13 @@ public class DownloadJobOutput
       else
 	job = (Job) input;
 
-      result = m_Client.jobs().getOutput(job, m_Name, m_OutputFile);
+      result = m_Client.jobs().getOutput(job, m_Name, m_Type, m_OutputFile);
 
       if (!result)
-	errors.add("Failed to download job output '" + m_Name + "' from job '" + job + "' to: " + m_OutputFile);
+	errors.add("Failed to download job output '" + m_Name + "/" + m_Type + "' from job '" + job + "' to: " + m_OutputFile);
     }
     catch (Exception e) {
-      errors.add("Failed to download job output '" + m_Name + "' to: " + m_OutputFile, e);
+      errors.add("Failed to download job output '" + m_Name + "/" + m_Type + "' to: " + m_OutputFile, e);
     }
   }
 }

@@ -37,6 +37,9 @@ public class DeleteJobOutput
   /** the name of the output to delete. */
   protected String m_Name;
 
+  /** the type of the output to delete. */
+  protected String m_Type;
+
   /**
    * Returns a string describing the object.
    *
@@ -56,6 +59,10 @@ public class DeleteJobOutput
 
     m_OptionManager.add(
       "name", "name",
+      "");
+
+    m_OptionManager.add(
+      "type", "type",
       "");
   }
 
@@ -89,13 +96,47 @@ public class DeleteJobOutput
   }
 
   /**
+   * Sets the type of the output to delete.
+   *
+   * @param value 	the type
+   */
+  public void setType(String value) {
+    m_Type = value;
+    reset();
+  }
+
+  /**
+   * Returns the type of the output to delete.
+   *
+   * @return 		the type
+   */
+  public String getType() {
+    return m_Type;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String typeTipText() {
+    return "The type of the output to delete.";
+  }
+
+  /**
    * Returns a quick info about the object, which can be displayed in the GUI.
    *
    * @return		null if no info available, otherwise short string
    */
   @Override
   public String getQuickInfo() {
-    return QuickInfoHelper.toString(this, "name", m_Name);
+    String	result;
+
+    result = QuickInfoHelper.toString(this, "name", (m_Name.isEmpty() ? "-none-" : m_Name), "name: ");
+    result += QuickInfoHelper.toString(this, "type", (m_Type.isEmpty() ? "-none-" : m_Type), ", type: ");
+
+    return result;
   }
 
   /**
@@ -122,13 +163,13 @@ public class DeleteJobOutput
     result = false;
 
     if (isLoggingEnabled())
-      getLogger().info("Deleting job output (name=" + m_Name + "): " + job);
+      getLogger().info("Deleting job output (" + m_Name + "/" + m_Type + "): " + job);
 
     try {
-      result = m_Client.jobs().deleteOutput(job, m_Name);
+      result = m_Client.jobs().deleteOutput(job, m_Name, m_Type);
     }
     catch (Exception e) {
-      errors.add("Failed to delete job output (name=" + m_Name + "): " + job, e);
+      errors.add("Failed to delete job output (" + m_Name + "/" + m_Type + "): " + job, e);
     }
 
     return result;
