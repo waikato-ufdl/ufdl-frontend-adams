@@ -36,6 +36,9 @@ public class DomainFilter
   /** the domain PK. */
   protected int m_Domain;
 
+  /** the ordering. */
+  protected OrderBy[] m_Order;
+
   /**
    * Default constructor.
    */
@@ -73,6 +76,10 @@ public class DomainFilter
     m_OptionManager.add(
       "domain", "domain",
       -1);
+
+    m_OptionManager.add(
+      "order", "order",
+      new OrderBy[0]);
   }
 
   /**
@@ -105,6 +112,55 @@ public class DomainFilter
   }
 
   /**
+   * Sets the order to impose.
+   *
+   * @param value	the order
+   */
+  public void setOrder(OrderBy[] value) {
+    m_Order = value;
+    reset();
+  }
+
+  /**
+   * Returns the order to impose.
+   *
+   * @return		the order
+   */
+  public OrderBy[] getOrder() {
+    return m_Order;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String orderTipText() {
+    return "The order to impose on the result.";
+  }
+
+  /**
+   * Adds an ordering to the array of orderings.
+   *
+   * @param order	the ordering to add
+   * @return		itself
+   */
+  public DomainFilter addOrder(OrderBy order) {
+    OrderBy[] 	orders;
+    int		i;
+
+    orders = new OrderBy[m_Order.length + 1];
+    for (i = 0; i < m_Order.length; i++)
+      orders[i] = m_Order[i];
+    orders[orders.length - 1] = order;
+    m_Order = orders;
+    reset();
+
+    return this;
+  }
+
+  /**
    * Generates the filter.
    *
    * @param errors	for collecting errors
@@ -112,6 +168,12 @@ public class DomainFilter
    */
   @Override
   protected Filter doGenerate(MessageCollection errors) {
-    return new com.github.waikatoufdl.ufdl4j.filter.DomainFilter(m_Domain);
+    com.github.waikatoufdl.ufdl4j.filter.OrderBy[]	order;
+    int  						i;
+
+    order = new com.github.waikatoufdl.ufdl4j.filter.OrderBy[m_Order.length];
+    for (i = 0; i < m_Order.length; i++)
+      order[i] = m_Order[i].generate(errors);
+    return new com.github.waikatoufdl.ufdl4j.filter.DomainFilter(m_Domain, order);
   }
 }
