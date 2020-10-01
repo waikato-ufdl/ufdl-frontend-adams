@@ -23,6 +23,9 @@ package adams.gui.chooser;
 import adams.core.MessageCollection;
 import adams.data.conversion.AbstractUFDLObjectToSpreadSheetConversion;
 import adams.data.conversion.UFDLJobTemplateToSpreadSheet;
+import adams.data.ufdlfilter.AbstractUFDLFilter;
+import adams.data.ufdlfilter.GenericFilter;
+import adams.data.ufdlfilter.OrderBy;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.JobTemplates.JobTemplate;
 
@@ -35,6 +38,20 @@ public class UFDLJobTemplateChooserPanel
   extends AbstractUFDLSpreadSheetBasedSoftDeleteChooserPanel<JobTemplate> {
 
   private static final long serialVersionUID = -5162524212611793388L;
+
+  /**
+   * Returns the default filter.
+   *
+   * @return		the default
+   */
+  protected AbstractUFDLFilter getDefaultFilter() {
+    GenericFilter 	result;
+
+    result = new GenericFilter();
+    result.setOrder(new OrderBy[]{new OrderBy("name")});
+
+    return result;
+  }
 
   /**
    * Turns the object into a struct (ID and string).
