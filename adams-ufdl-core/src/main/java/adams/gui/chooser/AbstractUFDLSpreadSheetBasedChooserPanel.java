@@ -201,7 +201,7 @@ public abstract class AbstractUFDLSpreadSheetBasedChooserPanel<T>
       m_Dialog.setShowColumnComboBox(false);
       m_Dialog.setShowSearch(true);
       m_Dialog.setSize(GUIHelper.getDefaultDialogDimension());
-      m_Dialog.setLocationRelativeTo(getParent());
+      m_Dialog.setLocationRelativeTo(m_Dialog.getParent());
     }
 
     try {
