@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-10-01 14:53:48
+# Date: 2020-10-02 10:44:35
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -1289,7 +1289,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.ExportJobTemplate -pretty-printing @{pretty_print}" -use-error-queue true
         adams.flow.control.Tee -name write
          adams.flow.sink.TextWriter -writer "adams.data.io.output.TextFileWriter -filename-generator \"adams.core.io.SimpleFixedFilenameGenerator -name @{output_file}\""
-        adams.flow.control.Trigger -name "display in browser"
+        adams.flow.control.ConditionalTrigger -name "display in browser" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name file_browser"
          adams.flow.source.Variable -var-name output_file -conversion adams.data.conversion.StringToString
          adams.flow.sink.FileBrowser
       adams.flow.control.Trigger -name Delete
