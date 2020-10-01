@@ -66,10 +66,19 @@ public abstract class AbstractUFDLPKChooserPanel<T>
   protected void initialize() {
     super.initialize();
 
-    m_Filter         = new AllFilter();
+    m_Filter         = getDefaultFilter();
     m_Sorting        = UFDLListSorting.BY_DESCRIPTION_CASE_INSENSITIVE;
     m_MultiSelection = false;
     m_Separator      = DEFAULT_SEPARATOR;
+  }
+
+  /**
+   * Returns the default filter.
+   *
+   * @return		the default
+   */
+  protected AbstractUFDLFilter getDefaultFilter() {
+    return new AllFilter();
   }
 
   /**
