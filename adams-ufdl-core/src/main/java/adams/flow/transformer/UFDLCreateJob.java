@@ -474,6 +474,8 @@ public class UFDLCreateJob
    * @param text	the text to display
    */
   protected void addInfo(String label, String text) {
+    if (text.isEmpty())
+      text = "N/A";
     if (m_TemplateInfo.length() > 0)
       m_TemplateInfo.append("\n");
     m_TemplateInfo.append(label).append("\n");
@@ -512,6 +514,7 @@ public class UFDLCreateJob
     addInfo("Name", template.getName());
     addInfo("Version", "" + template.getVersion());
     addInfo("Domain", template.getDomain());
+    addInfo("Description", template.getDescription());
     addInfo("Framework", framework.getName() + "/" + framework.getVersion());
     addInfo("License", license.getName());
     addInfo("Executor class", template.getExecutorClass());
