@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-09-18 15:56:25
+# Date: 2020-10-02 13:42:43
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -65,7 +65,7 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
    adams.flow.control.IfThenElse -condition "adams.flow.condition.bool.Expression -expression \"X > 20\""
     adams.flow.transformer.SetVariable -name then -var-name use_buttons -var-value false
     adams.flow.transformer.SetVariable -name else -var-name use_buttons -var-value true
- adams.flow.standalone.UFDLConnection
+ adams.flow.standalone.UFDLConnection -read-timeout 240
  adams.flow.standalone.SetVariable -name initialize -var-name show_main_menu -var-value true
  adams.flow.standalone.QueueInit -storage-name errors
  adams.flow.standalone.SetVariable -name "log file" -var-name logfile -var-value @{flow_filename_long}.log -value-type FILE_FORWARD_SLASHES -expand-value true
