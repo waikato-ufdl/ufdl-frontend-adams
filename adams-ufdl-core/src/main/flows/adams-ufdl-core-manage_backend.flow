@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-10-02 11:26:07
+# Date: 2020-10-02 12:04:27
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -1063,10 +1063,11 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -name "Select job template" -message "Please select job template" -value "adams.flow.source.valuedefinition.UFDLJobTemplateChooser -name template -display Template -filter \"adams.data.ufdlfilter.DomainFilter -domain @{domain_pk} -order \\\"adams.data.ufdlfilter.OrderBy -field name\\\"\"" -output-type MAP
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListJobTemplates -filter adams.data.ufdlfilter.AllFilter -resolve-ids true" -use-error-queue true
+        adams.flow.transformer.SpreadSheetSelectSubset -name "Select job template" -short-title true -allow-search true
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.transformer.MapToVariables
-        adams.flow.transformer.UFDLExtractAndTransfer -name template_pk -source template -target template_pk
+        adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
+        adams.flow.transformer.SetVariable -name "pk -> template_pk" -var-name template_pk -var-value @{pk}
        adams.flow.control.Block -name "block if cancelled (2)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name "create job"
         adams.flow.source.Variable -var-name template_pk -conversion adams.data.conversion.StringToInt
