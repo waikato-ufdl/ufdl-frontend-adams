@@ -479,7 +479,7 @@ public class UFDLCreateJob
     if (m_TemplateInfo.length() > 0)
       m_TemplateInfo.append("\n");
     m_TemplateInfo.append(label).append("\n");
-    m_TemplateInfo.append("  ").append(text).append("\n");
+    m_TemplateInfo.append(Utils.indent(text, 2));
   }
 
   /**
