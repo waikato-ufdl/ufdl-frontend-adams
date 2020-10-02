@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-10-02 12:04:27
+# Date: 2020-10-02 16:14:12
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -1063,7 +1063,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListJobTemplates -filter adams.data.ufdlfilter.AllFilter -resolve-ids true" -use-error-queue true
+        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListJobTemplates -filter \"adams.data.ufdlfilter.DomainFilter -domain @{domain_pk} -order \\\"adams.data.ufdlfilter.OrderBy -field name\\\"\" -resolve-ids true" -use-error-queue true
         adams.flow.transformer.SpreadSheetSelectSubset -name "Select job template" -short-title true -allow-search true
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
