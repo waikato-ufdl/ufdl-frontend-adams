@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-10-02 16:14:12
+# Date: 2020-10-05 10:39:40
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -1387,7 +1387,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-pretrainedmodel-add.props -value-type FILE_FORWARD_SLASHES -expand-value true
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -name "Add Pretrained model" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name" -value "adams.flow.source.valuedefinition.UFDLFrameworkChooser -name framework -display Framework -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLDomainChooser -name domain -display Domain -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLLicenseFilter -name license -display License -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name url -display URL" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name description -display Description" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+        adams.flow.source.EnterManyValues -name "Add Pretrained model" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name name -display Name" -value "adams.flow.source.valuedefinition.UFDLFrameworkChooser -name framework -display Framework -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLDomainChooser -name domain -display Domain -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.UFDLLicenseFilter -name license -display License -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name url -display URL" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name description -display Description" -value "adams.flow.source.valuedefinition.FileValueDefinition -name model_file -display \"Model file\" -help \"The binary file to upload\" -file-chooser-title \"Pretrained model\" -use-forward-slashes true" -output-type MAP -restoration-enabled true -restoration-file @{restore}
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.UFDLExtractAndTransfer -name framework_pk -source framework -target framework_pk
         adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source license -target license_pk
@@ -1396,6 +1396,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name add
         adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreatePretrainedModel -name @{name} -framework @{framework_pk} -domain @{domain} -license @{license_pk} -url @{url} -description @{description}" -use-error-queue true
+        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.UploadPretrainedModelFile -file @{model_file}" -use-error-queue true
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Download
        adams.flow.source.Start
