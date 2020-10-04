@@ -21,16 +21,14 @@
 package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
-import com.github.waikatoufdl.ufdl4j.action.PretrainedModels;
 import com.github.waikatoufdl.ufdl4j.action.PretrainedModels.PretrainedModel;
 
 /**
  * Ancestor of transformer actions on pretrained models.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
- * @param <T> the type of PretrainedModels action
  */
-public abstract class AbstractPretrainedModelTransformerAction<T extends PretrainedModels>
+public abstract class AbstractPretrainedModelTransformerAction
   extends AbstractUFDLTransformerAction {
 
   private static final long serialVersionUID = 1320770985737432995L;
@@ -42,16 +40,6 @@ public abstract class AbstractPretrainedModelTransformerAction<T extends Pretrai
   @Override
   public Class[] accepts() {
     return new Class[]{Integer.class, String.class, PretrainedModel.class};
-  }
-
-  /**
-   * Returns the pretrained models action to use.
-   *
-   * @return		the action
-   * @throws Exception	if instantiation of action fails
-   */
-  protected T getPretrainedModelsAction() throws Exception {
-    return (T) m_Client.action(PretrainedModels.class);
   }
 
   /**
@@ -72,9 +60,8 @@ public abstract class AbstractPretrainedModelTransformerAction<T extends Pretrai
    */
   @Override
   protected Object doTransform(Object input, MessageCollection errors) {
-    Object	result;
+    Object		result;
     PretrainedModel 	model;
-    T		action;
 
     result = null;
 
@@ -84,11 +71,10 @@ public abstract class AbstractPretrainedModelTransformerAction<T extends Pretrai
     // load pretrained model
     model = null;
     try {
-      action = getPretrainedModelsAction();
       if (input instanceof Integer)
-	model = action.load((Integer) input);
+	model = m_Client.pretrainedModels().load((Integer) input);
       else if (input instanceof String)
-	model = action.load("" + input);
+	model = m_Client.pretrainedModels().load("" + input);
       else
 	model = (PretrainedModel) input;
     }
