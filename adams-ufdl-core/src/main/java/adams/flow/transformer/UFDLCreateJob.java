@@ -60,6 +60,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -188,6 +189,8 @@ public class UFDLCreateJob
   public static final String TYPE_MODEL = "model";
 
   public static final String TYPE_JOBOUTPUT = "joboutput";
+
+  public static final String TYPE_CHOICE = "choice";
 
   /** the connection to use. */
   protected transient UFDLConnection m_Connection;
@@ -343,6 +346,9 @@ public class UFDLCreateJob
     PretrainedModel 		pretrained;
     MessageCollection		errors;
     List<DockerImage>		images;
+    List<String>		list;
+    String			listDef;
+    int				i;
 
     // filter
     domainFilter = new DomainFilter();
@@ -431,12 +437,28 @@ public class UFDLCreateJob
 	  }
 	  jobOutput.addToPanel(panel);
 	  break;
+	case TYPE_CHOICE:
+	  panel.addPropertyType(name, PropertyType.LIST);
+	  listDef = "";
+	  list = new ArrayList<>(Arrays.asList(value.split(",")));
+	  for (i = 0; i < list.size(); i++) {
+	    if (list.get(i).startsWith("[") && list.get(i).endsWith("]")) {
+	      listDef = list.get(i);
+	      listDef = listDef.substring(1, listDef.length() - 1);
+	      list.set(i, listDef);
+	    }
+	  }
+	  panel.setList(name, list.toArray(new String[0]));
+	  panel.setListDefault(name, listDef);
+	  value = null;
+	  break;
 	default:
 	  getLogger().warning("Unhandled type '" + type + "' for input '" + name + "'!");
 	  panel.addPropertyType(name, PropertyType.STRING);
 	  break;
       }
-      props.setProperty(name, value);
+      if (value != null)
+	props.setProperty(name, value);
     }
 
     // docker image
