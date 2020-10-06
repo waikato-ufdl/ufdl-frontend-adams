@@ -14,7 +14,7 @@
  */
 
 /*
- * GetObjectDetectionMetadataForFile.java
+ * GetObjectDetectionMetadata.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
