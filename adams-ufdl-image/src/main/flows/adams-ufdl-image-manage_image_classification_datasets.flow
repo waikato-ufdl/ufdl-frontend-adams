@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-09-22 09:11:12
+# Date: 2020-10-08 10:16:57
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -158,9 +158,9 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
   adams.flow.source.Start
   adams.flow.control.CloseCallableDisplay -callable ProgressBar
   adams.flow.control.Trigger -name "menu prompt"
-   adams.flow.source.EnterValue -name "Image classification" -message "Please select dataset operation" -selection-values List -selection-values Create -selection-values Update -selection-values View -selection-values Copy -selection-values Merge -selection-values Delete -selection-values Reinstate -selection-values Download -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
+   adams.flow.source.EnterValue -name "Image classification" -message "Please select dataset operation" -selection-values List -selection-values Create -selection-values Update -selection-values View -selection-values Clear -selection-values Copy -selection-values Merge -selection-values Delete -selection-values Reinstate -selection-values Download -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
    adams.flow.transformer.SetVariable -var-name choice
-  adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value List" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Create" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Update" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value View" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Copy" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Merge" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Delete" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Reinstate" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Download" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value \"Clear output\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Exit" -lenient true
+  adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value List" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Create" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Update" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value View" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Clear" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Copy" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Merge" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Delete" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Reinstate" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Download" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value \"Clear output\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Exit" -lenient true
    adams.flow.control.Trigger -name List
     adams.flow.standalone.SetVariable -name reset -var-name no_datasets -var-value true
     adams.flow.source.Start
@@ -412,6 +412,23 @@ adams.flow.control.Flow -annotation "Allows users to manage image classification
         adams.flow.transformer.MergeReport -type STORAGE -storage confidence
        adams.flow.control.Cast
        adams.flow.sink.CallableSink -callable Images
+   adams.flow.control.Trigger -name Clear
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name "prompt user"
+     adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-clear.props -value-type FILE_FORWARD_SLASHES -expand-value true
+     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+     adams.flow.source.EnterManyValues -name "Clear dataset" -value "adams.flow.source.valuedefinition.UFDLImageClassificationDatasetChooser -name dataset -display Dataset -filter adams.data.ufdlfilter.AllFilter" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.transformer.MapToVariables
+     adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+     adams.flow.transformer.UFDLExtractAndTransfer -source dataset -target dataset_pk
+    adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+    adams.flow.control.Trigger -name clear
+     adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+     adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ClearImageClassificationDataset -use-error-queue true
+     adams.flow.transformer.SetVariable -var-name success
+     adams.flow.control.Trigger -name info
+      adams.flow.source.CombineVariables -expression "cleared dataset @{dataset_pk}: @{success}" -conversion adams.data.conversion.StringToString
+      adams.flow.sink.CallableSink -callable Info
    adams.flow.control.Trigger -name Copy
     adams.flow.source.Start
     adams.flow.control.Trigger -name current

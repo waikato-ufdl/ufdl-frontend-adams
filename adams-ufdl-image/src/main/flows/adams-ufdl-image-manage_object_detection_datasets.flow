@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-10-07 11:16:12
+# Date: 2020-10-08 10:16:21
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -10,7 +10,7 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
   adams.flow.sink.HistoryDisplay -name Errors -short-title true -display-type adams.flow.core.displaytype.Default -y -3
   adams.flow.sink.SpreadSheetDisplay -name Current -short-title true -display-type adams.flow.core.displaytype.Default -x -3 -cell-rendering-customizer adams.gui.core.spreadsheettable.DefaultCellRenderingCustomizer -allow-search true -writer adams.data.io.output.NullWriter
   adams.flow.sink.ProgressBar -short-title true -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -max @{max}
-  adams.flow.sink.DisplayPanelManager -name Images -display-type adams.flow.core.displaytype.Default -width 800 -height 600 -provider "adams.flow.sink.ImageViewer -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -zoom -1.0 -show-properties true -selection-processor adams.gui.visualization.image.selection.NullProcessor -left-click-processor adams.gui.visualization.image.leftclick.NullProcessor -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -image-overlay \"adams.gui.visualization.image.ObjectLocationsOverlayFromReport -use-colors-per-type true -type-color-provider adams.gui.visualization.core.DefaultColorProvider -label-format \\\"# $\\\"\"" -entry-name-variable image -allow-search true
+  adams.flow.sink.DisplayPanelManager -name Images -display-type adams.flow.core.displaytype.Default -width 800 -height 600 -provider "adams.flow.sink.ImageViewer -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -zoom -1.0 -show-properties true -selection-processor adams.gui.visualization.image.selection.NullProcessor -left-click-processor adams.gui.visualization.image.leftclick.ViewObjects -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -image-overlay \"adams.gui.visualization.image.ObjectLocationsOverlayFromReport -use-colors-per-type true -type-color-provider adams.gui.visualization.core.DefaultColorProvider -label-format \\\"# $\\\"\"" -entry-name-variable image -allow-search true
   adams.flow.sink.DisplayPanelManager -name Interactions -short-title true -display-type adams.flow.core.displaytype.Default -width 800 -height 600 -x -3 -provider "adams.flow.sink.JsonDisplay -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -preview true" -entry-name-variable image
   adams.flow.control.Tee -name "clear output"
    adams.flow.control.ClearCallableDisplay -name "clear info" -callable Info
@@ -95,9 +95,9 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
   adams.flow.source.Start
   adams.flow.control.CloseCallableDisplay -callable ProgressBar
   adams.flow.control.Trigger -name "menu prompt"
-   adams.flow.source.EnterValue -name "Object detection" -message "Please select dataset operation" -selection-values List -selection-values Create -selection-values Update -selection-values View -selection-values Labels -selection-values Copy -selection-values Merge -selection-values Delete -selection-values Reinstate -selection-values Download -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
+   adams.flow.source.EnterValue -name "Object detection" -message "Please select dataset operation" -selection-values List -selection-values Create -selection-values Update -selection-values View -selection-values Labels -selection-values Clear -selection-values Copy -selection-values Merge -selection-values Delete -selection-values Reinstate -selection-values Download -selection-values "Clear output" -selection-values Exit -use-buttons true -vertical-buttons true
    adams.flow.transformer.SetVariable -var-name choice
-  adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value List" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Create" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Update" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value View" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Labels" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Copy" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Merge" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Delete" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Reinstate" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Download" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value \"Clear output\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Exit" -lenient true
+  adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value List" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Create" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Update" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value View" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Labels" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Clear" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Copy" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Merge" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Delete" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Reinstate" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Download" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value \"Clear output\"" -condition "adams.flow.condition.bool.HasVariableValue -variable-name choice -value Exit" -lenient true
    adams.flow.control.Trigger -name List
     adams.flow.standalone.SetVariable -name reset -var-name no_datasets -var-value true
     adams.flow.source.Start
@@ -344,6 +344,23 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
      adams.flow.transformer.StringJoin -glue \n
      adams.flow.transformer.StringInsert -position first -value "Labels in dataset @{dataset_pk}:\\\\n" -variable true
      adams.flow.sink.CallableSink -callable Info
+   adams.flow.control.Trigger -name Clear
+    adams.flow.source.Start
+    adams.flow.control.Trigger -name "prompt user"
+     adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-clear.props -value-type FILE_FORWARD_SLASHES -expand-value true
+     adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+     adams.flow.source.EnterManyValues -name "Clear dataset" -value "adams.flow.source.valuedefinition.UFDLObjectDetectionDatasetChooser -name dataset -display Dataset -filter adams.data.ufdlfilter.AllFilter" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.transformer.MapToVariables
+     adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+     adams.flow.transformer.UFDLExtractAndTransfer -source dataset -target dataset_pk
+    adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+    adams.flow.control.Trigger -name clear
+     adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+     adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ClearObjectDetectionDataset -use-error-queue true
+     adams.flow.transformer.SetVariable -var-name success
+     adams.flow.control.Trigger -name info
+      adams.flow.source.CombineVariables -expression "cleared dataset @{dataset_pk}: @{success}" -conversion adams.data.conversion.StringToString
+      adams.flow.sink.CallableSink -callable Info
    adams.flow.control.Trigger -name Copy
     adams.flow.source.Start
     adams.flow.control.Trigger -name current
