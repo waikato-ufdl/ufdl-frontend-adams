@@ -32,6 +32,7 @@ import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets.ImageCla
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONObject;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -170,18 +171,21 @@ public class UFDLImageClassificationDatasetFilesToSpreadSheet
     int				i;
     Map<String,String> 		metadata;
     String			metadataStr;
+    Map<String,List<String>>	categories;
     JSONObject 			json;
     JsonPath[]			paths;
 
     dataset   = (Dataset) m_Input;
     icdataset = dataset.as(ImageClassificationDataset.class);
 
-    metadata = null;
-    paths    = new JsonPath[m_MetaDataKeys.length];
+    categories = null;
+    metadata   = null;
+    paths      = new JsonPath[m_MetaDataKeys.length];
     if (m_MetaDataKeys.length > 0) {
       for (i = 0; i < m_MetaDataKeys.length; i++)
 	paths[i] = m_MetaDataKeys[i].toJsonPath();
       try {
+        categories = m_Connection.getClient().action(ImageClassificationDatasets.class).getCategories(icdataset);
 	metadata = m_Connection.getClient().action(ImageClassificationDatasets.class).getMetadata(icdataset);
       }
       catch (Exception e) {
@@ -190,10 +194,11 @@ public class UFDLImageClassificationDatasetFilesToSpreadSheet
     }
 
     result = getTemplate();
-    for (String file: icdataset.files()) {
+    for (String file: icdataset.getFiles()) {
       row = result.addRow();
       row.getCell("f").setContentAsString(file);
-      row.getCell("c").setContentAsString(Utils.flatten(icdataset.categories(file), ","));
+      if ((categories != null) && categories.containsKey(file))
+	row.getCell("c").setContentAsString(Utils.flatten(categories.get(file), ","));
       if (metadata != null) {
 	for (i = 0; i < m_MetaDataKeys.length; i++) {
 	  metadataStr = metadata.get(file);

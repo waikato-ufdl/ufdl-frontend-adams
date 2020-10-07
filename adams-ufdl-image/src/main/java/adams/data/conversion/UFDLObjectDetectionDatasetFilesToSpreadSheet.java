@@ -99,7 +99,7 @@ public class UFDLObjectDetectionDatasetFilesToSpreadSheet
     dataset   = (Dataset) m_Input;
     oddataset = dataset.as(ObjectDetectionDataset.class);
     result    = getTemplate();
-    for (String file: oddataset.files()) {
+    for (String file: oddataset.getFiles()) {
       row = result.addRow();
       row.getCell("f").setContentAsString(file);
     }

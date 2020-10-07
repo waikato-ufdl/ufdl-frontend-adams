@@ -26,7 +26,6 @@ import adams.data.spreadsheet.DefaultSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets.ImageClassificationDataset;
 
 import java.sql.Date;
 import java.time.ZoneOffset;
@@ -94,7 +93,6 @@ public class UFDLObjectDetectionDatasetToSpreadSheet
     row.addCell("ve").setContentAsString("version");
     row.addCell("ta").setContentAsString("tags");
     row.addCell("pu").setContentAsString("public");
-    row.addCell("fs").setContentAsString("files");
     row.addCell("fi").setContentAsString("files");
 
     return result;
@@ -111,10 +109,8 @@ public class UFDLObjectDetectionDatasetToSpreadSheet
     SpreadSheet			result;
     Row				row;
     Dataset			dataset;
-    ImageClassificationDataset 	icdataset;
 
     dataset   = (Dataset) m_Input;
-    icdataset = dataset.as(ImageClassificationDataset.class);
     result    = getTemplate();
     row       = result.addRow();
     row.addCell("pk").setContent(dataset.getPK());
@@ -130,8 +126,6 @@ public class UFDLObjectDetectionDatasetToSpreadSheet
     row.addCell("ve").setContent(dataset.getVersion());
     row.addCell("ta").setContent(dataset.getTags());
     row.addCell("pu").setContent(dataset.isPublic());
-    if (icdataset.files().size() > 0)
-      row.addCell("fs").setContent(Utils.flatten(icdataset.files(), ","));
     row.addCell("fi").setContent(Utils.flatten(dataset.getFiles(), ","));
 
     return result;
