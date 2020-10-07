@@ -14,28 +14,29 @@
  */
 
 /*
- * CreatePretrainedModel.java
+ * UpdatePretrainedModel.java
  * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
-package adams.flow.source.ufdl;
+package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import adams.core.base.BaseText;
 import com.github.waikatoufdl.ufdl4j.action.PretrainedModels.PretrainedModel;
+import com.github.waikatoufdl.ufdl4j.action.Teams.Team;
 
 /**
- * Creates a pretrained model and forwards the pretrained model object.
+ * Updates a team and forwards the team object.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class CreatePretrainedModel
-  extends AbstractUFDLSourceAction {
+public class UpdatePretrainedModel
+  extends AbstractPretrainedModelTransformerAction {
 
   private static final long serialVersionUID = 2444931814949354710L;
 
-  /** the pretrained model name. */
+  /** the docker image name. */
   protected String m_Name;
 
   /** the framework. */
@@ -63,7 +64,7 @@ public class CreatePretrainedModel
    */
   @Override
   public String globalInfo() {
-    return "Creates a pretrained model and forwards the pretrained model object.";
+    return "Updates a team and forwards the team object.";
   }
 
   /**
@@ -328,30 +329,25 @@ public class CreatePretrainedModel
    */
   @Override
   public Class[] generates() {
-    return new Class[]{PretrainedModel.class};
+    return new Class[]{Team.class};
   }
 
   /**
-   * Generates the data.
+   * Transforms the input data.
    *
    * @param errors 	for collecting errors
    * @return		the generated data, null if none generated
    */
   @Override
-  protected Object doGenerate(MessageCollection errors) {
-    PretrainedModel result;
+  protected Object doTransform(PretrainedModel model, MessageCollection errors) {
+    PretrainedModel    result;
 
     result = null;
     try {
-      if (!m_MetaData.isEmpty())
-        result = m_Client.pretrainedModels().create(
-          m_Name, m_Framework, m_Domain, m_License, m_URL, m_Description.getValue(), m_MetaData.getValue());
-      else
-        result = m_Client.pretrainedModels().create(
-          m_Name, m_Framework, m_Domain, m_License, m_URL, m_Description.getValue());
+      result = m_Client.pretrainedModels().update(model, m_Name, m_Framework, m_Domain, m_License, m_URL, m_Description.getValue(), m_MetaData.getValue());
     }
     catch (Exception e) {
-      errors.add("Failed to create pretrained model!", e);
+      errors.add("Failed to update team: " + model, e);
     }
 
     return result;

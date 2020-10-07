@@ -92,6 +92,7 @@ public class UFDLPretrainedModelToSpreadSheet
     row.addCell("li").setContentAsString("license");
     row.addCell("ur").setContentAsString("url");
     row.addCell("de").setContentAsString("description");
+    row.addCell("me").setContentAsString("metadata");
 
     return result;
   }
@@ -123,6 +124,7 @@ public class UFDLPretrainedModelToSpreadSheet
     row.addCell("li").setContent(getLicense(model.getLicense()));
     row.addCell("ur").setContentAsString(model.getURL());
     row.addCell("de").setContentAsString(model.getDescription());
+    row.addCell("me").setContentAsString(model.getMetaData());
 
     return result;
   }
