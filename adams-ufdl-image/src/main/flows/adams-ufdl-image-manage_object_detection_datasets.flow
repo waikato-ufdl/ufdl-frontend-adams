@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-10-08 10:16:21
+# Date: 2020-10-08 10:30:14
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -308,16 +308,27 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
        adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLAnnotationsToReport
        adams.flow.transformer.SetStorageValue -storage-name annotations
       adams.flow.control.Trigger -name "load interactions from metadata"
+       adams.flow.standalone.SetVariable -name reset -var-name interaction -var-value ""
+       adams.flow.standalone.DeleteStorageValue -storage-name confidence
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetObjectDetectionMetadataForImage -name @{image}" -use-error-queue true
-       adams.flow.transformer.SetVariable -var-name interaction
+       adams.flow.transformer.SetStorageValue -storage-name metadata
        adams.flow.control.Tee -name length
         adams.flow.transformer.StringLength
-        adams.flow.transformer.SetVariable -var-name str_length
-       adams.flow.control.ConditionalSubProcess -name "no interactions?" -condition "adams.flow.condition.bool.Expression -expression \"@{str_length} = 0\""
-        adams.flow.transformer.StringReplace -find .* -replace []
-       adams.flow.transformer.Convert -conversion adams.data.conversion.StringToJson
-       adams.flow.sink.CallableSink -callable Interactions
+        adams.flow.transformer.SetVariable -var-name length
+       adams.flow.control.IfThenElse -name "any metadata?" -condition "adams.flow.condition.bool.Expression -expression \"@{length} > 0\""
+        adams.flow.control.Sequence -name then
+         adams.flow.control.Tee -name interactions
+          adams.flow.transformer.GetJsonValue -path interaction-log -data-type ARRAY
+          adams.flow.transformer.SetVariable -name set -var-name interaction
+         adams.flow.control.Tee -name confidence
+          adams.flow.transformer.GetJsonValue -path confidence
+          adams.flow.transformer.Convert -name "Convert (2)" -conversion adams.data.conversion.AnyToString
+          adams.flow.transformer.Convert -conversion "adams.data.conversion.JsonToReport -prefix confidence."
+          adams.flow.transformer.SetStorageValue -storage-name confidence
+        adams.flow.control.Sequence -name else
+         adams.flow.transformer.StringReplace -find .* -replace {}
+         adams.flow.transformer.SetStorageValue -storage-name metadata
       adams.flow.control.Trigger -name "load image"
        adams.flow.standalone.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -expand-value true
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
@@ -326,6 +337,8 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
        adams.flow.control.ConditionalSubProcess -name annotations? -condition "adams.flow.condition.bool.HasStorageValue -storage-name annotations"
         adams.flow.transformer.MergeReport -type STORAGE -storage annotations
        adams.flow.transformer.SetReportValue -name "set interaction log" -field interaction-log[S] -value @{interaction}
+       adams.flow.control.ConditionalSubProcess -name "confidence available?" -condition "adams.flow.condition.bool.HasStorageValue -storage-name confidence"
+        adams.flow.transformer.MergeReport -type STORAGE -storage confidence
        adams.flow.control.Cast
        adams.flow.sink.CallableSink -callable Images
    adams.flow.control.Trigger -name Labels
