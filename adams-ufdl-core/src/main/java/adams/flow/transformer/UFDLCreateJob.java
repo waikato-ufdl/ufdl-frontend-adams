@@ -24,6 +24,7 @@ import adams.core.MessageCollection;
 import adams.core.ObjectCopyHelper;
 import adams.core.Properties;
 import adams.core.Utils;
+import adams.core.net.HtmlUtils;
 import adams.data.ufdlfilter.DomainFilter;
 import adams.data.ufdlfilter.GenericFilter;
 import adams.data.ufdlfilter.OrderBy;
@@ -498,10 +499,14 @@ public class UFDLCreateJob
   protected void addInfo(String label, String text) {
     if (text.isEmpty())
       text = "N/A";
-    if (m_TemplateInfo.length() > 0)
-      m_TemplateInfo.append("\n");
-    m_TemplateInfo.append(label).append("\n");
-    m_TemplateInfo.append(Utils.indent(text, 2));
+    m_TemplateInfo.append("<tr>");
+    m_TemplateInfo.append("<td>");
+    m_TemplateInfo.append(HtmlUtils.toHTML(label));
+    m_TemplateInfo.append("</td>");
+    m_TemplateInfo.append("<td>");
+    m_TemplateInfo.append(HtmlUtils.markUpURLs(text, true));
+    m_TemplateInfo.append("</td>");
+    m_TemplateInfo.append("</tr>\n");
   }
 
   /**
@@ -533,15 +538,19 @@ public class UFDLCreateJob
       throw new IllegalStateException("Failed to load license: " + template.getLicense());
 
     // info
-    addInfo("Name", template.getName());
+    m_TemplateInfo.append("<html>\n");
+    m_TemplateInfo.append("<h2>").append(template.getName()).append("</h2>\n");
+    m_TemplateInfo.append("<table border=\"1\" cellspacing=\"0\">\n");
+    addInfo("Description", template.getDescription());
     addInfo("Version", "" + template.getVersion());
     addInfo("Domain", template.getDomain());
-    addInfo("Description", template.getDescription());
     addInfo("Framework", framework.getName() + "/" + framework.getVersion());
     addInfo("License", license.getName());
     addInfo("Executor class", template.getExecutorClass());
     if (!template.getRequiredPackages().isEmpty())
       addInfo("Required packages", template.getRequiredPackages());
+    m_TemplateInfo.append("</table>\n");
+    m_TemplateInfo.append("</html>\n");
 
     // inputs
     propsInputs = new Properties();
@@ -575,7 +584,7 @@ public class UFDLCreateJob
 
     buttonInfo = new BaseButton("Info");
     buttonInfo.addActionListener((ActionEvent e) ->
-      GUIHelper.showInformationMessage(panel, m_TemplateInfo.toString(), "Template info"));
+      GUIHelper.showInformationMessage(panel, m_TemplateInfo.toString(), "Template info", true, GUIHelper.getDefaultDialogDimension()));
     panelButtons.add(buttonInfo);
 
     buttonOK = new BaseButton("OK");
