@@ -124,6 +124,7 @@ The following source actions can be used:
 \end{tight_itemize}
 The following transformer actions can be used:
 \begin{tight_itemize}
+  \item \textit{AbortJob} -- aborts a job (via PK; admin only).
   \item \textit{AddJobTemplateInput} -- adds the specified input to the job template passing through.
   \item \textit{AddJobTemplateParameter} -- adds the specified parameter to the job template passing through.
   \item \textit{AddTeamMember} -- adds team member(s) via PK to the team passing through.
@@ -170,6 +171,7 @@ The following transformer actions can be used:
   \item \textit{ReinstateProject} -- reinstates ("undeletes") a project.
   \item \textit{ReinstateTeam} -- reinstates ("undeletes") a team.
   \item \textit{Reinstateuser} -- reinstates ("undeletes") a user.
+  \item \textit{ReleaseJob} -- releases a job (via PK; voluntarily done by node).
   \item \textit{ResetJob} -- resets a job for re-execution.
   \item \textit{UpdateDocker} -- updates a docker image.
   \item \textit{UpdateJobTemplate} -- updates a job template.
