@@ -1,8 +1,8 @@
 # Project: adams
-# Date: 2020-10-08 13:04:25
+# Date: 2020-10-09 17:43:32
 # User: fracpete
 # Charset: UTF-8
-# Modules: adams-compress,adams-core,adams-event,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
+# Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
 #
 adams.flow.control.Flow -annotation "For managing users, teams, projects, licenses, docker images, job templates, jobs, job outputs, etc.\\nUses host/user/password from the global UFDL Preferences." -error-handling ACTORS_DECIDE_TO_STOP_ON_ERROR -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
  adams.flow.standalone.CallableActors
@@ -1036,11 +1036,11 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
      adams.flow.source.Start
      adams.flow.control.Trigger -name "menu prompt"
-      adams.flow.source.EnterValue -name "Job menu" -message "Please select Job operation" -selection-values List -selection-values Add -selection-values Reset -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
+      adams.flow.source.EnterValue -name "Job menu" -message "Please select Job operation" -selection-values List -selection-values Add -selection-values Abort -selection-values Reset -selection-values Delete -selection-values "Clear output" -selection-values Return -use-buttons true -vertical-buttons true
       adams.flow.transformer.SetVariable -var-name choice
       adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
-     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Reset\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
+     adams.flow.control.Switch -name "menu actions" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"List\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Add\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Abort\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Reset\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Delete\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Clear output\\\\\\\"\"" -condition "adams.flow.condition.bool.Expression -expression \"\\\\\\\"@{choice}\\\\\\\" = \\\\\\\"Return\\\\\\\"\"" -lenient true
       adams.flow.control.Trigger -name List
        adams.flow.source.Start
        adams.flow.transformer.SetVariable -var-name none -var-value true
@@ -1074,6 +1074,21 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
         adams.flow.transformer.UFDLCreateJob -name "Create job" -short-title true -x -2 -y -2
         adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLJsonObjectToString
         adams.flow.sink.CallableSink -callable Info
+      adams.flow.control.Trigger -name Abort
+       adams.flow.source.UFDLSource -silent true -action "adams.flow.source.ufdl.ListJobs -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
+       adams.flow.transformer.SpreadSheetSelectSubset -name "Abort job" -message "Please select jobs to abort" -allow-search true
+       adams.flow.control.Tee -name "# items"
+        adams.flow.transformer.SpreadSheetInfo
+        adams.flow.transformer.SetVariable -var-name num_items
+       adams.flow.control.ConditionalTee -name abort? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to abort @{num_items} job(s)?\""
+        adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
+        adams.flow.control.Trigger -name abort
+         adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
+         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.AbortJob -use-error-queue true
+         adams.flow.transformer.SetVariable -var-name success
+         adams.flow.control.Trigger -name info
+          adams.flow.source.CombineVariables -expression "aborted job @{pk}: @{success}" -conversion adams.data.conversion.StringToString
+          adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Reset
        adams.flow.source.UFDLSource -silent true -action "adams.flow.source.ufdl.ListJobs -filter adams.data.ufdlfilter.AllFilter" -use-error-queue true
        adams.flow.transformer.SpreadSheetSelectSubset -name "Reset job" -message "Please select jobs to reset" -allow-search true
@@ -1099,7 +1114,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
         adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
         adams.flow.control.Trigger -name delete
          adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteJob -use-error-queue true
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteJob -hard true" -use-error-queue true
          adams.flow.transformer.SetVariable -var-name success
          adams.flow.control.Trigger -name info
           adams.flow.source.CombineVariables -expression "deleted job @{pk}: @{success}" -conversion adams.data.conversion.StringToString
@@ -1175,10 +1190,10 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
         adams.flow.transformer.SpreadSheetInfo
         adams.flow.transformer.SetVariable -var-name num_items
        adams.flow.control.ConditionalTee -name delete? -condition "adams.flow.condition.bool.PromptUser -message \"Do you want to delete @{num_items} job output(s)?\""
-        adams.flow.transformer.SpreadSheetVariableRowIterator -columns name
+        adams.flow.transformer.SpreadSheetVariableRowIterator -columns name,type
         adams.flow.control.Trigger -name delete
          adams.flow.source.Variable -var-name job_ok -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteJobOutput -name @{name}" -use-error-queue true
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteJobOutput -name @{name} -type @{type}" -use-error-queue true
          adams.flow.transformer.SetVariable -var-name success
          adams.flow.control.Trigger -name info
           adams.flow.source.CombineVariables -expression "deleted job output @{job_pk}/@{name}: @{success}" -conversion adams.data.conversion.StringToString
@@ -1318,7 +1333,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
         adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
         adams.flow.control.Trigger -name delete
          adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteJobTemplate -use-error-queue true
+         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteJobTemplate -hard true" -use-error-queue true
          adams.flow.transformer.SetVariable -var-name success
          adams.flow.control.Trigger -name info
           adams.flow.source.CombineVariables -expression "deleted job template @{pk}: @{success}" -conversion adams.data.conversion.StringToString
