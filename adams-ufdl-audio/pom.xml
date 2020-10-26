@@ -10,11 +10,11 @@
   </parent>
 
   <groupId>nz.ac.waikato.cms.adams</groupId>
-  <artifactId>adams-ufdl-speech</artifactId>
+  <artifactId>adams-ufdl-audio</artifactId>
   <packaging>jar</packaging>
 
-  <name>adams-ufdl-speech</name>
-  <description>Module for speech-related tasks of the User-Friendly Deep-Learning (UFDL) framework.</description>
+  <name>adams-ufdl-audio</name>
+  <description>Module for audio-related tasks of the User-Friendly Deep-Learning (UFDL) framework.</description>
   <url>https://adams.cms.waikato.ac.nz/</url>
   <organization>
     <name>University of Waikato, Hamilton, NZ</name>
@@ -66,7 +66,7 @@
 
     <dependency>
       <groupId>com.github.waikato-ufdl</groupId>
-      <artifactId>ufdl4j-speech</artifactId>
+      <artifactId>ufdl4j-audio</artifactId>
       <version>${ufdl4j.version}</version>
     </dependency>
 
