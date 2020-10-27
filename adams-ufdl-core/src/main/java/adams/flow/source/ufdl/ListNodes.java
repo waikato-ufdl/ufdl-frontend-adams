@@ -47,6 +47,9 @@ public class ListNodes
   /** the filter to apply. */
   protected AbstractUFDLFilter m_Filter;
 
+  /** whether to resolve IDs to names. */
+  protected boolean m_ResolveIDs;
+
   /**
    * Returns a string describing the object.
    *
@@ -67,6 +70,10 @@ public class ListNodes
     m_OptionManager.add(
       "filter", "filter",
       new AllFilter());
+
+    m_OptionManager.add(
+      "resolve-ids", "resolveIDs",
+      false);
   }
 
   /**
@@ -101,13 +108,47 @@ public class ListNodes
   }
 
   /**
+   * Sets whether to resolve any IDs.
+   *
+   * @param value	true if to resolve
+   */
+  public void setResolveIDs(boolean value) {
+    m_ResolveIDs = value;
+    reset();
+  }
+
+  /**
+   * Returns whether to resolve any IDs.
+   *
+   * @return 		true if to resolve
+   */
+  public boolean getResolveIDs() {
+    return m_ResolveIDs;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return		tip text for this property suitable for
+   *             	displaying in the GUI or for listing the options.
+   */
+  public String resolveIDsTipText() {
+    return "If enabled, any IDs get resolved (e.g., outputting license name instead of license ID).";
+  }
+
+  /**
    * Returns a quick info about the object, which can be displayed in the GUI.
    *
    * @return		null if no info available, otherwise short string
    */
   @Override
   public String getQuickInfo() {
-    return QuickInfoHelper.toString(this, "filter", m_Filter, "filter: ");
+    String	result;
+
+    result = QuickInfoHelper.toString(this, "filter", m_Filter, "filter: ");
+    result += QuickInfoHelper.toString(this, "resolveIDs", m_ResolveIDs, "resolve IDs", ", ");
+
+    return result;
   }
 
   /**
@@ -148,6 +189,7 @@ public class ListNodes
     try {
       nodes = m_Client.nodes().list(m_Filter.generate(errors));
       conv     = new UFDLNodeToSpreadSheet();
+      conv.setResolveIDs(m_ResolveIDs);
       conv.setFlowContext(m_FlowContext);
       for (Node node : nodes) {
         conv.setInput(node);

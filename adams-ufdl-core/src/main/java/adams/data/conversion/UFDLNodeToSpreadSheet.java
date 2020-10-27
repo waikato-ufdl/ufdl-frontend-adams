@@ -56,7 +56,7 @@ public class UFDLNodeToSpreadSheet
    */
   @Override
   protected boolean allowIDResolution() {
-    return false;
+    return true;
   }
 
   /**
