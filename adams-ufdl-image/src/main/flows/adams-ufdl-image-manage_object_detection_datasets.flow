@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-10-24 12:22:43
+# Date: 2020-10-27 14:50:17
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -360,15 +360,16 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
      adams.flow.transformer.SpreadSheetSelectSubset -message "Please select image(s) to view"
      adams.flow.control.ConditionalTee -name "iterate images" -condition adams.flow.condition.bool.HasRows
       adams.flow.transformer.SpreadSheetVariableRowIterator -columns image
-      adams.flow.control.Trigger -name "load categories"
+      adams.flow.control.Trigger -name "load annotations"
        adams.flow.standalone.DeleteStorageValue -storage-name annotations
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetObjectDetectionAnnotationsForImage -name @{image}" -use-error-queue true
        adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLAnnotationsToReport
        adams.flow.transformer.SetStorageValue -storage-name annotations
-      adams.flow.control.Trigger -name "load interactions from metadata"
+      adams.flow.control.Trigger -name "load metadata"
        adams.flow.standalone.SetVariable -name reset -var-name interaction -var-value ""
        adams.flow.standalone.DeleteStorageValue -storage-name confidence
+       adams.flow.standalone.DeleteStorageValue -name "DeleteStorageValue (2)" -storage-name scores
        adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
        adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetObjectDetectionMetadataForImage -name @{image}" -use-error-queue true
        adams.flow.transformer.SetStorageValue -storage-name metadata
@@ -380,6 +381,11 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
          adams.flow.control.Tee -name interactions
           adams.flow.transformer.GetJsonValue -path interaction-log -data-type ARRAY
           adams.flow.transformer.SetVariable -name set -var-name interaction
+         adams.flow.control.Tee -name scores
+          adams.flow.transformer.GetJsonValue -path scores -data-type ARRAY
+          adams.flow.transformer.Convert -name "Convert (2)" -conversion adams.data.conversion.JsonArrayToArray
+          adams.flow.transformer.Convert -conversion "adams.data.conversion.ArrayToReport -suffix .score -data-type NUMERIC"
+          adams.flow.transformer.SetStorageValue -storage-name scores
          adams.flow.control.Tee -name confidence
           adams.flow.transformer.GetJsonValue -path confidence
           adams.flow.transformer.Convert -name "Convert (2)" -conversion adams.data.conversion.AnyToString
@@ -398,6 +404,8 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
        adams.flow.transformer.SetReportValue -name "set interaction log" -field interaction-log[S] -value @{interaction}
        adams.flow.control.ConditionalSubProcess -name "confidence available?" -condition "adams.flow.condition.bool.HasStorageValue -storage-name confidence"
         adams.flow.transformer.MergeReport -type STORAGE -storage confidence
+       adams.flow.control.ConditionalSubProcess -name "scores available?" -condition "adams.flow.condition.bool.HasStorageValue -storage-name scores"
+        adams.flow.transformer.MergeReport -type STORAGE -storage scores
        adams.flow.control.Cast
        adams.flow.sink.CallableSink -callable Images
    adams.flow.control.Trigger -name Labels
