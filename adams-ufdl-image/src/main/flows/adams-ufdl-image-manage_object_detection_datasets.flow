@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2020-10-27 14:50:17
+# Date: 2020-10-27 15:00:39
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -349,7 +349,7 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
     adams.flow.control.Trigger -name "prompt user"
      adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
      adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}-view.props -value-type FILE_FORWARD_SLASHES -expand-value true
-     adams.flow.source.EnterManyValues -name "View dataset" -value "adams.flow.source.valuedefinition.UFDLObjectDetectionDatasetList -name dataset -display Dataset" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+     adams.flow.source.EnterManyValues -name "View dataset" -value "adams.flow.source.valuedefinition.UFDLObjectDetectionDatasetList -name dataset -display Dataset -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name min_score -display \"Minimum score\" -help \"The minimum value that predictions need to have for being displayed\" -type DOUBLE -default-value 0" -output-type MAP -restoration-enabled true -restoration-file @{restore}
      adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
      adams.flow.transformer.MapToVariables
      adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
@@ -406,6 +406,8 @@ adams.flow.control.Flow -annotation "Allows users to manage object detection dat
         adams.flow.transformer.MergeReport -type STORAGE -storage confidence
        adams.flow.control.ConditionalSubProcess -name "scores available?" -condition "adams.flow.condition.bool.HasStorageValue -storage-name scores"
         adams.flow.transformer.MergeReport -type STORAGE -storage scores
+        adams.flow.control.ConditionalSubProcess -condition "adams.flow.condition.bool.Expression -expression \"@{min_score} > 0\""
+         adams.flow.transformer.ImageObjectFilter -finder "adams.data.objectfinder.ByMetaDataNumericValue -key score -minimum @{min_score} -minimum-included true -maximum NaN" -filter adams.data.objectfilter.PassThrough
        adams.flow.control.Cast
        adams.flow.sink.CallableSink -callable Images
    adams.flow.control.Trigger -name Labels
