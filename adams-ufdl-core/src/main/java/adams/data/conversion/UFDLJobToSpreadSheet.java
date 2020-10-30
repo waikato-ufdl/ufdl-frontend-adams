@@ -87,15 +87,15 @@ public class UFDLJobToSpreadSheet
     row.addCell("cr").setContentAsString("creator");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
-    row.addCell("jt").setContentAsString("job_template");
-    row.addCell("di").setContentAsString("docker_image");
     row.addCell("no").setContentAsString("node");
-    row.addCell("er").setContentAsString("error");
     row.addCell("st").setContentAsString("start_time");
     row.addCell("et").setContentAsString("end_time");
+    row.addCell("jt").setContentAsString("job_template");
+    row.addCell("di").setContentAsString("docker_image");
     row.addCell("iv").setContentAsString("input_values");
     row.addCell("pv").setContentAsString("parameter_values");
     row.addCell("ou").setContentAsString("outputs");
+    row.addCell("er").setContentAsString("error");
 
     return result;
   }
@@ -122,17 +122,17 @@ public class UFDLJobToSpreadSheet
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(job.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (job.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(job.getDeletionTime().toInstant(ZoneOffset.UTC))));
-    row.addCell("jt").setContent(getJobTemplate(job.getJobTemplate()));
-    row.addCell("di").setContent(getDockerImage(job.getDockerImage()));
     row.addCell("no").setContent(job.getNode());
-    row.addCell("er").setContentAsString(job.getError());
     if (job.getStartTime() != null)
       row.addCell("st").setContent(new DateTimeMsec(Date.from(job.getStartTime().toInstant(ZoneOffset.UTC))));
     if (job.getEndTime() != null)
       row.addCell("et").setContent(new DateTimeMsec(Date.from(job.getEndTime().toInstant(ZoneOffset.UTC))));
+    row.addCell("jt").setContent(getJobTemplate(job.getJobTemplate()));
+    row.addCell("di").setContent(getDockerImage(job.getDockerImage()));
     row.addCell("iv").setContentAsString(job.getInputValues().toString());
     row.addCell("pv").setContentAsString(job.getParameterValues().toString());
     row.addCell("ou").setContentAsString(job.getOutputs().toString());
+    row.addCell("er").setContentAsString(job.getError());
 
     return result;
   }
