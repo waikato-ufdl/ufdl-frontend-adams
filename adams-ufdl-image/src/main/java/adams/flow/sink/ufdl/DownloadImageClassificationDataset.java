@@ -15,7 +15,7 @@
 
 /*
  * DownloadImageClassificationDataset.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.sink.ufdl;
