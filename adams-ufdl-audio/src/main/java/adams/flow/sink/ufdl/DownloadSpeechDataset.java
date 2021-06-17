@@ -15,7 +15,7 @@
 
 /*
  * DownloadSpeechDataset.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.sink.ufdl;
@@ -57,7 +57,8 @@ public class DownloadSpeechDataset
       + "Output file must have zip or tar.gz extension.\n"
       + "The data format within the archive can be influenced by setting the "
       + "'parameters' option which represents wai.annotations output parameters "
-      + "(https://github.com/waikato-ufdl/wai-annotations).";
+      + "(https://github.com/waikato-ufdl/wai-annotations), e.g.:\n"
+      + "'to-common-voice-sp -o train.csv'";
   }
 
   /**
