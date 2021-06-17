@@ -15,7 +15,7 @@
 
 /*
  * UFDLSpeechDatasetToSpreadSheet.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
@@ -26,7 +26,6 @@ import adams.data.spreadsheet.DefaultSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.SpeechDatasets.SpeechDataset;
 
 import java.sql.Date;
 import java.time.ZoneOffset;
@@ -95,8 +94,6 @@ public class UFDLSpeechDatasetToSpreadSheet
     row.addCell("ve").setContentAsString("version");
     row.addCell("ta").setContentAsString("tags");
     row.addCell("pu").setContentAsString("public");
-    row.addCell("fs").setContentAsString("files");
-    row.addCell("ts").setContentAsString("transcripts");
     row.addCell("fi").setContentAsString("files");
 
     return result;
@@ -113,12 +110,10 @@ public class UFDLSpeechDatasetToSpreadSheet
     SpreadSheet		result;
     Row			row;
     Dataset		dataset;
-    SpeechDataset 	spdataset;
 
-    dataset   = (Dataset) m_Input;
-    spdataset = dataset.as(SpeechDataset.class);
-    result    = getTemplate();
-    row       = result.addRow();
+    dataset = (Dataset) m_Input;
+    result  = getTemplate();
+    row     = result.addRow();
     row.addCell("pk").setContent(dataset.getPK());
     row.addCell("tn").setContent(dataset.getName());
     row.addCell("de").setContent(dataset.getDescription());
@@ -132,10 +127,6 @@ public class UFDLSpeechDatasetToSpreadSheet
     row.addCell("ve").setContent(dataset.getVersion());
     row.addCell("ta").setContent(dataset.getTags());
     row.addCell("pu").setContent(dataset.isPublic());
-    if (spdataset.files().size() > 0)
-      row.addCell("fs").setContent(Utils.flatten(spdataset.files(), "|"));
-    if (spdataset.transcripts().size() > 0)
-      row.addCell("ts").setContent(spdataset.transcripts().toString());
     row.addCell("fi").setContent(Utils.flatten(dataset.getFiles(), ","));
 
     return result;

@@ -15,7 +15,7 @@
 
 /*
  * UFDLSpeechDatasetFilesToSpreadSheet.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
@@ -24,6 +24,7 @@ import adams.data.spreadsheet.DefaultSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
+import com.github.waikatoufdl.ufdl4j.action.SpeechDatasets;
 import com.github.waikatoufdl.ufdl4j.action.SpeechDatasets.SpeechDataset;
 
 /**
@@ -97,14 +98,16 @@ public class UFDLSpeechDatasetFilesToSpreadSheet
     Row			row;
     Dataset		dataset;
     SpeechDataset 	spdataset;
+    SpeechDatasets	spdatasets;
 
-    dataset   = (Dataset) m_Input;
-    spdataset = dataset.as(SpeechDataset.class);
-    result    = getTemplate();
+    dataset    = (Dataset) m_Input;
+    spdataset  = dataset.as(SpeechDataset.class);
+    spdatasets = m_Connection.getClient().action(SpeechDatasets.class);
+    result     = getTemplate();
       for (String file: spdataset.files()) {
         row = result.addRow();
         row.getCell("f").setContentAsString(file);
-        row.getCell("t").setContentAsString(spdataset.transcript(file));
+        row.getCell("t").setContentAsString(spdatasets.getTranscript(spdataset, file));
       }
 
     return result;
