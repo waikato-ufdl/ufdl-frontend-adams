@@ -15,7 +15,7 @@
 
 /*
  * DownloadObjectDetectionDataset.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.sink.ufdl;
@@ -58,7 +58,7 @@ public class DownloadObjectDetectionDataset
       + "The data format within the archive can be influenced by setting the "
       + "'parameters' option which represents wai.annotations output parameters "
       + "(https://github.com/waikato-ufdl/wai-annotations), e.g.: "
-      + "'vgg -o ann.json' or 'tfrecords -o train.tfrecords'";
+      + "'to-vgg-od -o ann.json' or 'to-tf-od -o train.tfrecords'";
   }
 
   /**

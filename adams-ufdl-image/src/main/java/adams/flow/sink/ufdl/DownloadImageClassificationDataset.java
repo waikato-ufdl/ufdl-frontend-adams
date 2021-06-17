@@ -58,7 +58,7 @@ public class DownloadImageClassificationDataset
       + "The data format within the archive can be influenced by setting the "
       + "'parameters' option which represents wai.annotations output parameters "
       + "(https://github.com/waikato-ufdl/wai-annotations), e.g.: "
-      + "'vgg -o ann.json' or 'tfrecords -o train.tfrecords'";
+      + "'to-subdir-ic -o .'";
   }
 
   /**
