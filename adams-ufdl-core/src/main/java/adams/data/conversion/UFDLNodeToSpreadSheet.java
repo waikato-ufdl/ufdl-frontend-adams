@@ -15,7 +15,7 @@
 
 /*
  * UFDLNodeToSpreadSheet.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
@@ -86,8 +86,9 @@ public class UFDLNodeToSpreadSheet
     row.addCell("ip").setContentAsString("ip");
     row.addCell("dv").setContentAsString("driver_version");
     row.addCell("hg").setContentAsString("hardware_generation");
-    row.addCell("cm").setContentAsString("cpu_memory");
+    row.addCell("gi").setContentAsString("index");
     row.addCell("gm").setContentAsString("gpu_memory");
+    row.addCell("cm").setContentAsString("cpu_memory");
     row.addCell("ls").setContentAsString("last_seen");
 
     return result;
@@ -112,8 +113,9 @@ public class UFDLNodeToSpreadSheet
     row.addCell("ip").setContentAsString(node.getIP());
     row.addCell("dv").setContentAsString(node.getDriverVersion());
     row.addCell("hg").setContent(getHardwareGeneration(node.getHardwareGeneration()));
-    row.addCell("cm").setContent(node.getCPUMemory());
+    row.addCell("gi").setContent(node.getIndex());
     row.addCell("gm").setContent(node.getGPUMemory());
+    row.addCell("cm").setContent(node.getCPUMemory());
     if (node.getLastSeen() != null)
       row.addCell("ls").setContent(new DateTimeMsec(Date.from(node.getLastSeen().toInstant(ZoneOffset.UTC))));
 
