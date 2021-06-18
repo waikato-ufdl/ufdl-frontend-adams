@@ -131,10 +131,9 @@ public class ListImageClassificationFiles
    */
   @Override
   protected Object doTransform(Dataset dataset, MessageCollection errors) {
-    SpreadSheet			result;
-    UFDLImageClassificationDatasetFilesToSpreadSheet	 conv;
-    String			msg;
-    int				i;
+    SpreadSheet						result;
+    UFDLImageClassificationDatasetFilesToSpreadSheet	conv;
+    String						msg;
 
     result = null;
 
