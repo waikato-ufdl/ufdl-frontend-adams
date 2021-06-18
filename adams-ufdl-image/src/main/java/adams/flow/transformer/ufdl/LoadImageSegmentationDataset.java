@@ -14,25 +14,25 @@
  */
 
 /*
- * CreateObjectDetectionDataset.java
- * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
+ * LoadImageSegmentationDataset.java
+ * Copyright (C) 2021 University of Waikato, Hamilton, NZ
  */
 
-package adams.flow.source.ufdl;
+package adams.flow.transformer.ufdl;
 
+import adams.core.MessageCollection;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.ObjectDetectionDataset;
+import com.github.waikatoufdl.ufdl4j.action.ImageSegmentationDatasets.ImageSegmentationDataset;
 
 /**
- * Creates an object detection dataset and forwards the dataset object.
+ * Loads the image segmentation dataset either via PK or dataset name.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class CreateObjectDetectionDataset
-  extends AbstractCreateDataset {
+public class LoadImageSegmentationDataset
+  extends AbstractImageSegmentationDatasetTransformerAction {
 
-  private static final long serialVersionUID = 2444931814949354710L;
+  private static final long serialVersionUID = 2890424326502728143L;
 
   /**
    * Returns a string describing the object.
@@ -41,27 +41,28 @@ public class CreateObjectDetectionDataset
    */
   @Override
   public String globalInfo() {
-    return "Creates an object detection dataset and forwards the dataset object.";
+    return "Loads the image segmentation dataset either via PK or dataset name.";
   }
 
   /**
-   * Returns the classes that the source generates.
+   * Returns the classes that the transformer generates.
    *
    * @return		the classes
    */
   @Override
   public Class[] generates() {
-    return new Class[]{ObjectDetectionDataset.class};
+    return new Class[]{ImageSegmentationDataset.class};
   }
 
   /**
-   * Creates the dataset and returns it.
+   * Transforms the dataset.
    *
-   * @return		the dataset
+   * @param dataset	the input data
+   * @param errors 	for collecting errors
+   * @return 		the transformed data
    */
   @Override
-  protected Dataset createDataset() throws Exception {
-      return m_Client.action(ObjectDetectionDatasets.class).create(
-        m_Name, m_Description, m_Project, m_License, m_IsPublic, m_Tags);
+  protected Object doTransform(Dataset dataset, MessageCollection errors) {
+    return dataset;
   }
 }

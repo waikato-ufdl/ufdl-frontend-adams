@@ -14,25 +14,24 @@
  */
 
 /*
- * CreateObjectDetectionDataset.java
- * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
+ * GetImageSegmentationLabels.java
+ * Copyright (C) 2021 University of Waikato, Hamilton, NZ
  */
 
-package adams.flow.source.ufdl;
+package adams.flow.transformer.ufdl;
 
+import adams.core.MessageCollection;
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.ObjectDetectionDataset;
 
 /**
- * Creates an object detection dataset and forwards the dataset object.
+ * Obtains the labels (aka layer names) of the dataset passing through and forwards them.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class CreateObjectDetectionDataset
-  extends AbstractCreateDataset {
+public class GetImageSegmentationLabels
+  extends AbstractImageSegmentationDatasetTransformerAction {
 
-  private static final long serialVersionUID = 2444931814949354710L;
+  private static final long serialVersionUID = -1421130988687306299L;
 
   /**
    * Returns a string describing the object.
@@ -41,27 +40,38 @@ public class CreateObjectDetectionDataset
    */
   @Override
   public String globalInfo() {
-    return "Creates an object detection dataset and forwards the dataset object.";
+    return "Obtains the labels (aka layer names) of the dataset passing through and forwards them.";
   }
 
   /**
-   * Returns the classes that the source generates.
+   * Returns the classes that the transformer generates.
    *
    * @return		the classes
    */
   @Override
   public Class[] generates() {
-    return new Class[]{ObjectDetectionDataset.class};
+    return new Class[]{String[].class};
   }
 
   /**
-   * Creates the dataset and returns it.
+   * Transforms the input data.
    *
-   * @return		the dataset
+   * @param dataset	the input data
+   * @param errors 	for collecting errors
+   * @return 		the transformed data
    */
   @Override
-  protected Dataset createDataset() throws Exception {
-      return m_Client.action(ObjectDetectionDatasets.class).create(
-        m_Name, m_Description, m_Project, m_License, m_IsPublic, m_Tags);
+  protected Object doTransform(Dataset dataset, MessageCollection errors) {
+    String[]		result;
+
+    result = null;
+    try {
+      result = getDatasetsAction().getLabels(dataset).toArray(new String[0]);
+    }
+    catch (Exception e) {
+      errors.add("Failed to retrieve labels for dataset: " + dataset, e);
+    }
+
+    return result;
   }
 }

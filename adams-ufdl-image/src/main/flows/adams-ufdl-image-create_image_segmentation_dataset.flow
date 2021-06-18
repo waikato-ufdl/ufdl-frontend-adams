@@ -1,0 +1,60 @@
+# Project: adams
+# Date: 2021-06-18 15:43:26
+# User: fracpete
+# Charset: UTF-8
+# Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-matlab,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
+#
+adams.flow.control.Flow -annotation "Creates an image segmentation dataset from the selected files.\\nUses JPG files as the base images and binary PNG masks for the layers.\\nThe PNG files use the \\\"-LAYER\\\" suffix and get automatically determined from the JPG files.\\nUses host/user/password from the global UFDL Preferences." -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
+ adams.flow.standalone.CallableActors
+  adams.flow.sink.Display -display-type adams.flow.core.displaytype.Default -writer adams.data.io.output.NullWriter
+ adams.flow.standalone.UFDLConnection
+ adams.flow.source.Start
+ adams.flow.control.Trigger -name "prompt user"
+  adams.flow.standalone.SetVariable -name "restore file" -var-name restore -var-value @{flow_filename_long}.props -value-type FILE_FORWARD_SLASHES -expand-value true
+  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_name -display \"Dataset name\"" -value "adams.flow.source.valuedefinition.UFDLLicenseFilter -name dataset_license -display License -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_public -display \"Public dataset?\" -type BOOLEAN -default-value false" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_tags -display Tags" -value "adams.flow.source.valuedefinition.UFDLProjectList -name dataset_project -display Project -filter adams.data.ufdlfilter.AllFilter" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name dataset_labels -display Labels -help \"The mask layers to allow in the dataset.\"" -output-type MAP -restoration-enabled true -restoration-file @{restore}
+  adams.flow.transformer.MapToVariables
+  adams.flow.transformer.UFDLExtractAndTransfer -name project_pk -source dataset_project -target project_pk
+  adams.flow.transformer.UFDLExtractAndTransfer -name license_pk -source dataset_license -target license_pk
+ adams.flow.control.Trigger -name "create dataset"
+  adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.CreateImageSegmentationDataset -name @{dataset_name} -project @{project_pk} -license @{license_pk} -is-public @{dataset_public} -tags @{dataset_tags}"
+  adams.flow.transformer.SetStorageValue -storage-name dataset
+  adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageSegmentationLabels -label @{dataset_labels}"
+ adams.flow.control.Trigger -name "add files"
+  adams.flow.source.SelectFile -output-array true -file-chooser-title "Select images to add" -initial-dir ${FLOWS}/data -extension jpg
+  adams.flow.transformer.ArrayToSequence
+  adams.flow.control.Tee -name file/name
+   adams.flow.transformer.SetVariable -var-name file
+   adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractFileNameFromFile
+   adams.flow.transformer.SetVariable -name "SetVariable (2)" -var-name name
+  adams.flow.control.Trigger -name add
+   adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+   adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.AddImageSegmentationFile -file @{file}"
+   adams.flow.sink.CallableSink -callable Display
+  adams.flow.control.Trigger -name "add layers"
+   adams.flow.source.StringConstants -string @{dataset_labels} -conversion adams.data.conversion.StringToString
+   adams.flow.transformer.SetVariable -var-name label
+   adams.flow.control.Trigger -name "add mask if available"
+    adams.flow.standalone.SetVariable -name suffix -var-name suffix -var-value -@{label}.png -expand-value true
+    adams.flow.source.Variable -var-name file -conversion adams.data.conversion.StringToString
+    adams.flow.transformer.Convert -conversion "adams.data.conversion.ReplaceFileExtension -extension @{suffix} -use-forward-slashes true"
+    adams.flow.transformer.SetVariable -var-name mask_file
+    adams.flow.control.Tee -name info
+     adams.flow.transformer.StringInsert -position first -value "--> "
+     adams.flow.sink.CallableSink -callable Display
+    adams.flow.control.ConditionalTrigger -name "add mask" -condition "adams.flow.condition.bool.FileExists -file @{mask_file} -generator adams.core.io.NullFilenameGenerator"
+     adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+     adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageSegmentationLayer -name @{name} -label @{label} -mask-file @{mask_file}"
+     adams.flow.control.Tee -name info
+      adams.flow.transformer.Convert -conversion adams.data.conversion.AnyToString
+      adams.flow.transformer.StringInsert -position first -value "--> "
+      adams.flow.sink.CallableSink -callable Display
+  adams.flow.control.Trigger -name "add metadata"
+   adams.flow.source.StorageValue -storage-name files -conversion adams.data.conversion.UnknownToUnknown
+   adams.flow.transformer.ArrayToSequence
+   adams.flow.control.Tee -name "image name"
+    adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLExtractFileNameFromFile
+    adams.flow.transformer.SetVariable -var-name name
+   adams.flow.transformer.SetStorageValue -storage-name metadata
+   adams.flow.control.Trigger -name "add metadata to file"
+    adams.flow.source.StorageValue -storage-name dataset -conversion adams.data.conversion.UnknownToUnknown
+    adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.SetImageSegmentationMetadataForImage -name @{name}"

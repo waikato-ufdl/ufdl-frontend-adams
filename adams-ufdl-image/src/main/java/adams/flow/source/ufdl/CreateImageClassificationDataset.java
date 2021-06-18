@@ -15,13 +15,14 @@
 
 /*
  * CreateImageClassificationDataset.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.source.ufdl;
 
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
 import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets;
+import com.github.waikatoufdl.ufdl4j.action.ImageClassificationDatasets.ImageClassificationDataset;
 
 /**
  * Creates an image classification dataset and forwards the dataset object.
@@ -41,6 +42,16 @@ public class CreateImageClassificationDataset
   @Override
   public String globalInfo() {
     return "Creates an image classification dataset and forwards the dataset object.";
+  }
+
+  /**
+   * Returns the classes that the source generates.
+   *
+   * @return		the classes
+   */
+  @Override
+  public Class[] generates() {
+    return new Class[]{ImageClassificationDataset.class};
   }
 
   /**

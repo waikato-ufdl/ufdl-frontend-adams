@@ -15,7 +15,7 @@
 
 /*
  * AbstractCreateDataset.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.source.ufdl;
@@ -273,16 +273,6 @@ public abstract class AbstractCreateDataset
     result += QuickInfoHelper.toString(this, "isPublic", m_IsPublic, "public", ", ");
 
     return result;
-  }
-
-  /**
-   * Returns the classes that the source generates.
-   *
-   * @return		the classes
-   */
-  @Override
-  public Class[] generates() {
-    return new Class[]{Dataset.class};
   }
 
   /**

@@ -14,22 +14,22 @@
  */
 
 /*
- * CreateObjectDetectionDataset.java
- * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
+ * CreateImageSegmentationDataset.java
+ * Copyright (C) 2020 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.source.ufdl;
 
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.ObjectDetectionDataset;
+import com.github.waikatoufdl.ufdl4j.action.ImageSegmentationDatasets;
+import com.github.waikatoufdl.ufdl4j.action.ImageSegmentationDatasets.ImageSegmentationDataset;
 
 /**
- * Creates an object detection dataset and forwards the dataset object.
+ * Creates an image segmentation dataset and forwards the dataset object.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class CreateObjectDetectionDataset
+public class CreateImageSegmentationDataset
   extends AbstractCreateDataset {
 
   private static final long serialVersionUID = 2444931814949354710L;
@@ -41,7 +41,7 @@ public class CreateObjectDetectionDataset
    */
   @Override
   public String globalInfo() {
-    return "Creates an object detection dataset and forwards the dataset object.";
+    return "Creates an image segmentation dataset and forwards the dataset object.";
   }
 
   /**
@@ -51,7 +51,7 @@ public class CreateObjectDetectionDataset
    */
   @Override
   public Class[] generates() {
-    return new Class[]{ObjectDetectionDataset.class};
+    return new Class[]{ImageSegmentationDataset.class};
   }
 
   /**
@@ -61,7 +61,7 @@ public class CreateObjectDetectionDataset
    */
   @Override
   protected Dataset createDataset() throws Exception {
-      return m_Client.action(ObjectDetectionDatasets.class).create(
+      return m_Client.action(ImageSegmentationDatasets.class).create(
         m_Name, m_Description, m_Project, m_License, m_IsPublic, m_Tags);
   }
 }

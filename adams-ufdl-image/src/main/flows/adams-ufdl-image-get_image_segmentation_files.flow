@@ -1,0 +1,34 @@
+# Project: adams
+# Date: 2020-06-26 14:35:19
+# User: fracpete
+# Charset: UTF-8
+# Modules: adams-compress,adams-core,adams-imaging,adams-json,adams-net,adams-spreadsheet,adams-ufdl-core,adams-ufdl-image,adams-xml
+#
+adams.flow.control.Flow -annotation "Retrieves the sepcified files from a dataset that the user selects.\\nUses host/user/password from the global UFDL Preferences." -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
+ adams.flow.standalone.CallableActors
+  adams.flow.sink.DisplayPanelManager -display-type adams.flow.core.displaytype.Default -provider "adams.flow.sink.ImageViewer -display-type adams.flow.core.displaytype.Default -writer adams.gui.print.NullWriter -selection-processor adams.gui.visualization.image.selection.NullProcessor -left-click-processor adams.gui.visualization.image.leftclick.NullProcessor -selection-shape-painter adams.gui.visualization.image.selectionshape.RectanglePainter -image-overlay adams.gui.visualization.image.NullOverlay" -entry-name-variable image
+ adams.flow.standalone.UFDLConnection
+ adams.flow.source.Start
+ adams.flow.control.Trigger -name "select dataset"
+  adams.flow.source.EnterManyValues -stop-if-canceled true -value "adams.flow.source.valuedefinition.UFDLImageSegmentationDatasetList -name dataset -display Dataset" -output-type MAP
+  adams.flow.transformer.MapToVariables
+  adams.flow.transformer.UFDLExtractAndTransfer -name dataset_pk -source dataset -target dataset_pk
+ adams.flow.control.Trigger -name "select images"
+  adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+  adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.ListImageSegmentationFiles
+  adams.flow.transformer.SpreadSheetSelectSubset -message "Please select images to delete"
+  adams.flow.transformer.SpreadSheetVariableRowIterator -lenient true
+  adams.flow.transformer.SetVariable -name "output file" -var-name output_file -var-value ${TMP}/@{image} -value-type FILE_FORWARD_SLASHES -expand-value true
+  adams.flow.control.Trigger -name "retrieve categories"
+   adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+   adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageSegmentationCategoriesForImage -name @{image}"
+   adams.flow.transformer.CollectionToArray
+   adams.flow.transformer.StringJoin -glue ,
+   adams.flow.transformer.SetVariable -var-name categories
+  adams.flow.control.Trigger -name "retrieve image"
+   adams.flow.source.Variable -var-name dataset_pk -conversion adams.data.conversion.StringToInt
+   adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.GetImageSegmentationFile -name @{image} -output-file @{output_file}"
+   adams.flow.transformer.ImageFileReader -reader adams.data.io.input.JAIImageReader -meta-data-reader adams.data.io.input.DefaultSimpleReportReader
+   adams.flow.transformer.SetReportValue -field Categories[S] -value @{categories}
+   adams.flow.control.Cast
+   adams.flow.sink.CallableSink -callable DisplayPanelManager

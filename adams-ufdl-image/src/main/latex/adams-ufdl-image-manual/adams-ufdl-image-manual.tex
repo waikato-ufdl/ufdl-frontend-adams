@@ -42,7 +42,7 @@
 \center
 \begin{table}[b]
 	\begin{tabular}{c l l}
-		\parbox[c][2cm]{2cm}{\copyright 2019-2020} &
+		\parbox[c][2cm]{2cm}{\copyright 2019-2021} &
 		\parbox[c][2cm]{5cm}{\includegraphics[width=5cm]{images/coat_of_arms.pdf}} \\
 	\end{tabular}
 	\includegraphics[width=12cm]{images/cc.png} \\
@@ -77,6 +77,9 @@ The following conversions are available:
   \item \textit{UFDLImageClassificationDatasetFilesToSpreadSheet} -- outputs all the files in an image classification dataset as spreadsheet
   \item \textit{UFDLImageClassificationDatasetToListItem} -- converts a UFDL ImageClassificationDataset to a list item string.
   \item \textit{UFDLImageClassificationDatasetToSpreadSheet} -- turns an image classification dataset into a spreadsheet
+  \item \textit{UFDLImageSegmentationDatasetFilesToSpreadSheet} -- outputs all the files in an image segmentation dataset as spreadsheet
+  \item \textit{UFDLImageSegmentationDatasetToListItem} -- converts a UFDL ImageSegmentationDataset to a list item string.
+  \item \textit{UFDLImageSegmentationDatasetToSpreadSheet} -- turns an image segmentation dataset into a spreadsheet
   \item \textit{UFDLObjectDetectionDatasetFilesToSpreadSheet} -- outputs all the files in an object detection dataset as spreadsheet
   \item \textit{UFDLObjectDetectionDatasetToListItem} -- converts a UFDL ObjectDetectionDataset to a list item string.
   \item \textit{UFDLObjectDetectionDatasetToSpreadSheet} -- turns an object detection dataset into a spreadsheet
@@ -85,28 +88,36 @@ The following conversions are available:
 \section{Actions}
 The following sink actions can be used:
 \begin{tight_itemize}
-  \item \textit{DownloadObjectDetectionDataset} -- downloads an object detection dataset
   \item \textit{DownloadImageClassificationDataset} -- downloads an image classification dataset
+  \item \textit{DownloadImageSegmentationDataset} -- downloads an image segmentation dataset
+  \item \textit{DownloadObjectDetectionDataset} -- downloads an object detection dataset
 \end{tight_itemize}
 The following source actions can be used:
 \begin{tight_itemize}
-  \item \textit{CreateImageClassificationDatasets} -- creates an image classification dataset
-  \item \textit{CreateObjectDetectionDatasets} -- creates an object detection dataset
+  \item \textit{CreateImageClassificationDataset} -- creates an image classification dataset
+  \item \textit{CreateImageSegmentationDataset} -- creates an image segmentation dataset
+  \item \textit{CreateObjectDetectionDataset} -- creates an object detection dataset
   \item \textit{ListImageClassificationDatasets} -- lists image classification datasets
+  \item \textit{ListImageSegmentationDatasets} -- lists image segmentation datasets
   \item \textit{ListObjectDetectionDatasets} -- lists object detection datasets
 \end{tight_itemize}
 The following transformer actions can be used:
 \begin{tight_itemize}
   \item \textit{AddImageClassificationCategoriesForFile} -- adds categories to images of an image classification dataset
   \item \textit{AddImageClassificationFile} -- adds images to an image classification dataset
+  \item \textit{AddImageSegmentationFile} -- adds images to an image segmentation dataset
   \item \textit{AddObjectDetectionFile} -- adds an image (and its optional annnotations) to an object detection dataset
   \item \textit{ClearImageClassificationDataset} -- removes meta-data and annotations from an image classification dataset (via PK or name).
+  \item \textit{ClearImageSegmentationDataset} -- removes meta-data and annotations from an image segmentation dataset (via PK or name).
   \item \textit{ClearObjectDetectionDataset} -- removes meta-data and annotations from an object detection dataset (via PK or name).
   \item \textit{CopyImageClassificationDataset} -- copies the image classification dataset (new version or name)
+  \item \textit{CopyImageSegmentationDataset} -- copies the image segmentation dataset (new version or name)
   \item \textit{CopyObjectDetectionDataset} -- copies the object detection dataset (new version or name)
   \item \textit{DeleteImageClassificationCategoriesForFile} -- removes categories from images of an image classification dataset
   \item \textit{DeleteImageClassificationDataset} -- removes the specified image classification dataset
   \item \textit{DeleteImageClassificationFile} -- removes the specified image from an image classification dataset
+  \item \textit{DeleteImageSegmentationDataset} -- removes the specified image segmentation dataset
+  \item \textit{DeleteImageSegmentationFile} -- removes the specified image from an image segmentation dataset
   \item \textit{DeleteObjectDetectionDataset} -- removes the specified object detection dataset
   \item \textit{DeleteObjectDetectionFile} -- removes the specified image from an object detection dataset
   \item \textit{GetImageClassificationCategories} -- retrieves the map of image/categories for a dataset
@@ -114,6 +125,11 @@ The following transformer actions can be used:
   \item \textit{GetImageClassificationFile} -- retrieves a file from an image classification dataset via its name
   \item \textit{GetImageClassificationMetadata} -- retrieves the metadata for an image classification dataset
   \item \textit{GetImageClassificationMetadataForImage} -- retrieves the metadata for an image of an image classification dataset via its name
+  \item \textit{GetImageSegmentationFile} -- retrieves a file from an image segmentation dataset via its name
+  \item \textit{GetImageSegmentationLabels} -- retrieves the labels of an image segmentation dataset
+  \item \textit{GetImageSegmentationLayer} -- retrieves the layer mask of an image from an image segmentation dataset
+  \item \textit{GetImageSegmentationMetadata} -- retrieves the metadata for an image segmentation dataset
+  \item \textit{GetImageSegmentationMetadataForImage} -- retrieves the metadata for an image of an image segmentation dataset via its name
   \item \textit{GetObjectDetectionFile} -- retrieves a file from an object detection dataset via its name
   \item \textit{GetObjectDetectionLabels} -- retrieves the labels present in an object detection dataset
   \item \textit{GetObjectDetectionMetadata} -- retrieves the metadata for an object detection dataset
@@ -121,17 +137,25 @@ The following transformer actions can be used:
   \item \textit{GetObjectDetectionAnnotations} -- obtains all the annotations from an object detection dataset
   \item \textit{GetObjectDetectionAnnotationsForImage} -- obtains the annotations of an image from an object detection dataset
   \item \textit{ListImageClassificationFiles} -- lists all the images in an image classification dataset
+  \item \textit{ListImageSegmentationFiles} -- lists all the images in an image segmentation dataset
   \item \textit{ListObjectDetectionFiles} -- lists all the images in an object detection dataset
   \item \textit{LoadImageClassificationDataset} -- loads an image classification dataset (via PK)
+  \item \textit{LoadImageSegmentationDataset} -- loads an image segmentation dataset (via PK)
   \item \textit{LoadObjectDetectionDataset} -- loads an object detection dataset (via PK)
   \item \textit{MergeImageClassificationDatasets} -- for merging two image classification datasets.
+  \item \textit{MergeImageSegmentationDatasets} -- for merging two image segmentation datasets.
   \item \textit{MergeObjectDetectionDatasets} -- for merging two object detection datasets.
   \item \textit{ReinstateImageClassificationDataset} -- reinstates ("undeletes") an image classification dataset.
+  \item \textit{ReinstateImageSegmentationDataset} -- reinstates ("undeletes") an image segmentation dataset.
   \item \textit{ReinstateObjectDetectionDataset} -- reinstates ("undeletes") an object detection dataset.
-  \item \textit{SetImageClassificationMetadataForImage} -- sets the metadata of an image in an object detection dataset
+  \item \textit{SetImageClassificationMetadataForImage} -- sets the metadata of an image in an image classification dataset
+  \item \textit{SetImageSegmentationLabels} -- sets the labels of an image segmentation dataset
+  \item \textit{SetImageSegmentationLayer} -- sets the layer mask for an image in an image segmentation dataset
+  \item \textit{SetImageSegmentationMetadataForImage} -- sets the metadata of an image in an image segmentation dataset
   \item \textit{SetObjectDetectionAnnotationsForImage} -- sets the annotations of an image in an object detection dataset
   \item \textit{SetObjectDetectionMetadataForImage} -- sets the metadata of an image in an object detection dataset
   \item \textit{UpdateImageClassificationDataset} -- updates the properties of an image classification dataset
+  \item \textit{UpdateImageSegmentationDataset} -- updates the properties of an image segmentation dataset
   \item \textit{UpdateObjectDetectionDataset} -- updates the properties of an object detection dataset
 \end{tight_itemize}
 
@@ -141,6 +165,8 @@ source make it easier for users to select PKs:
 \begin{tight_itemize}
   \item \textit{UFDLImageClassificationDatasetChooser} -- for selecting one or more image classification datasets
   \item \textit{UFDLImageClassificationDatasetList} -- for selecting an image classification dataset
+  \item \textit{UFDLImageSegmentationDatasetChooser} -- for selecting one or more image segmentation datasets
+  \item \textit{UFDLImageSegmentationDatasetList} -- for selecting an image segmentation dataset
   \item \textit{UFDLObjectDetectionDatasetChooser} -- for selecting one or more object detection datasets
   \item \textit{UFDLObjectDetectionDatasetList} -- for selecting an object detection dataset
 \end{tight_itemize}

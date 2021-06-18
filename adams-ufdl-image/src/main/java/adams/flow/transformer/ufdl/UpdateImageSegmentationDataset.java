@@ -14,23 +14,22 @@
  */
 
 /*
- * CreateObjectDetectionDataset.java
- * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
+ * UpdateImageSegmentationDataset.java
+ * Copyright (C) 2021 University of Waikato, Hamilton, NZ
  */
 
-package adams.flow.source.ufdl;
+package adams.flow.transformer.ufdl;
 
 import com.github.waikatoufdl.ufdl4j.action.Datasets.Dataset;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets;
-import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.ObjectDetectionDataset;
+import com.github.waikatoufdl.ufdl4j.action.ImageSegmentationDatasets;
 
 /**
- * Creates an object detection dataset and forwards the dataset object.
+ * Updates an image segmentation dataset and forwards the dataset object.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
-public class CreateObjectDetectionDataset
-  extends AbstractCreateDataset {
+public class UpdateImageSegmentationDataset
+  extends AbstractUpdateDataset {
 
   private static final long serialVersionUID = 2444931814949354710L;
 
@@ -41,27 +40,17 @@ public class CreateObjectDetectionDataset
    */
   @Override
   public String globalInfo() {
-    return "Creates an object detection dataset and forwards the dataset object.";
+    return "Updates an image segmentation dataset and forwards the dataset object.";
   }
 
   /**
-   * Returns the classes that the source generates.
+   * Updates the dataset and returns it.
    *
-   * @return		the classes
+   * @param dataset	the dataset to update
+   * @return		the updated dataset
    */
-  @Override
-  public Class[] generates() {
-    return new Class[]{ObjectDetectionDataset.class};
-  }
-
-  /**
-   * Creates the dataset and returns it.
-   *
-   * @return		the dataset
-   */
-  @Override
-  protected Dataset createDataset() throws Exception {
-      return m_Client.action(ObjectDetectionDatasets.class).create(
-        m_Name, m_Description, m_Project, m_License, m_IsPublic, m_Tags);
+  protected Dataset updateDataset(Dataset dataset) throws Exception {
+      return m_Client.action(ImageSegmentationDatasets.class).update(
+        dataset, m_Name, m_Description, m_Project, m_License, m_IsPublic, m_Tags);
   }
 }
