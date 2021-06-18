@@ -15,7 +15,7 @@
 
 /*
  * MergeObjectDetectionDatasets.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.transformer.ufdl;
@@ -185,7 +185,7 @@ public class MergeObjectDetectionDatasets
    */
   @Override
   public Class[] generates() {
-    return new Class[]{Dataset.class};
+    return new Class[]{Boolean.class};
   }
 
   /**
