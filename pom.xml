@@ -21,8 +21,8 @@
   </organization>
 
   <scm>
-    <connection>scm:git:https://github.com/waikato-ufdl/ufdl-frontend-adams</connection>
-    <developerConnection>scm:git:https://github.com/waikato-ufdl/ufdl-frontend-adams</developerConnection>
+    <connection>scm:git:ssh://git@github.com/waikato-ufdl/ufdl-frontend-adams</connection>
+    <developerConnection>scm:git:ssh://git@github.com/waikato-ufdl/ufdl-frontend-adams</developerConnection>
     <url>https://github.com/waikato-ufdl/ufdl-frontend-adams</url>
     <tag>HEAD</tag>
   </scm>
