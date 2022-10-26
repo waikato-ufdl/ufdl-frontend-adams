@@ -15,7 +15,7 @@
 
 /*
  * LicenseFilterPanel.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2022 University of Waikato, Hamilton, NZ
  */
 
 package adams.gui.visualization.licenses;
@@ -566,7 +566,7 @@ public class LicenseFilterPanel
     List<License> result;
 
     result = new ArrayList<>();
-    for (Object value : m_ListMatches.getSelectedValues())
+    for (Object value : m_ListMatches.getSelectedValuesList())
       result.add((License) value);
 
     return result.toArray(new License[0]);
