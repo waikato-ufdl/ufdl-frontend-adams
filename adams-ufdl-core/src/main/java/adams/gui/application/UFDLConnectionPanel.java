@@ -15,7 +15,7 @@
 
 /*
  * UFDLConnectionPanel.java
- * Copyright (C) 2019-2020 University of Waikato, Hamilton, New Zealand
+ * Copyright (C) 2019-2022 University of Waikato, Hamilton, New Zealand
  */
 package adams.gui.application;
 
@@ -110,7 +110,7 @@ public class UFDLConnectionPanel
 
     result.setProperty(UfdlHelper.HOST, m_TextHost.getObject().getValue());
     result.setProperty(UfdlHelper.USER, m_TextUser.getText());
-    result.setPassword(UfdlHelper.PASSWORD, new BasePassword(m_TextPassword.getText()));
+    result.setPassword(UfdlHelper.PASSWORD, new BasePassword(new String(m_TextPassword.getPassword())));
 
     return result;
   }
