@@ -15,7 +15,7 @@
 
 /*
  * UFDLConnectionPanel.java
- * Copyright (C) 2019-2022 University of Waikato, Hamilton, New Zealand
+ * Copyright (C) 2019-2023 University of Waikato, Hamilton, New Zealand
  */
 package adams.gui.application;
 
@@ -28,11 +28,11 @@ import adams.env.Environment;
 import adams.env.UfdlDefinition;
 import adams.gui.core.BaseCheckBox;
 import adams.gui.core.BaseObjectTextField;
+import adams.gui.core.BasePasswordField;
 import adams.gui.core.BaseTextField;
 import adams.gui.core.ParameterPanel;
 import adams.ml.ufdl.UfdlHelper;
 
-import javax.swing.JPasswordField;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 
@@ -57,7 +57,7 @@ public class UFDLConnectionPanel
   protected BaseTextField m_TextUser;
 
   /** the SMTP password. */
-  protected JPasswordField m_TextPassword;
+  protected BasePasswordField m_TextPassword;
 
   /** Whether to show the password. */
   protected BaseCheckBox m_CheckBoxShowPassword;
@@ -82,7 +82,7 @@ public class UFDLConnectionPanel
     m_TextUser.setText(UfdlHelper.getUser());
     m_PanelParameters.addParameter("_User", m_TextUser);
 
-    m_TextPassword = new JPasswordField(20);
+    m_TextPassword = new BasePasswordField(20);
     m_TextPassword.setText(UfdlHelper.getPassword().getValue());
     m_TextPassword.setEchoChar(Constants.PASSWORD_CHAR);
     m_PanelParameters.addParameter("_Password", m_TextPassword);
