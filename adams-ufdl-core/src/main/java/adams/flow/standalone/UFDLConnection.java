@@ -15,12 +15,12 @@
 
 /*
  * UFDLConnection.java
- * Copyright (C) 2019 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2019-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.standalone;
 
-import adams.core.PasswordSupporter;
+import adams.core.PasswordPrompter;
 import adams.core.QuickInfoHelper;
 import adams.core.base.BasePassword;
 import adams.core.base.BaseURL;
@@ -125,7 +125,7 @@ import java.util.List;
  */
 public class UFDLConnection
   extends AbstractStandalone
-  implements OptionalPasswordPrompt, PasswordSupporter {
+  implements OptionalPasswordPrompt, PasswordPrompter {
 
   private static final long serialVersionUID = -4863486410407933666L;
 
