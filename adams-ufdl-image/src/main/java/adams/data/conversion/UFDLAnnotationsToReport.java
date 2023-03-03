@@ -15,7 +15,7 @@
 
 /*
  * UFDLAnnotationsToReport.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
@@ -24,6 +24,7 @@ import adams.core.QuickInfoHelper;
 import adams.data.report.Report;
 import adams.flow.transformer.locateobjects.LocatedObject;
 import adams.flow.transformer.locateobjects.LocatedObjects;
+import adams.flow.transformer.locateobjects.ObjectPrefixHandler;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotation;
 import com.github.waikatoufdl.ufdl4j.action.ObjectDetectionDatasets.Annotations;
 
@@ -36,7 +37,8 @@ import java.util.List;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLAnnotationsToReport
-  extends AbstractConversion {
+  extends AbstractConversion
+  implements ObjectPrefixHandler {
 
   private static final long serialVersionUID = 6711838162542057646L;
 
@@ -62,7 +64,7 @@ public class UFDLAnnotationsToReport
 
     m_OptionManager.add(
       "prefix", "prefix",
-      "Object.");
+      LocatedObjects.DEFAULT_PREFIX);
   }
 
   /**
