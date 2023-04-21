@@ -15,7 +15,7 @@
 
 /*
  * CreateJobType.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.source.ufdl;
@@ -37,6 +37,12 @@ public class CreateJobType
   /** the job type name. */
   protected String m_Name;
 
+  /** the python pkg. */
+  protected String m_Pkg;
+
+  /** the python cls. */
+  protected String m_Cls;
+
   /**
    * Returns a string describing the object.
    *
@@ -56,6 +62,14 @@ public class CreateJobType
 
     m_OptionManager.add(
       "name", "name",
+      "");
+
+    m_OptionManager.add(
+      "pkg", "pkg",
+      "");
+
+    m_OptionManager.add(
+      "cls", "cls",
       "");
   }
 
@@ -86,6 +100,64 @@ public class CreateJobType
    */
   public String nameTipText() {
     return "The job type name.";
+  }
+
+  /**
+   * Sets the Python package name.
+   *
+   * @param value	the package
+   */
+  public void setPkg(String value) {
+    m_Pkg = value;
+    reset();
+  }
+
+  /**
+   * Returns the Python package name.
+   *
+   * @return		the package
+   */
+  public String getPkg() {
+    return m_Pkg;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String pkgTipText() {
+    return "The Python package name.";
+  }
+
+  /**
+   * Sets the Python class name.
+   *
+   * @param value	the class
+   */
+  public void setCls(String value) {
+    m_Cls = value;
+    reset();
+  }
+
+  /**
+   * Returns the Python class name.
+   *
+   * @return		the class
+   */
+  public String getCls() {
+    return m_Cls;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String clsTipText() {
+    return "The Python class name.";
   }
 
   /**
@@ -124,7 +196,7 @@ public class CreateJobType
 
     result = null;
     try {
-      result = m_Client.jobTypes().create(m_Name);
+      result = m_Client.jobTypes().create(m_Name, m_Pkg, m_Cls);
     }
     catch (Exception e) {
       errors.add("Failed to create job type!", e);

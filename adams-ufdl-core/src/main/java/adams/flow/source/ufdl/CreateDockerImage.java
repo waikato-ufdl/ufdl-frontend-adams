@@ -56,7 +56,7 @@ public class CreateDockerImage
   protected BasePassword m_RegistryPassword;
 
   /** the cuda version. */
-  protected int m_CudaVersion;
+  protected String m_CudaVersion;
 
   /** the framework. */
   protected int m_Framework;
@@ -68,13 +68,13 @@ public class CreateDockerImage
   protected BaseString[] m_Tasks;
 
   /** the minimum hardware generation. */
-  protected int m_MinHardwareGeneration;
+  protected String m_MinHardwareGeneration;
 
   /** whether it works on a CPU as well. */
   protected boolean m_CPU;
 
-  /** the license for the image. */
-  protected int m_License;
+  /** the name of the license for the image. */
+  protected String m_License;
 
   /**
    * Returns a string describing the object.
@@ -119,7 +119,7 @@ public class CreateDockerImage
 
     m_OptionManager.add(
       "cuda-version", "cudaVersion",
-      -1, -1, null);
+      "");
 
     m_OptionManager.add(
       "framework", "framework",
@@ -135,7 +135,7 @@ public class CreateDockerImage
 
     m_OptionManager.add(
       "min-hardware-generation", "minHardwareGeneration",
-      -1, -1, null);
+      "");
 
     m_OptionManager.add(
       "cpu", "CPU",
@@ -143,7 +143,7 @@ public class CreateDockerImage
 
     m_OptionManager.add(
       "license", "license",
-      -1, -1, null);
+      "");
   }
 
   /**
@@ -321,11 +321,11 @@ public class CreateDockerImage
   }
 
   /**
-   * Sets the PK of the cuda version.
+   * Sets the cuda version, eg 10.0.
    *
    * @param value	the cuda version
    */
-  public void setCudaVersion(int value) {
+  public void setCudaVersion(String value) {
     m_CudaVersion = value;
     reset();
   }
@@ -335,8 +335,8 @@ public class CreateDockerImage
    *
    * @return		the cuda version
    */
-  public int getCudaVersion() {
-    return m_License;
+  public String getCudaVersion() {
+    return m_CudaVersion;
   }
 
   /**
@@ -346,7 +346,7 @@ public class CreateDockerImage
    * 			displaying in the GUI or for listing the options.
    */
   public String cudaVersionTipText() {
-    return "The CUDA version PK.";
+    return "The CUDA version, eg 10.0.";
   }
 
   /**
@@ -437,21 +437,21 @@ public class CreateDockerImage
   }
 
   /**
-   * Sets the PK of the minimum hardware generation.
+   * Sets the name of the minimum hardware generation.
    *
    * @param value	the generation
    */
-  public void setMinHardwareGeneration(int value) {
+  public void setMinHardwareGeneration(String value) {
     m_MinHardwareGeneration = value;
     reset();
   }
 
   /**
-   * Returns the PK of the minimum hardware generation.
+   * Returns the name of the minimum hardware generation.
    *
    * @return		the generation
    */
-  public int getMinHardwareGeneration() {
+  public String getMinHardwareGeneration() {
     return m_MinHardwareGeneration;
   }
 
@@ -462,7 +462,7 @@ public class CreateDockerImage
    * 			displaying in the GUI or for listing the options.
    */
   public String minHardwareGenerationTipText() {
-    return "The PK of the minimum hardware generation.";
+    return "The name of the minimum hardware generation.";
   }
 
   /**
@@ -495,11 +495,11 @@ public class CreateDockerImage
   }
 
   /**
-   * Sets the PK of the license.
+   * Sets the name of the license.
    *
    * @param value	the license
    */
-  public void setLicense(int value) {
+  public void setLicense(String value) {
     m_License = value;
     reset();
   }
@@ -509,7 +509,7 @@ public class CreateDockerImage
    *
    * @return		the license
    */
-  public int getLicense() {
+  public String getLicense() {
     return m_License;
   }
 

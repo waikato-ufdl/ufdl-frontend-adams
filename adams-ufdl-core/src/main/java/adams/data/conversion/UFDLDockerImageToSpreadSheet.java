@@ -15,7 +15,7 @@
 
 /*
  * UFDLDockerImageToSpreadSheet.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
@@ -114,15 +114,15 @@ public class UFDLDockerImageToSpreadSheet
     row.addCell("pk").setContent(image.getPK());
     row.addCell("na").setContentAsString(image.getName());
     row.addCell("ve").setContentAsString(image.getVersion());
-    row.addCell("li").setContent(getLicense(image.getLicense()));
+    row.addCell("li").setContent(image.getLicense());
     row.addCell("do").setContentAsString(image.getDomain());
     row.addCell("ta").setContentAsString(Utils.arrayToString(image.getTasks()));
     row.addCell("ru").setContentAsString(image.getRegistryUrl());
     row.addCell("run").setContentAsString(image.getRegistryUserName());
     row.addCell("rp").setContentAsString(image.getRegistryPassword().isEmpty() ? "" : "***");
-    row.addCell("cv").setContent(getCudaVersion(image.getCudaVersion()));
-    row.addCell("fw").setContent(getFramework(image.getFramework()));
-    row.addCell("mh").setContent(getHardwareGeneration(image.getMinHardwareGeneration()));
+    row.addCell("cv").setContent(image.getCudaVersion().getVersion());
+    row.addCell("fw").setContent(image.getFramework().getShortDescription());
+    row.addCell("mh").setContent(image.getMinHardwareGeneration().getGeneration());
     row.addCell("cp").setContent(image.getCPU());
 
     return result;
