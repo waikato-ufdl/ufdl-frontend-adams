@@ -15,7 +15,7 @@
 
 /*
  * UpdatePretrainedModel.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.transformer.ufdl;
@@ -46,7 +46,7 @@ public class UpdatePretrainedModel
   protected String m_Domain;
 
   /** the license for the image. */
-  protected int m_License;
+  protected String m_License;
 
   /** the URL. */
   protected String m_URL;
@@ -88,7 +88,7 @@ public class UpdatePretrainedModel
 
     m_OptionManager.add(
       "license", "license",
-      -1, -1, null);
+      "");
 
     m_OptionManager.add(
       "url", "URL",
@@ -191,21 +191,21 @@ public class UpdatePretrainedModel
   }
 
   /**
-   * Sets the PK of the license.
+   * Sets the name of the license.
    *
    * @param value	the license
    */
-  public void setLicense(int value) {
+  public void setLicense(String value) {
     m_License = value;
     reset();
   }
 
   /**
-   * Returns the PK of the license.
+   * Returns the name of the license.
    *
    * @return		the license
    */
-  public int getLicense() {
+  public String getLicense() {
     return m_License;
   }
 
@@ -216,7 +216,7 @@ public class UpdatePretrainedModel
    * 			displaying in the GUI or for listing the options.
    */
   public String licenseTipText() {
-    return "The template license.";
+    return "The name of the license.";
   }
 
   /**

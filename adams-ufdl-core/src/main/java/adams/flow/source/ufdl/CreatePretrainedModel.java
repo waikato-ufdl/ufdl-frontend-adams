@@ -44,8 +44,8 @@ public class CreatePretrainedModel
   /** the domain. */
   protected String m_Domain;
 
-  /** the license for the image. */
-  protected int m_License;
+  /** the license for the model. */
+  protected String m_License;
 
   /** the URL. */
   protected String m_URL;
@@ -87,7 +87,7 @@ public class CreatePretrainedModel
 
     m_OptionManager.add(
       "license", "license",
-      -1, -1, null);
+      "");
 
     m_OptionManager.add(
       "url", "URL",
@@ -190,21 +190,21 @@ public class CreatePretrainedModel
   }
 
   /**
-   * Sets the PK of the license.
+   * Sets the name of the license.
    *
    * @param value	the license
    */
-  public void setLicense(int value) {
+  public void setLicense(String value) {
     m_License = value;
     reset();
   }
 
   /**
-   * Returns the PK of the license.
+   * Returns the name of the license.
    *
    * @return		the license
    */
-  public int getLicense() {
+  public String getLicense() {
     return m_License;
   }
 
@@ -215,7 +215,7 @@ public class CreatePretrainedModel
    * 			displaying in the GUI or for listing the options.
    */
   public String licenseTipText() {
-    return "The template license.";
+    return "The name of the license.";
   }
 
   /**

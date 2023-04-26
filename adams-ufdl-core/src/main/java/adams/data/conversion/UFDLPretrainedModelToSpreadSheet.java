@@ -15,7 +15,7 @@
 
 /*
  * UFDLPretrainedModelToSpreadSheet.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
@@ -119,7 +119,7 @@ public class UFDLPretrainedModelToSpreadSheet
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(model.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (model.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(model.getDeletionTime().toInstant(ZoneOffset.UTC))));
-    row.addCell("fw").setContent(getFramework(model.getFramework()));
+    row.addCell("fw").setContent(model.getFramework().getShortDescription());
     row.addCell("do").setContentAsString(model.getDomain());
     row.addCell("li").setContent(getLicense(model.getLicense()));
     row.addCell("ur").setContentAsString(model.getURL());
