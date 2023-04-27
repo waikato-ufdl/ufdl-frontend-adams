@@ -15,7 +15,7 @@
 
 /*
  * UFDLJobTemplateToSpreadSheet.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
@@ -96,9 +96,7 @@ public class UFDLJobTemplateToSpreadSheet
     row.addCell("do").setContentAsString("domain");
     row.addCell("ec").setContentAsString("executor_class");
     row.addCell("rp").setContentAsString("required_packages");
-    row.addCell("in").setContentAsString("inputs");
     row.addCell("pm").setContentAsString("parameters");
-    row.addCell("bo").setContentAsString("body");
 
     return result;
   }
@@ -134,9 +132,7 @@ public class UFDLJobTemplateToSpreadSheet
     row.addCell("do").setContentAsString(template.getDomain());
     row.addCell("ec").setContentAsString(template.getExecutorClass());
     row.addCell("rp").setContentAsString(template.getRequiredPackages());
-    row.addCell("in").setContentAsString(template.getInputs().toString());
     row.addCell("pm").setContentAsString(template.getParameters().toString());
-    row.addCell("bo").setContentAsString(template.getBody());
 
     return result;
   }
