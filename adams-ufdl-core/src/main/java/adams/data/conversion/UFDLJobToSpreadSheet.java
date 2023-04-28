@@ -15,7 +15,7 @@
 
 /*
  * UFDLJobToSpreadSheet.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
@@ -91,7 +91,6 @@ public class UFDLJobToSpreadSheet
     row.addCell("st").setContentAsString("start_time");
     row.addCell("et").setContentAsString("end_time");
     row.addCell("jt").setContentAsString("job_template");
-    row.addCell("di").setContentAsString("docker_image");
     row.addCell("iv").setContentAsString("input_values");
     row.addCell("pv").setContentAsString("parameter_values");
     row.addCell("ou").setContentAsString("outputs");
@@ -128,7 +127,6 @@ public class UFDLJobToSpreadSheet
     if (job.getEndTime() != null)
       row.addCell("et").setContent(new DateTimeMsec(Date.from(job.getEndTime().toInstant(ZoneOffset.UTC))));
     row.addCell("jt").setContent(getJobTemplate(job.getJobTemplate()));
-    row.addCell("di").setContent(getDockerImage(job.getDockerImage()));
     row.addCell("iv").setContentAsString(job.getInputValues().toString());
     row.addCell("pv").setContentAsString(job.getParameterValues().toString());
     row.addCell("ou").setContentAsString(job.getOutputs().toString());
