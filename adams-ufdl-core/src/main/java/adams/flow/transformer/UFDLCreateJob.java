@@ -15,7 +15,7 @@
 
 /*
  * UFDLCreateJob.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.transformer;
@@ -530,9 +530,10 @@ public class UFDLCreateJob
     domain = m_Connection.getClient().domains().load(template.getDomain());
     if (domain == null)
       throw new IllegalStateException("Cannot resolve domain: " + template.getDomain());
-    framework = m_Connection.getClient().frameworks().load(template.getFramework());
-    if (framework == null)
-      throw new IllegalStateException("Failed to load framework: " + template.getFramework());
+    // TODO
+//    framework = m_Connection.getClient().frameworks().load(template.getFramework());
+//    if (framework == null)
+//      throw new IllegalStateException("Failed to load framework: " + template.getFramework());
     license = m_Connection.getClient().licenses().load(template.getLicense());
     if (license == null)
       throw new IllegalStateException("Failed to load license: " + template.getLicense());
@@ -544,7 +545,8 @@ public class UFDLCreateJob
     addInfo("Description", template.getDescription());
     addInfo("Version", "" + template.getVersion());
     addInfo("Domain", template.getDomain());
-    addInfo("Framework", framework.getName() + "/" + framework.getVersion());
+    // TODO
+    //addInfo("Framework", framework.getName() + "/" + framework.getVersion());
     addInfo("License", license.getName());
     addInfo("Executor class", template.getExecutorClass());
     if (!template.getRequiredPackages().isEmpty())
@@ -553,18 +555,18 @@ public class UFDLCreateJob
     m_TemplateInfo.append("</html>\n");
 
     // inputs
-    propsInputs = new Properties();
-    orderInputs = new ArrayList<>();
-    addToPanel(m_PropertiesPanelInputs, true, template.getInputs(), propsInputs, orderInputs, domain, framework);
-    m_PropertiesPanelInputs.setPropertyOrder(orderInputs);
-    m_PropertiesPanelInputs.setProperties(propsInputs);
+//    propsInputs = new Properties();
+//    orderInputs = new ArrayList<>();
+//    addToPanel(m_PropertiesPanelInputs, true, template.getInputs(), propsInputs, orderInputs, domain, framework);
+//    m_PropertiesPanelInputs.setPropertyOrder(orderInputs);
+//    m_PropertiesPanelInputs.setProperties(propsInputs);
 
     // parameters
-    propsParams = new Properties();
-    orderParams = new ArrayList<>();
-    addToPanel(m_PropertiesPanelParameters, false, template.getParameters(), propsParams, orderParams, domain, framework);
-    m_PropertiesPanelParameters.setPropertyOrder(orderParams);
-    m_PropertiesPanelParameters.setProperties(propsParams);
+//    propsParams = new Properties();
+//    orderParams = new ArrayList<>();
+//    addToPanel(m_PropertiesPanelParameters, false, template.getParameters(), propsParams, orderParams, domain, framework);
+//    m_PropertiesPanelParameters.setPropertyOrder(orderParams);
+//    m_PropertiesPanelParameters.setProperties(propsParams);
   }
 
   /**
@@ -637,9 +639,11 @@ public class UFDLCreateJob
 	params.put(key, value);
     }
 
-    result = m_Connection.getClient().jobTemplates().newJob(template.getPK(), dockerImage, inputs, params, description);
-    if (isLoggingEnabled())
-      getLogger().info("Job: " + result);
+    // TODO
+//    result = m_Connection.getClient().jobTemplates().newJob(template.getPK(), dockerImage, inputs, params, description);
+//    if (isLoggingEnabled())
+//      getLogger().info("Job: " + result);
+    result = null;
 
     return result;
   }
