@@ -90,7 +90,6 @@ public class UFDLJobTemplateToSpreadSheet
     row.addCell("cr").setContentAsString("creator");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
-    row.addCell("fw").setContentAsString("framework");
     row.addCell("sc").setContentAsString("scope");
     row.addCell("ty").setContentAsString("type");
     row.addCell("do").setContentAsString("domain");
@@ -126,7 +125,6 @@ public class UFDLJobTemplateToSpreadSheet
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(template.getCreationTime().toInstant(ZoneOffset.UTC))));
     if (template.getDeletionTime() != null)
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(template.getDeletionTime().toInstant(ZoneOffset.UTC))));
-    row.addCell("fw").setContent(getFramework(template.getFramework()));
     row.addCell("sc").setContentAsString(template.getScope());
     row.addCell("ty").setContentAsString(template.getType());
     row.addCell("do").setContentAsString(template.getDomain());
