@@ -15,13 +15,12 @@
 
 /*
  * DeleteUser.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.transformer.ufdl;
 
 import adams.core.MessageCollection;
-import adams.core.QuickInfoHelper;
 import com.github.waikatoufdl.ufdl4j.action.Users.User;
 
 /**
@@ -34,9 +33,6 @@ public class DeleteUser
 
   private static final long serialVersionUID = 2890424326502728143L;
 
-  /** whether to perform a hard delete. */
-  protected boolean m_Hard;
-
   /**
    * Returns a string describing the object.
    *
@@ -44,58 +40,7 @@ public class DeleteUser
    */
   @Override
   public String globalInfo() {
-    return "Deletes the user either via PK or user name.";
-  }
-
-  /**
-   * Adds options to the internal list of options.
-   */
-  @Override
-  public void defineOptions() {
-    super.defineOptions();
-
-    m_OptionManager.add(
-      "hard", "hard",
-      false);
-  }
-
-  /**
-   * Sets whether to remove or just flag as deleted.
-   *
-   * @param value	true if to remove
-   */
-  public void setHard(boolean value) {
-    m_Hard = value;
-    reset();
-  }
-
-  /**
-   * Returns whether to remove or just flag as deleted.
-   *
-   * @return		true if to remove
-   */
-  public boolean getHard() {
-    return m_Hard;
-  }
-
-  /**
-   * Returns the tip text for this property.
-   *
-   * @return 		tip text for this property suitable for
-   * 			displaying in the GUI or for listing the options.
-   */
-  public String hardTipText() {
-    return "Whether to remove or just flag as deleted.";
-  }
-
-  /**
-   * Returns a quick info about the object, which can be displayed in the GUI.
-   *
-   * @return		null if no info available, otherwise short string
-   */
-  @Override
-  public String getQuickInfo() {
-    return QuickInfoHelper.toString(this, "hard", (m_Hard ? "hard" : "soft"));
+    return "Deletes the user either via PK or user name, ie disabling its active flag.";
   }
 
   /**
@@ -122,13 +67,13 @@ public class DeleteUser
     result = false;
 
     if (isLoggingEnabled())
-      getLogger().info("Deleting user (hard=" + m_Hard + "): " + user);
+      getLogger().info("Deleting user: " + user);
 
     try {
-      result = m_Client.users().delete(user, m_Hard);
+      result = m_Client.users().delete(user);
     }
     catch (Exception e) {
-      errors.add("Failed to delete user (hard=" + m_Hard + "): " + user, e);
+      errors.add("Failed to delete user: " + user, e);
     }
 
     return result;
