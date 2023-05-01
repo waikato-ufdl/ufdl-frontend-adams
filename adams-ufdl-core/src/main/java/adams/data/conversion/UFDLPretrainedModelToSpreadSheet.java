@@ -121,7 +121,7 @@ public class UFDLPretrainedModelToSpreadSheet
       row.addCell("dt").setContent(new DateTimeMsec(Date.from(model.getDeletionTime().toInstant(ZoneOffset.UTC))));
     row.addCell("fw").setContent(model.getFramework().getShortDescription());
     row.addCell("do").setContentAsString(model.getDomain());
-    row.addCell("li").setContent(getLicense(model.getLicense()));
+    row.addCell("li").setContent(model.getLicense());
     row.addCell("ur").setContentAsString(model.getURL());
     row.addCell("de").setContentAsString(model.getDescription());
     row.addCell("me").setContentAsString(model.getMetaData());
