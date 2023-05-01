@@ -25,7 +25,7 @@ import adams.core.QuickInfoHelper;
 import com.github.waikatoufdl.ufdl4j.action.Teams.Team;
 
 /**
- * Deletes the team either via PK or teamname.
+ * Deletes the team either via PK or team name.
  *
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
@@ -54,9 +54,12 @@ public class DeleteTeam
   public void defineOptions() {
     super.defineOptions();
 
+    /*
+    * TODO Does not work reliable
     m_OptionManager.add(
       "hard", "hard",
       false);
+     */
   }
 
   /**
@@ -65,6 +68,8 @@ public class DeleteTeam
    * @param value	true if to remove
    */
   public void setHard(boolean value) {
+    // TODO does not work reliably
+    value = false;
     m_Hard = value;
     reset();
   }

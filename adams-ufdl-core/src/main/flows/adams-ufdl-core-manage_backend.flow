@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2023-05-01 16:24:05
+# Date: 2023-05-01 16:38:29
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-json,adams-matlab,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -366,7 +366,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.source.Start
        adams.flow.control.Trigger -name "select teams"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLTeamChooser -name teams -display Teams -multi-selection true -state ANY" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name hard_delete -display \"Hard delete?\" -type BOOLEAN -default-value false" -output-type MAP
+        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLTeamChooser -name teams -display Teams -filter adams.data.ufdlfilter.AllFilter -multi-selection true -state ANY" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -enabled false -name hard_delete -display \"Hard delete?\" -type BOOLEAN -default-value false" -output-type MAP
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.UFDLExtractAndTransfer -source teams -target teams_pk
