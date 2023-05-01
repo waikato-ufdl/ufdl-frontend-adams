@@ -122,7 +122,7 @@ public class UFDLDockerImageToSpreadSheet
     row.addCell("rp").setContentAsString(image.getRegistryPassword().isEmpty() ? "" : "***");
     row.addCell("cv").setContent(image.getCudaVersion().getVersion());
     row.addCell("fw").setContent(image.getFramework().getShortDescription());
-    row.addCell("mh").setContent(image.getMinHardwareGeneration().getGeneration());
+    row.addCell("mh").setContent((image.getMinHardwareGeneration() == null) ? "N/A" : image.getMinHardwareGeneration().getGeneration());
     row.addCell("cp").setContent(image.getCPU());
 
     return result;
