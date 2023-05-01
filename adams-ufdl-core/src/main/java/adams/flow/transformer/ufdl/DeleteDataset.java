@@ -15,7 +15,7 @@
 
 /*
  * DeleteDataset.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.transformer.ufdl;
@@ -54,9 +54,21 @@ public class DeleteDataset
   public void defineOptions() {
     super.defineOptions();
 
+    /* TODO does not work reliably
     m_OptionManager.add(
       "hard", "hard",
       false);
+     */
+  }
+
+  /**
+   * Initializes the members.
+   */
+  @Override
+  protected void initialize() {
+    super.initialize();
+
+    m_Hard = false;
   }
 
   /**
@@ -65,6 +77,8 @@ public class DeleteDataset
    * @param value	true if to remove
    */
   public void setHard(boolean value) {
+    // TODO does not work reliably
+    value = false;
     m_Hard = value;
     reset();
   }

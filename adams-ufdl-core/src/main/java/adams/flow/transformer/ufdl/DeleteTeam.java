@@ -48,6 +48,16 @@ public class DeleteTeam
   }
 
   /**
+   * Initializes the members.
+   */
+  @Override
+  protected void initialize() {
+    super.initialize();
+
+    m_Hard = false;
+  }
+
+  /**
    * Adds options to the internal list of options.
    */
   @Override

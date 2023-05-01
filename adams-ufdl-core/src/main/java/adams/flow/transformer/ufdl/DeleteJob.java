@@ -48,15 +48,27 @@ public class DeleteJob
   }
 
   /**
+   * Initializes the members.
+   */
+  @Override
+  protected void initialize() {
+    super.initialize();
+
+    m_Hard = false;
+  }
+
+  /**
    * Adds options to the internal list of options.
    */
   @Override
   public void defineOptions() {
     super.defineOptions();
 
+    /* TODO Does not work reliably
     m_OptionManager.add(
       "hard", "hard",
       false);
+     */
   }
 
   /**
@@ -65,6 +77,8 @@ public class DeleteJob
    * @param value	true if to remove
    */
   public void setHard(boolean value) {
+    // TODO does not work reliably
+    value = false;
     m_Hard = value;
     reset();
   }

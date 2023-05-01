@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2023-05-01 16:38:29
+# Date: 2023-05-01 16:54:13
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-json,adams-matlab,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -366,7 +366,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.source.Start
        adams.flow.control.Trigger -name "select teams"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLTeamChooser -name teams -display Teams -filter adams.data.ufdlfilter.AllFilter -multi-selection true -state ANY" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -enabled false -name hard_delete -display \"Hard delete?\" -type BOOLEAN -default-value false" -output-type MAP
+        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLTeamChooser -name teams -display Teams -filter adams.data.ufdlfilter.AllFilter -multi-selection true -state ANY" -output-type MAP
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.UFDLExtractAndTransfer -source teams -target teams_pk
@@ -381,7 +381,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
          adams.flow.transformer.SetVariable -var-name pk
          adams.flow.control.Trigger -name delete
           adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteTeam -hard @{hard_delete}" -use-error-queue true
+          adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteTeam -use-error-queue true
           adams.flow.transformer.SetVariable -var-name success
           adams.flow.control.Trigger -name info
            adams.flow.source.CombineVariables -expression "deleted team @{pk}: @{success}" -conversion adams.data.conversion.StringToString
@@ -499,7 +499,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.source.Start
        adams.flow.control.Trigger -name "select projects"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLProjectChooser -name projects -display Projects -multi-selection true -state ANY" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name hard_delete -display \"Hard delete?\" -type BOOLEAN -default-value false" -output-type MAP
+        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLProjectChooser -name projects -display Projects -filter adams.data.ufdlfilter.AllFilter -multi-selection true -state ANY" -output-type MAP
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.UFDLExtractAndTransfer -source projects -target projects_pk
@@ -514,7 +514,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
          adams.flow.transformer.SetVariable -var-name pk
          adams.flow.control.Trigger -name delete
           adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteProject -hard @{hard_delete}" -use-error-queue true
+          adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteProject -use-error-queue true
           adams.flow.transformer.SetVariable -var-name success
           adams.flow.control.Trigger -name info
            adams.flow.source.CombineVariables -expression "deleted project @{pk}: @{success}" -conversion adams.data.conversion.StringToString
@@ -788,7 +788,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.source.Start
        adams.flow.control.Trigger -name "select datasets"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLDatasetChooser -name datasets -display Datasets -filter adams.data.ufdlfilter.AllFilter -multi-selection true -state ANY" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name hard_delete -display \"Hard delete?\" -type BOOLEAN -default-value false" -output-type MAP
+        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLDatasetChooser -name datasets -display Datasets -filter adams.data.ufdlfilter.AllFilter -multi-selection true -state ANY" -output-type MAP
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.UFDLExtractAndTransfer -source datasets -target datasets_pk
@@ -803,7 +803,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
          adams.flow.transformer.SetVariable -var-name pk
          adams.flow.control.Trigger -name delete
           adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteDataset -hard @{hard_delete}" -use-error-queue true
+          adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteDataset -use-error-queue true
           adams.flow.transformer.SetVariable -var-name success
           adams.flow.control.Trigger -name info
            adams.flow.source.CombineVariables -expression "deleted dataset @{pk}: @{success}" -conversion adams.data.conversion.StringToString
@@ -1114,7 +1114,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
         adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
         adams.flow.control.Trigger -name delete
          adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteJob -hard true" -use-error-queue true
+         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteJob -use-error-queue true
          adams.flow.transformer.SetVariable -var-name success
          adams.flow.control.Trigger -name info
           adams.flow.source.CombineVariables -expression "deleted job @{pk}: @{success}" -conversion adams.data.conversion.StringToString
@@ -1289,7 +1289,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
         adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
         adams.flow.control.Trigger -name delete
          adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-         adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteJobTemplate -hard true" -use-error-queue true
+         adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteJobTemplate -use-error-queue true
          adams.flow.transformer.SetVariable -var-name success
          adams.flow.control.Trigger -name info
           adams.flow.source.CombineVariables -expression "deleted job template @{pk}: @{success}" -conversion adams.data.conversion.StringToString
