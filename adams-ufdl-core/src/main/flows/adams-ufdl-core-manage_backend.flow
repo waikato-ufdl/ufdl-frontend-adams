@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2023-05-01 15:04:38
+# Date: 2023-05-01 16:24:05
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-json,adams-matlab,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core
@@ -156,7 +156,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.source.Start
        adams.flow.control.Trigger -name "select users"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLUserChooser -name users -display Users -multi-selection true" -value "adams.flow.source.valuedefinition.DefaultValueDefinition -name hard_delete -display \"Hard delete?\" -type BOOLEAN -default-value false" -output-type MAP
+        adams.flow.source.EnterManyValues -value "adams.flow.source.valuedefinition.UFDLUserChooser -name users -display Users -filter adams.data.ufdlfilter.AllFilter -multi-selection true" -output-type MAP
         adams.flow.transformer.MapToVariables
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.UFDLExtractAndTransfer -source users -target users_pk
@@ -171,7 +171,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
          adams.flow.transformer.SetVariable -var-name pk
          adams.flow.control.Trigger -name delete
           adams.flow.source.Variable -var-name pk -conversion adams.data.conversion.StringToInt
-          adams.flow.transformer.UFDLTransformer -action "adams.flow.transformer.ufdl.DeleteUser -hard @{hard_delete}" -use-error-queue true
+          adams.flow.transformer.UFDLTransformer -action adams.flow.transformer.ufdl.DeleteUser -use-error-queue true
           adams.flow.transformer.SetVariable -var-name success
           adams.flow.control.Trigger -name info
            adams.flow.source.CombineVariables -expression "deleted user @{pk}: @{success}" -conversion adams.data.conversion.StringToString
