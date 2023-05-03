@@ -15,12 +15,13 @@
 
 /*
  * DomainFilter.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.ufdlfilter;
 
 import adams.core.MessageCollection;
+import com.github.waikatoufdl.ufdl4j.action.Domains;
 import com.github.waikatoufdl.ufdl4j.filter.Filter;
 
 /**
@@ -54,6 +55,15 @@ public class DomainFilter
   public DomainFilter(int domain) {
     this();
     setDomain(domain);
+  }
+
+  /**
+   * Initializes the filter with the domain.
+   *
+   * @param domain 	the domain to filter on
+   */
+  public DomainFilter(Domains.Domain domain) {
+    this(domain.getPK());
   }
 
   /**
