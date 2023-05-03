@@ -20,13 +20,16 @@
 
 package adams.gui.chooser;
 
+import adams.core.ObjectCopyHelper;
 import adams.core.logging.LoggingLevel;
 import adams.data.conversion.UFDLJobOutputToSpreadSheet;
 import adams.data.spreadsheet.Row;
 import adams.data.spreadsheet.SpreadSheet;
+import adams.data.ufdlfilter.AbstractUFDLFilter;
 import adams.data.ufdlfilter.AllFilter;
 import adams.data.ufdlfilter.GenericFilter;
 import adams.data.ufdlfilter.field.ExactString;
+import adams.flow.core.UFDLFilterHandler;
 import adams.flow.core.UFDLJobOutput;
 import adams.flow.core.UFDLListSorting;
 import adams.flow.core.UFDLSoftDeleteObjectState;
@@ -52,12 +55,27 @@ import java.awt.event.MouseEvent;
  * @author FracPete (fracpete at waikato dot ac dot nz)
  */
 public class UFDLJobOutputChooserPanel
-  extends AbstractUFDLChooserPanel<UFDLJobOutput> {
+  extends AbstractUFDLChooserPanel<UFDLJobOutput>
+  implements UFDLFilterHandler {
 
   private static final long serialVersionUID = -5265818418046987726L;
 
+  /**
+   * How to display the information.
+   */
+  public enum DisplayType {
+    ID,
+    FULL,
+  }
+
   /** the type to filter on. */
   protected String m_OutputType;
+
+  /** the filter to apply (if no output type set). */
+  protected AbstractUFDLFilter m_Filter;
+
+  /** whether to only use the ID in the display. */
+  protected DisplayType m_DisplayType;
 
   /**
    * Initializes the members.
@@ -66,7 +84,27 @@ public class UFDLJobOutputChooserPanel
   protected void initialize() {
     super.initialize();
 
-    m_OutputType = "";
+    m_DisplayType    = DisplayType.FULL;
+    m_OutputType     = "";
+    m_Filter         = new AllFilter();
+  }
+
+  /**
+   * Sets the display type.
+   *
+   * @param value	the type
+   */
+  public void setDisplayType(DisplayType value) {
+    m_DisplayType = value;
+  }
+
+  /**
+   * Returns the display type.
+   *
+   * @return		the type
+   */
+  public DisplayType getDisplayType() {
+    return m_DisplayType;
   }
 
   /**
@@ -90,6 +128,26 @@ public class UFDLJobOutputChooserPanel
   }
 
   /**
+   * Sets the filter to apply to the result (if no output type set).
+   *
+   * @param value	the filter
+   */
+  @Override
+  public void setFilter(AbstractUFDLFilter value) {
+    m_Filter = value;
+  }
+
+  /**
+   * Returns the filter to apply to the result (if no output type set).
+   *
+   * @return		the filter
+   */
+  @Override
+  public AbstractUFDLFilter getFilter() {
+    return m_Filter;
+  }
+
+  /**
    * Converts the value into its string representation.
    *
    * @param value	the value to convert
@@ -97,7 +155,14 @@ public class UFDLJobOutputChooserPanel
    */
   @Override
   protected String toString(UFDLJobOutput value) {
-    return value.getValue();
+    switch (m_DisplayType) {
+      case FULL:
+        return value.getValue();
+      case ID:
+        return "" + value.pkValue();
+      default:
+        throw new IllegalStateException("Unhandled display type: " + m_DisplayType);
+    }
   }
 
   /**
@@ -129,8 +194,8 @@ public class UFDLJobOutputChooserPanel
     conv.setFlowContext(getConnection());
     for (JobOutput output: job.getOutputs()) {
       if (!m_OutputType.isEmpty()) {
-        if (!output.getType().equals(m_OutputType))
-          continue;
+	if (!output.getType().equals(m_OutputType))
+	  continue;
       }
       try {
 	conv.setInput(output);
@@ -173,6 +238,7 @@ public class UFDLJobOutputChooserPanel
     Job[]			jobs;
     SpreadSheet			sheet;
     int				row;
+    int				pk;
     String			type;
     String			name;
     GenericFilter		filter;
@@ -188,7 +254,7 @@ public class UFDLJobOutputChooserPanel
 
     panelJob = new UFDLJobChooserPanel();
     if (m_OutputType.isEmpty()) {
-      panelJob.setFilter(new AllFilter());
+      panelJob.setFilter(ObjectCopyHelper.copyObject(m_Filter));
     }
     else {
       filter = new GenericFilter();
@@ -213,12 +279,12 @@ public class UFDLJobOutputChooserPanel
     panelOutputs.getTable().addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
-        if (MouseUtils.isDoubleClick(e)) {
-          if (panelOutputs.getTable().getSelectedRowCount() == 1)
-            dialog.getApproveButton().doClick();
-        }
-        if (!e.isConsumed())
-          super.mouseClicked(e);
+	if (MouseUtils.isDoubleClick(e)) {
+	  if (panelOutputs.getTable().getSelectedRowCount() == 1)
+	    dialog.getApproveButton().doClick();
+	}
+	if (!e.isConsumed())
+	  super.mouseClicked(e);
       }
     });
     dialog.setTitle("Select job output");
@@ -239,10 +305,11 @@ public class UFDLJobOutputChooserPanel
       return null;
     sheet = panelOutputs.getSpreadSheet();
     row   = panelOutputs.getTable().getActualRow(panelOutputs.getTable().getSelectedRow());
-    name  = sheet.getRow(row).getCell(0).getContent();
-    type  = sheet.getRow(row).getCell(1).getContent();
+    pk    = sheet.getRow(row).getCell(0).toLong().intValue();
+    name  = sheet.getRow(row).getCell(1).getContent();
+    type  = sheet.getRow(row).getCell(2).getContent();
 
-    result = new UFDLJobOutput(jobs[0].getPK(), name, type);
+    result = new UFDLJobOutput(pk, name, type);
     return result;
   }
 }

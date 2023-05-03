@@ -15,7 +15,7 @@
 
 /*
  * UFDLJobTemplateInput.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.core;
@@ -50,6 +50,15 @@ public class UFDLJobOutput
    * Initializes the job output.
    *
    * @param pk 		the primary key of the job
+   */
+  public UFDLJobOutput(int pk) {
+    this("" + pk);
+  }
+
+  /**
+   * Initializes the job output.
+   *
+   * @param pk 		the primary key of the job
    * @param name	the name
    * @param type 	the type, can be empty
    */
@@ -64,7 +73,7 @@ public class UFDLJobOutput
    */
   @Override
   protected int[] validNumParts() {
-    return new int[]{2, 3};
+    return new int[]{1, 3};
   }
 
   /**

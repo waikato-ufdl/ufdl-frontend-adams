@@ -73,7 +73,6 @@ import java.util.logging.Level;
 import static com.github.waikatoufdl.ufdl4j.core.Types.dataset;
 import static com.github.waikatoufdl.ufdl4j.core.Types.dockerImage;
 import static com.github.waikatoufdl.ufdl4j.core.Types.domain;
-import static com.github.waikatoufdl.ufdl4j.core.Types.jobOutput;
 import static com.github.waikatoufdl.ufdl4j.core.Types.model;
 import static com.github.waikatoufdl.ufdl4j.core.Types.pk;
 
@@ -512,8 +511,8 @@ public class UFDLCreateJob
     if (type.startsWith("JobOutput<")) {
       UFDLJobOutputChooserPanel chooser = new UFDLJobOutputChooserPanel();
       chooser.setConnection(m_Connection);
-      // TODO
-      // chooser.setOutputType(from type?);
+      chooser.setOutputType(model(templateData.domain, templateData.framework));
+      chooser.setDisplayType(UFDLJobOutputChooserPanel.DisplayType.ID);
       panel.addPropertyType(key, PropertyType.CUSTOM_COMPONENT);
       panel.setLabel(key, label);
       panel.setComponent(key, chooser);
@@ -533,7 +532,6 @@ public class UFDLCreateJob
    */
   protected void addParameter(PropertiesParameterPanel panel, JobTemplates.Parameter parameter, JobTemplateData templateData, Properties values, Properties types) {
     String 			datasetPK;
-    String 			jobOutputModel;
     String 			dockerImage;
     String 			dockerImagePK;
     String 			dockerImageName;
@@ -548,7 +546,6 @@ public class UFDLCreateJob
     key             = parameter.getName();
     label           = parameter.getName().replace(GUIHelper.MNEMONIC_INDICATOR, '-');
     datasetPK       = pk(dataset(domain(templateData.domain)));
-    jobOutputModel  = jobOutput(model(templateData.domain, templateData.framework));
     dockerImage     = dockerImage(templateData.domain, templateData.framework, null);
     dockerImagePK   = "PK<" + dockerImage;
     dockerImageName = "Name<" + dockerImage;
@@ -565,17 +562,6 @@ public class UFDLCreateJob
 	chooser.setMultiSelection(false);
 	chooser.setSorting(UFDLListSorting.BY_ID_ONLY);
 	chooser.setState(UFDLSoftDeleteObjectState.ACTIVE);
-	panel.addPropertyType(key, PropertyType.CUSTOM_COMPONENT);
-	panel.setLabel(key, label);
-	panel.setComponent(key, chooser);
-	types.setProperty(key, type);
-      }
-      else if (type.equals(jobOutputModel)) {
-	added = true;
-	UFDLJobOutputChooserPanel chooser = new UFDLJobOutputChooserPanel();
-	chooser.setConnection(m_Connection);
-	// TODO
-	// chooser.setOutputType(???);
 	panel.addPropertyType(key, PropertyType.CUSTOM_COMPONENT);
 	panel.setLabel(key, label);
 	panel.setComponent(key, chooser);
@@ -774,30 +760,39 @@ public class UFDLCreateJob
    * @param value	the current value
    * @return		the potentially fixed value
    */
-  protected Object fixValue(String type, Object value) {
-    if (value instanceof String) {
-      if (type.startsWith("PK<")) {
-	value = Integer.parseInt((String) value);
+  protected Object fixValue(String key, String type, Object value) {
+    try {
+      if (value instanceof String) {
+        if (type.startsWith("PK<")) {
+          value = Integer.parseInt((String) value);
+        }
+        else if (type.startsWith("JobOutput<")) {
+          value = Integer.parseInt((String) value);
+        }
+        else if (type.equals("Array<str>")) {
+          value = ((String) value).split("\n");
+        }
+        else {
+          switch (type) {
+            case "bool":
+              value = Boolean.parseBoolean((String) value);
+              break;
+            case "int":
+              value = Integer.parseInt((String) value);
+              break;
+            case "float":
+              value = Double.parseDouble((String) value);
+              break;
+          }
+        }
       }
-      else if (type.equals("Array<str>")) {
-	value = ((String) value).split("\n");
-      }
-      else {
-	switch (type) {
-	  case "bool":
-	    value = Boolean.parseBoolean((String) value);
-	    break;
-	  case "int":
-	    value = Integer.parseInt((String) value);
-	    break;
-	  case "float":
-	    value = Double.parseDouble((String) value);
-	    break;
-	}
-      }
-    }
 
-    return value;
+      return value;
+    }
+    catch (Exception e) {
+      getLogger().log(Level.SEVERE, "Failed to parse key/type/value: " + key + "/" + type + "/" + value);
+      return value;
+    }
   }
 
   /**
@@ -825,12 +820,12 @@ public class UFDLCreateJob
     for (String key: templateData.inputValues.keySetAll()) {
       type  = templateData.inputTypes.getProperty(key);
       value = templateData.inputValues.getProperty(key);
-      inputs.put(key, TypeValuePair.typeValuePair(type, fixValue(type, value)));
+      inputs.put(key, TypeValuePair.typeValuePair(type, fixValue(key, type, value)));
     }
     for (String key: templateData.parameterValues.keySetAll()) {
       type  = templateData.parameterTypes.getProperty(key);
       value = templateData.parameterValues.getProperty(key);
-      params.put(key, TypeValuePair.typeValuePair(type, fixValue(type, value)));
+      params.put(key, TypeValuePair.typeValuePair(type, fixValue(key, type, value)));
     }
 
     result = m_Connection.getClient().jobTemplates().newJob(templateData.template.getPK(), inputs, params, description);
