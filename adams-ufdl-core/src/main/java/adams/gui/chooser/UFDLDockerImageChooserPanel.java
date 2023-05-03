@@ -15,7 +15,7 @@
 
 /*
  * UFDLDockerImageChooserPanel.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.gui.chooser;
@@ -26,6 +26,8 @@ import adams.data.conversion.UFDLDockerImageToSpreadSheet;
 import com.github.fracpete.javautils.struct.Struct2;
 import com.github.waikatoufdl.ufdl4j.action.DockerImages.DockerImage;
 
+import java.util.List;
+
 /**
  * Allows the user to select docker images.
  *
@@ -35,6 +37,37 @@ public class UFDLDockerImageChooserPanel
   extends AbstractUFDLSpreadSheetBasedChooserPanel<DockerImage> {
 
   private static final long serialVersionUID = -5162524212611793388L;
+
+  /** the task to require (ignored if null). */
+  protected String m_Task;
+
+  /**
+   * Initializes the members.
+   */
+  @Override
+  protected void initialize() {
+    super.initialize();
+
+    m_Task = null;
+  }
+
+  /**
+   * Sets the task to filter by.
+   *
+   * @param value	the task, ignored if null
+   */
+  public void setTask(String value) {
+    m_Task = value;
+  }
+
+  /**
+   * Returns the task to filter by.
+   *
+   * @return		the task, null if none set
+   */
+  public String getTask() {
+    return m_Task;
+  }
 
   /**
    * Turns the object into a struct (ID and string).
@@ -109,7 +142,30 @@ public class UFDLDockerImageChooserPanel
    */
   @Override
   protected DockerImage[] getAvailableObjects() throws Exception {
-    return m_Connection.getClient().docker().list(m_Filter.generate(new MessageCollection())).toArray(new DockerImage[0]);
+    List<DockerImage> 	result;
+    int			i;
+    boolean		keep;
+
+    result = m_Connection.getClient().docker().list(m_Filter.generate(new MessageCollection()));
+
+    if (m_Task != null) {
+      i = 0;
+      while (i < result.size()) {
+        keep = false;
+        for (String task: result.get(i).getTasks()) {
+          if (task.equals(m_Task)) {
+            keep = true;
+            break;
+	  }
+	}
+        if (keep)
+          i++;
+        else
+          result.remove(i);
+      }
+    }
+
+    return result.toArray(new DockerImage[0]);
   }
 
   /**
