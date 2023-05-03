@@ -21,6 +21,7 @@
 package adams.flow.transformer;
 
 import adams.core.Properties;
+import adams.core.QuickInfoHelper;
 import adams.core.Utils;
 import adams.core.base.BaseObject;
 import adams.core.base.BaseString;
@@ -368,6 +369,21 @@ public class UFDLCreateJob
   @Override
   public Class[] generates() {
     return new Class[]{Job.class};
+  }
+
+  /**
+   * Returns a quick info about the actor, which will be displayed in the GUI.
+   *
+   * @return		null if no info available, otherwise short string
+   */
+  @Override
+  public String getQuickInfo() {
+    String	result;
+
+    result = super.getQuickInfo();
+    result += QuickInfoHelper.toString(this, "contractType", m_ContractType, ", type: ");
+
+    return result;
   }
 
   /**
@@ -764,7 +780,7 @@ public class UFDLCreateJob
 	value = Integer.parseInt((String) value);
       }
       else if (type.equals("Array<str>")) {
-        value = ((String) value).split("\n");
+	value = ((String) value).split("\n");
       }
       else {
 	switch (type) {
