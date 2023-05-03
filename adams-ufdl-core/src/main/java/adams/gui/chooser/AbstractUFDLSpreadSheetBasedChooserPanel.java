@@ -15,7 +15,7 @@
 
 /*
  * AbstractUFDLSpreadSheetBasedChooserPanel.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.gui.chooser;
@@ -200,6 +200,7 @@ public abstract class AbstractUFDLSpreadSheetBasedChooserPanel<T>
       m_Dialog.getTable().setShowRowColumn(false);
       m_Dialog.setShowColumnComboBox(false);
       m_Dialog.setShowSearch(true);
+      m_Dialog.setCancelVisible(true);
       m_Dialog.setSize(GUIHelper.getDefaultDialogDimension());
       m_Dialog.setLocationRelativeTo(m_Dialog.getParent());
     }
