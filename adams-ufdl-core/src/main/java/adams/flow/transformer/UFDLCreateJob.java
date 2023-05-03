@@ -836,7 +836,6 @@ public class UFDLCreateJob
     result = m_Connection.getClient().jobTemplates().newJob(templateData.template.getPK(), inputs, params, description);
     if (isLoggingEnabled())
       getLogger().info("Job: " + result);
-    result = null;
 
     return result;
   }
