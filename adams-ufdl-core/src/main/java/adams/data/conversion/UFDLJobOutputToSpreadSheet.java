@@ -15,7 +15,7 @@
 
 /*
  * UFDLJobOutputToSpreadSheet.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
@@ -78,6 +78,7 @@ public class UFDLJobOutputToSpreadSheet
     result = new DefaultSpreadSheet();
 
     row = result.getHeaderRow();
+    row.addCell("pk").setContentAsString("pk");
     row.addCell("na").setContentAsString("name");
     row.addCell("ty").setContentAsString("type");
 
@@ -99,6 +100,7 @@ public class UFDLJobOutputToSpreadSheet
     output = (JobOutput) m_Input;
     result = getTemplate();
     row    = result.addRow();
+    row.addCell("pk").setContent(output.getPK());
     row.addCell("na").setContent(output.getName());
     row.addCell("ty").setContent(output.getType());
 
