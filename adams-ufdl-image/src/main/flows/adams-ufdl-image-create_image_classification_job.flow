@@ -1,8 +1,8 @@
 # Project: adams
-# Date: 2020-08-19 11:46:49
+# Date: 2023-05-03 15:49:23
 # User: fracpete
 # Charset: UTF-8
-# Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
+# Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-matlab,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
 #
 adams.flow.control.Flow -annotation "Creates a job from an image classification job template." -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
  adams.flow.standalone.UFDLConnection
@@ -12,7 +12,7 @@ adams.flow.control.Flow -annotation "Creates a job from an image classification 
   adams.flow.transformer.SpreadSheetGetCell -col pk
   adams.flow.transformer.SetVariable -var-name domain
  adams.flow.control.Trigger -name "prompt user"
-  adams.flow.source.EnterManyValues -name "Select job template" -stop-if-canceled true -message "Please select job template" -value "adams.flow.source.valuedefinition.UFDLJobTemplateChooser -name template -display Template -filter \"adams.data.ufdlfilter.DomainFilter -domain @{domain}\"" -output-type MAP
+  adams.flow.source.EnterManyValues -name "Select job template" -stop-if-canceled true -message "Please select job template" -value "adams.flow.source.valuedefinition.UFDLJobTemplateChooserByContract -name template -display template -domain @{domain}" -output-type MAP
   adams.flow.transformer.MapToVariables
   adams.flow.transformer.UFDLExtractAndTransfer -name template_pk -source template -target template_pk
  adams.flow.control.Trigger -name "create job"

@@ -20,25 +20,21 @@
 
 package adams.flow.transformer;
 
-import adams.core.MessageCollection;
-import adams.core.ObjectCopyHelper;
 import adams.core.Properties;
 import adams.core.Utils;
+import adams.core.base.BaseObject;
+import adams.core.base.BaseString;
 import adams.core.net.HtmlUtils;
 import adams.data.ufdlfilter.DomainFilter;
-import adams.data.ufdlfilter.GenericFilter;
-import adams.data.ufdlfilter.OrderBy;
-import adams.data.ufdlfilter.field.ExactInteger;
-import adams.data.ufdlfilter.logical.And;
 import adams.flow.core.ActorUtils;
 import adams.flow.core.Token;
+import adams.flow.core.UFDLContractType;
 import adams.flow.core.UFDLListSorting;
-import adams.flow.source.valuedefinition.AbstractUFDLSpreadSheetBasedSoftDeleteValueDefinition;
-import adams.flow.source.valuedefinition.UFDLDatasetChooser;
-import adams.flow.source.valuedefinition.UFDLDockerImageChooser;
-import adams.flow.source.valuedefinition.UFDLJobOutputChooser;
-import adams.flow.source.valuedefinition.UFDLPretrainedModelChooser;
+import adams.flow.core.UFDLSoftDeleteObjectState;
 import adams.flow.standalone.UFDLConnection;
+import adams.gui.chooser.UFDLDatasetChooserPanel;
+import adams.gui.chooser.UFDLDockerImageChooserPanel;
+import adams.gui.chooser.UFDLJobOutputChooserPanel;
 import adams.gui.core.BaseButton;
 import adams.gui.core.BaseDialog;
 import adams.gui.core.BasePanel;
@@ -47,25 +43,38 @@ import adams.gui.core.BaseTextArea;
 import adams.gui.core.GUIHelper;
 import adams.gui.core.PropertiesParameterPanel;
 import adams.gui.core.PropertiesParameterPanel.PropertyType;
-import com.github.waikatoufdl.ufdl4j.action.DockerImages.DockerImage;
+import adams.gui.goe.GenericArrayEditorPanel;
+import com.github.waikatoufdl.ufdl4j.Client;
 import com.github.waikatoufdl.ufdl4j.action.Domains.Domain;
 import com.github.waikatoufdl.ufdl4j.action.Frameworks.Framework;
+import com.github.waikatoufdl.ufdl4j.action.JobTemplates;
 import com.github.waikatoufdl.ufdl4j.action.JobTemplates.JobTemplate;
 import com.github.waikatoufdl.ufdl4j.action.Jobs.Job;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
-import com.github.waikatoufdl.ufdl4j.action.PretrainedModels.PretrainedModel;
+import com.github.waikatoufdl.ufdl4j.core.TypeValuePair;
+import com.github.waikatoufdl.ufdl4j.core.types.DomainType;
+import com.github.waikatoufdl.ufdl4j.core.types.FrameworkType;
+import com.github.waikatoufdl.ufdl4j.filter.field.PK;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+
+import static com.github.waikatoufdl.ufdl4j.core.Types.dataset;
+import static com.github.waikatoufdl.ufdl4j.core.Types.dockerImage;
+import static com.github.waikatoufdl.ufdl4j.core.Types.domain;
+import static com.github.waikatoufdl.ufdl4j.core.Types.jobOutput;
+import static com.github.waikatoufdl.ufdl4j.core.Types.model;
+import static com.github.waikatoufdl.ufdl4j.core.Types.pk;
 
 /**
  <!-- globalinfo-start -->
@@ -175,23 +184,92 @@ public class UFDLCreateJob
 
   private static final long serialVersionUID = 7467922709474210365L;
 
-  public static final String PROPS_DOCKERIMAGE = "dockerimage";
+  /**
+   * Container for storing job template data.
+   */
+  public static class JobTemplateData
+    implements Serializable {
 
-  public static final String TYPE_BOOL = "bool";
+    private static final long serialVersionUID = -8500730651973165146L;
 
-  public static final String TYPE_INT = "int";
+    /** the job template. */
+    public JobTemplate template;
 
-  public static final String TYPE_FLOAT = "float";
+    /** the domain. */
+    public Domain domain;
 
-  public static final String TYPE_STR = "str";
+    /** the framework. */
+    public Framework framework;
 
-  public static final String TYPE_DATASET = "dataset";
+    /** the license. */
+    public License license;
 
-  public static final String TYPE_MODEL = "model";
+    /** the contract type. */
+    public UFDLContractType contractType;
 
-  public static final String TYPE_JOBOUTPUT = "joboutput";
+    /** the types. */
+    public Map<String,String> types;
 
-  public static final String TYPE_CHOICE = "choice";
+    /** the inputs. */
+    public Map<String, String> inputs;
+
+    /** the chosen input types. */
+    public Properties inputTypes;
+
+    /** the chosen input values. */
+    public Properties inputValues;
+
+    /** the parameters. */
+    public List<JobTemplates.Parameter> parameters;
+
+    /** the chosen parameter types. */
+    public Properties parameterTypes;
+
+    /** the chosen parameter values. */
+    public Properties parameterValues;
+
+    /**
+     * Initializes the container.
+     *
+     * @param client	the client to use for connecting to the API
+     * @param template 	the template to use
+     * @param contractType 	the contract type
+     * @throws Exception	if initialization fails (eg due to API problems)
+     */
+    public JobTemplateData(Client client, JobTemplate template, UFDLContractType contractType) throws Exception {
+      this.template = template;
+      this.contractType = contractType;
+
+      // license
+      license = client.licenses().load(template.getLicense());
+      if (license == null)
+	throw new IllegalStateException("Failed to load license: " + template.getLicense());
+
+      // types/domain/framework
+      types = client.jobTemplates().getTypes(template);
+      domain = null;
+      framework = null;
+      for (String key : types.keySet()) {
+	if (key.equals(DomainType.TYPE))
+	  domain = new DomainType().parse(client, types.get(key));
+	if (key.equals(FrameworkType.TYPE))
+	  framework = new FrameworkType().parse(client, types.get(key));
+      }
+      if (domain == null)
+	throw new IllegalStateException("No domain determined!");
+      if (framework == null)
+	throw new IllegalStateException("No framework determined!");
+
+      // parameters
+      parameters = client.jobTemplates().getAllParameters(template);
+
+      // inputs
+      inputs = contractType.getContract().inputs(domain, framework);
+    }
+  }
+
+  /** the contract type. */
+  protected UFDLContractType m_ContractType;
 
   /** the connection to use. */
   protected transient UFDLConnection m_Connection;
@@ -232,6 +310,47 @@ public class UFDLCreateJob
   }
 
   /**
+   * Adds options to the internal list of options.
+   */
+  @Override
+  public void defineOptions() {
+    super.defineOptions();
+
+    m_OptionManager.add(
+      "contract-type", "contractType",
+      UFDLContractType.TRAIN);
+  }
+
+  /**
+   * Sets the contract type to use.
+   *
+   * @param value	the type
+   */
+  public void setContractType(UFDLContractType value) {
+    m_ContractType = value;
+    reset();
+  }
+
+  /**
+   * Returns the contract type to use.
+   *
+   * @return		the type
+   */
+  public UFDLContractType getContractType() {
+    return m_ContractType;
+  }
+
+  /**
+   * Returns the tip text for this property.
+   *
+   * @return 		tip text for this property suitable for
+   * 			displaying in the GUI or for listing the options.
+   */
+  public String contractTypeTipText() {
+    return "The contract type to use.";
+  }
+
+  /**
    * Returns the class that the consumer accepts.
    *
    * @return		the Class of objects that can be processed
@@ -265,7 +384,7 @@ public class UFDLCreateJob
     if (result == null) {
       m_Connection = (UFDLConnection) ActorUtils.findClosestType(this, UFDLConnection.class, true);
       if (m_Connection == null)
-        result = "Failed to locate an instance of " + Utils.classToString(UFDLConnection.class) + "!";
+	result = "Failed to locate an instance of " + Utils.classToString(UFDLConnection.class) + "!";
     }
 
     return result;
@@ -309,7 +428,7 @@ public class UFDLCreateJob
 
     panelInputsParams = new BasePanel(new BorderLayout());
     result.add(panelInputsParams, BorderLayout.CENTER);
-    
+
     m_PropertiesPanelInputs = new PropertiesParameterPanel();
     m_PropertiesPanelInputs.setBorder(BorderFactory.createTitledBorder("Inputs"));
     panelInputsParams.add(m_PropertiesPanelInputs, BorderLayout.NORTH);
@@ -319,175 +438,6 @@ public class UFDLCreateJob
     panelInputsParams.add(m_PropertiesPanelParameters, BorderLayout.CENTER);
 
     return result;
-  }
-
-  /**
-   * Interprets the input/parameter specs and adds them to the panel.
-   *
-   * @param panel	the panel to add to
-   * @param isInput	whether input or parameter
-   * @param specs	the specs to use
-   * @param props	for storing default values
-   * @param order 	for storing the order of the parameters
-   * @param domain	the data domain
-   * @param framework 	the framework
-   * @throws Exception	if setting up of panel fails
-   */
-  protected void addToPanel(PropertiesParameterPanel panel, boolean isInput, List<Map<String,String>> specs, Properties props, List<String> order, Domain domain, Framework framework) throws Exception {
-    String			name;
-    String			type;
-    String			value;
-    String			help;
-    AbstractUFDLSpreadSheetBasedSoftDeleteValueDefinition dataset;
-    UFDLPretrainedModelChooser 	model;
-    UFDLJobOutputChooser	jobOutput;
-    UFDLDockerImageChooser	dockerImage;
-    DomainFilter		domainFilter;
-    GenericFilter		genericFilter;
-    PretrainedModel 		pretrained;
-    MessageCollection		errors;
-    List<DockerImage>		images;
-    List<String>		list;
-    String			listDef;
-    int				i;
-
-    // filter
-    domainFilter = new DomainFilter();
-    domainFilter.setDomain(domain.getPK());
-
-    for (Map<String,String> spec : specs) {
-      name  = spec.get("name");
-      type  = spec.get("type");
-      help  = spec.getOrDefault("help", "");
-      value = "";
-      if (!isInput)
-	value = spec.getOrDefault("default", "");
-      order.add(name);
-      panel.setLabel(name, name);
-      if (!help.isEmpty())
-        panel.setHelp(name, help);
-      switch (type) {
-	case TYPE_BOOL:
-	  panel.addPropertyType(name, PropertyType.BOOLEAN);
-	  if (isInput)
-	    value = "false";
-	  break;
-	case TYPE_INT:
-	  panel.addPropertyType(name, PropertyType.INTEGER);
-	  if (isInput)
-	    value = "-1";
-	  break;
-	case TYPE_FLOAT:
-	  panel.addPropertyType(name, PropertyType.DOUBLE);
-	  if (isInput)
-	    value = "0.0";
-	  break;
-	case TYPE_STR:
-	  panel.addPropertyType(name, PropertyType.STRING);
-	  break;
-	case TYPE_DATASET:
-	  dataset = new UFDLDatasetChooser();
-	  dataset.setFilter(ObjectCopyHelper.copyObject(domainFilter));
-	  dataset.setSorting(UFDLListSorting.BY_ID_ONLY);
-	  dataset.setFlowContext(this);
-	  dataset.setName(name);
-	  dataset.setDisplay(name);
-	  if (isInput)
-	    value = "-1";
-	  dataset.addToPanel(panel);
-	  break;
-	case TYPE_MODEL:
-	  model = new UFDLPretrainedModelChooser();
-	  model.setFilter(ObjectCopyHelper.copyObject(domainFilter));
-	  model.setSorting(UFDLListSorting.BY_ID_ONLY);
-	  model.setFlowContext(this);
-	  model.setName(name);
-	  model.setDisplay(name);
-	  if (isInput) {
-	    value = "-1";
-	  }
-	  else {
-	    // name of pretrained model?
-	    if (!Utils.isInteger(value)) {
-	      try {
-		pretrained = m_Connection.getClient().pretrainedModels().load(value);
-		if (pretrained == null) {
-		  getLogger().severe("Unknown pre-trained model: " + value);
-		  value = "-1";
-		}
-		else {
-		  value = "" + pretrained.getPK();
-		}
-	      }
-	      catch (Exception e) {
-	        getLogger().log(Level.SEVERE, "Failed to load pre-trained model: " + value, e);
-	        value = "-1";
-	      }
-	    }
-	  }
-	  model.addToPanel(panel);
-	  break;
-	case TYPE_JOBOUTPUT:
-	  jobOutput = new UFDLJobOutputChooser();
-	  jobOutput.setFlowContext(this);
-	  jobOutput.setName(name);
-	  jobOutput.setDisplay(name);
-	  if (isInput) {
-	    value = "-1||";
-	    jobOutput.setOutputType(spec.getOrDefault("options", ""));
-	  }
-	  jobOutput.addToPanel(panel);
-	  break;
-	case TYPE_CHOICE:
-	  panel.addPropertyType(name, PropertyType.LIST);
-	  listDef = "";
-	  list = new ArrayList<>(Arrays.asList(value.split(",")));
-	  for (i = 0; i < list.size(); i++) {
-	    if (list.get(i).startsWith("[") && list.get(i).endsWith("]")) {
-	      listDef = list.get(i);
-	      listDef = listDef.substring(1, listDef.length() - 1);
-	      list.set(i, listDef);
-	    }
-	  }
-	  panel.setList(name, list.toArray(new String[0]));
-	  panel.setListDefault(name, listDef);
-	  value = null;
-	  break;
-	default:
-	  getLogger().warning("Unhandled type '" + type + "' for input '" + name + "'!");
-	  panel.addPropertyType(name, PropertyType.STRING);
-	  break;
-      }
-      if (value != null)
-	props.setProperty(name, value);
-    }
-
-    // docker image
-    if (!isInput) {
-      name  = PROPS_DOCKERIMAGE;
-      value = "-1";
-      // filter for domain/framework
-      genericFilter = new GenericFilter()
-	.addExpression(new And()
-	  .addSubExpression(new ExactInteger("domain", domain.getPK()))
-	  .addSubExpression(new ExactInteger("framework", framework.getPK()))
-	)
-	.addOrder(new OrderBy("name"));
-      // if only one image then use it
-      errors = new MessageCollection();
-      images = m_Connection.getClient().docker().list(genericFilter.generate(errors));
-      if (images.size() == 1)
-        value = "" + images.get(0).getPK();
-      dockerImage = new UFDLDockerImageChooser();
-      dockerImage.setSorting(UFDLListSorting.BY_ID_ONLY);
-      dockerImage.setFlowContext(this);
-      dockerImage.setName(name);
-      dockerImage.setDisplay(name);
-      dockerImage.setFilter(genericFilter);
-      dockerImage.setHelp("The docker image to use for executing the job.");
-      dockerImage.addToPanel(panel);
-      props.setProperty(name, value);
-    }
   }
 
   /**
@@ -510,63 +460,260 @@ public class UFDLCreateJob
   }
 
   /**
-   * Populates the properties panel using the job template.
+   * Adds the input to the input panel.
    *
-   * @param template	the template to use
-   * @throws Exception	if setting up of panel fails
+   * @param panel		the panel to add to
+   * @param key			the name of the input to add
+   * @param templateData	the template data to use
+   * @param values 		for the default values
+   * @param types 		for storing the type for the key
    */
-  protected void updatePanel(JobTemplate template) throws Exception {
-    Domain 		domain;
-    Framework		framework;
-    License 		license;
-    Properties 		propsInputs;
-    Properties 		propsParams;
-    List<String> 	orderInputs;
-    List<String> 	orderParams;
+  protected void addInput(PropertiesParameterPanel panel, String key, JobTemplateData templateData, Properties values, Properties types) {
+    String 	datasetPK;
+    String	label;
+    String	type;
+
+    datasetPK = pk(dataset(domain(templateData.domain)));
+    label     = key.replace(GUIHelper.MNEMONIC_INDICATOR, '-');
+    type      = templateData.inputs.get(key);
+
+    // dataset?
+    if (type.equals(datasetPK)) {
+      UFDLDatasetChooserPanel chooser = new UFDLDatasetChooserPanel();
+      chooser.setConnection(m_Connection);
+      chooser.setFilter(new DomainFilter(templateData.domain));
+      chooser.setMultiSelection(false);
+      chooser.setSorting(UFDLListSorting.BY_ID_ONLY);
+      chooser.setState(UFDLSoftDeleteObjectState.ACTIVE);
+      panel.addPropertyType(key, PropertyType.CUSTOM_COMPONENT);
+      panel.setLabel(key, label);
+      panel.setComponent(key, chooser);
+      types.setProperty(key, type);
+      values.setInteger(key, -1);
+    }
+
+    // job output?
+    if (type.startsWith("JobOutput<")) {
+      UFDLJobOutputChooserPanel chooser = new UFDLJobOutputChooserPanel();
+      chooser.setConnection(m_Connection);
+      // TODO
+      // chooser.setOutputType(from type?);
+      panel.addPropertyType(key, PropertyType.CUSTOM_COMPONENT);
+      panel.setLabel(key, label);
+      panel.setComponent(key, chooser);
+      types.setProperty(key, type);
+      values.setProperty(key, "");
+    }
+  }
+
+  /**
+   * Adds the parameter to the parameter panel.
+   *
+   * @param panel		the panel to add to
+   * @param parameter		the parameter to add
+   * @param templateData	the template data to use
+   * @param values 		for the default values
+   * @param types 		for storing the type for the parameter
+   */
+  protected void addParameter(PropertiesParameterPanel panel, JobTemplates.Parameter parameter, JobTemplateData templateData, Properties values, Properties types) {
+    String 			datasetPK;
+    String 			jobOutputModel;
+    String 			dockerImage;
+    String 			dockerImagePK;
+    String 			dockerImageName;
+    String			defValue;
+    Object			defValues;
+    GenericArrayEditorPanel	gae;
+    boolean			added;
+    boolean			ignored;
+    String			key;
+    String			label;
+
+    key             = parameter.getName();
+    label           = parameter.getName().replace(GUIHelper.MNEMONIC_INDICATOR, '-');
+    datasetPK       = pk(dataset(domain(templateData.domain)));
+    jobOutputModel  = jobOutput(model(templateData.domain, templateData.framework));
+    dockerImage     = dockerImage(templateData.domain, templateData.framework, null);
+    dockerImagePK   = "PK<" + dockerImage;
+    dockerImageName = "Name<" + dockerImage;
+
+    defValue = null;
+    added    = false;
+    ignored  = false;
+    for (String type: parameter.getTypes()) {
+      if (type.equals(datasetPK)) {
+	added = true;
+	UFDLDatasetChooserPanel chooser = new UFDLDatasetChooserPanel();
+	chooser.setConnection(m_Connection);
+	chooser.setFilter(new DomainFilter(templateData.domain));
+	chooser.setMultiSelection(false);
+	chooser.setSorting(UFDLListSorting.BY_ID_ONLY);
+	chooser.setState(UFDLSoftDeleteObjectState.ACTIVE);
+	panel.addPropertyType(key, PropertyType.CUSTOM_COMPONENT);
+	panel.setLabel(key, label);
+	panel.setComponent(key, chooser);
+	types.setProperty(key, type);
+      }
+      else if (type.equals(jobOutputModel)) {
+	added = true;
+	UFDLJobOutputChooserPanel chooser = new UFDLJobOutputChooserPanel();
+	chooser.setConnection(m_Connection);
+	// TODO
+	// chooser.setOutputType(???);
+	panel.addPropertyType(key, PropertyType.CUSTOM_COMPONENT);
+	panel.setLabel(key, label);
+	panel.setComponent(key, chooser);
+	types.setProperty(key, type);
+      }
+      else if (type.startsWith(dockerImagePK)) {
+	added = true;
+	UFDLDockerImageChooserPanel chooser = new UFDLDockerImageChooserPanel();
+	chooser.setConnection(m_Connection);
+	com.github.waikatoufdl.ufdl4j.filter.GenericFilter filter = new com.github.waikatoufdl.ufdl4j.filter.GenericFilter();
+	filter.addExpression(new PK("domain", templateData.domain.getPK()));
+	filter.addExpression(new PK("framework", templateData.framework.getPK()));
+	chooser.setFilter(new DomainFilter(templateData.domain));
+	chooser.setTask(m_ContractType.getName());
+	chooser.setMultiSelection(false);
+	chooser.setSorting(UFDLListSorting.BY_ID_ONLY);
+	panel.addPropertyType(key, PropertyType.CUSTOM_COMPONENT);
+	panel.setLabel(key, label);
+	panel.setComponent(key, chooser);
+	types.setProperty(key, type);
+      }
+      else if (type.startsWith(dockerImageName) || type.startsWith(dockerImage)) {
+	// handled by dockerImagePK
+	ignored = true;
+      }
+      else {
+	switch (type) {
+	  case "bool":
+	    added = true;
+	    panel.addPropertyType(key, PropertyType.BOOLEAN);
+	    panel.setLabel(key, label);
+	    if (parameter.hasDefault())
+	      defValue = "" + parameter.getDefault();
+	    else
+	      defValue = "false";
+	    types.setProperty(key, type);
+	    break;
+
+	  case "int":
+	    added = true;
+	    panel.addPropertyType(key, PropertyType.INTEGER);
+	    panel.setLabel(key, label);
+	    if (parameter.hasDefault())
+	      defValue = "" + parameter.getDefault();
+	    else
+	      defValue = "-1";
+	    types.setProperty(key, type);
+	    break;
+
+	  case "float":
+	    added = true;
+	    panel.addPropertyType(key, PropertyType.DOUBLE);
+	    panel.setLabel(key, label);
+	    if (parameter.hasDefault())
+	      defValue = "" + parameter.getDefault();
+	    else
+	      defValue = "0.0";
+	    types.setProperty(key, type);
+	    break;
+
+	  case "str":
+	    added = true;
+	    panel.addPropertyType(key, PropertyType.STRING);
+	    panel.setLabel(key, label);
+	    if (parameter.hasDefault())
+	      defValue = "" + parameter.getDefault();
+	    else
+	      defValue = "";
+	    types.setProperty(key, type);
+	    break;
+
+	  case "Array<str>":
+	    added = true;
+	    if (parameter.hasDefault()) {
+	      defValues = parameter.getDefault();
+	      if (defValues instanceof List)
+		defValues = BaseObject.toObjectArray((String[]) ((List) defValues).toArray(new String[0]), BaseString.class);
+	      values.setProperty(key, Utils.flatten((BaseString[]) defValues, "\n"));
+	    }
+	    else {
+	      defValues = new BaseString[0];
+	    }
+	    gae = new GenericArrayEditorPanel(defValues);
+	    panel.addPropertyType(key, PropertyType.ARRAY_EDITOR);
+	    panel.setLabel(key, label);
+	    panel.setChooser(key, gae);
+	    panel.setArrayClass(key, BaseString.class);
+	    panel.setArraySeparator(key, "\n");
+	    types.setProperty(key, type);
+	    break;
+
+	  default:
+	    if (!ignored)
+	      getLogger().warning("Unhandled parameter type: " + type);
+	}
+      }
+      if (added)
+	break;
+    }
+
+    // set default value
+    if (defValue != null)
+      values.setProperty(key, defValue);
+  }
+
+  /**
+   * Populates the properties panel using the job template data.
+   *
+   * @param templateData	the template data to use
+   * @throws Exception		if setting up of panel fails
+   */
+  protected void updatePanel(JobTemplateData templateData) throws Exception {
+    List<String>	keys;
+    Properties 		defValues;
 
     clearPanel();
 
-    // resolve
-    domain = m_Connection.getClient().domains().load(template.getDomain());
-    if (domain == null)
-      throw new IllegalStateException("Cannot resolve domain: " + template.getDomain());
-    // TODO
-//    framework = m_Connection.getClient().frameworks().load(template.getFramework());
-//    if (framework == null)
-//      throw new IllegalStateException("Failed to load framework: " + template.getFramework());
-    license = m_Connection.getClient().licenses().load(template.getLicense());
-    if (license == null)
-      throw new IllegalStateException("Failed to load license: " + template.getLicense());
-
     // info
     m_TemplateInfo.append("<html>\n");
-    m_TemplateInfo.append("<h2>").append(template.getName()).append("</h2>\n");
+    m_TemplateInfo.append("<h2>").append(templateData.template.getName()).append("</h2>\n");
     m_TemplateInfo.append("<table border=\"1\" cellspacing=\"0\">\n");
-    addInfo("Description", template.getDescription());
-    addInfo("Version", "" + template.getVersion());
-    addInfo("Domain", template.getDomain());
-    // TODO
-    //addInfo("Framework", framework.getName() + "/" + framework.getVersion());
-    addInfo("License", license.getName());
-    addInfo("Executor class", template.getExecutorClass());
-    if (!template.getRequiredPackages().isEmpty())
-      addInfo("Required packages", template.getRequiredPackages());
+    addInfo("Description", templateData.template.getDescription());
+    addInfo("Version", "" + templateData.template.getVersion());
+    addInfo("Domain", templateData.domain.getDescription());
+    addInfo("Framework", templateData.framework.getName() + "/" + templateData.framework.getVersion());
+    addInfo("License", templateData.license.getName());
+    addInfo("Executor class", templateData.template.getExecutorClass());
+    if (!templateData.template.getRequiredPackages().isEmpty())
+      addInfo("Required packages", templateData.template.getRequiredPackages());
     m_TemplateInfo.append("</table>\n");
     m_TemplateInfo.append("</html>\n");
 
     // inputs
-//    propsInputs = new Properties();
-//    orderInputs = new ArrayList<>();
-//    addToPanel(m_PropertiesPanelInputs, true, template.getInputs(), propsInputs, orderInputs, domain, framework);
-//    m_PropertiesPanelInputs.setPropertyOrder(orderInputs);
-//    m_PropertiesPanelInputs.setProperties(propsInputs);
+    templateData.inputTypes = new Properties();
+    defValues               = new Properties();
+    keys                    = new ArrayList<>(templateData.inputs.keySet());
+    Collections.sort(keys);
+    for (String key: keys)
+      addInput(m_PropertiesPanelInputs, key, templateData, defValues, templateData.inputTypes);
+    m_PropertiesPanelInputs.setPropertyOrder(keys);
+    m_PropertiesPanelInputs.setProperties(defValues);
 
     // parameters
-//    propsParams = new Properties();
-//    orderParams = new ArrayList<>();
-//    addToPanel(m_PropertiesPanelParameters, false, template.getParameters(), propsParams, orderParams, domain, framework);
-//    m_PropertiesPanelParameters.setPropertyOrder(orderParams);
-//    m_PropertiesPanelParameters.setProperties(propsParams);
+    templateData.parameterTypes = new Properties();
+    defValues                   = new Properties();
+    keys                        = new ArrayList<>();
+    for (JobTemplates.Parameter parameter: templateData.parameters) {
+      if (parameter.isConstant())
+	continue;
+      keys.add(parameter.getName());
+      addParameter(m_PropertiesPanelParameters, parameter, templateData, defValues, templateData.parameterTypes);
+    }
+    m_PropertiesPanelParameters.setPropertyOrder(keys);
+    m_PropertiesPanelParameters.setProperties(defValues);
   }
 
   /**
@@ -605,44 +752,74 @@ public class UFDLCreateJob
   }
 
   /**
+   * Fixes the type of the value if necessary.
+   *
+   * @param type	the desired type
+   * @param value	the current value
+   * @return		the potentially fixed value
+   */
+  protected Object fixValue(String type, Object value) {
+    if (value instanceof String) {
+      if (type.startsWith("PK<")) {
+	value = Integer.parseInt((String) value);
+      }
+      else if (type.equals("Array<str>")) {
+        value = ((String) value).split("\n");
+      }
+      else {
+	switch (type) {
+	  case "bool":
+	    value = Boolean.parseBoolean((String) value);
+	    break;
+	  case "int":
+	    value = Integer.parseInt((String) value);
+	    break;
+	  case "float":
+	    value = Double.parseDouble((String) value);
+	    break;
+	}
+      }
+    }
+
+    return value;
+  }
+
+  /**
    * Creates a job from the template and the provided inputs/parameters.
    *
-   * @param template	the template the job is based on
-   * @param description the job description
-   * @param propsInputs	the inputs selected by the user
-   * @param propsParams	the parameters selected by the user
-   * @return		the job, null if failed to create
-   * @throws Exception	if API calls fails
+   * @param templateData	the template data the job is based on
+   * @param description 	the job description
+   * @return			the job, null if failed to create
+   * @throws Exception		if API calls fails
    */
-  protected Job createJob(JobTemplate template, String description, Properties propsInputs, Properties propsParams) throws Exception {
-    Job			result;
-    int			dockerImage;
-    Map<String,String>	inputs;
-    Map<String,String>	params;
-    String		value;
+  protected Job createJob(JobTemplateData templateData, String description) throws Exception {
+    Job					result;
+    Map<String,Map<String,Object>>	inputs;
+    Map<String,Map<String,Object>>	params;
+    String				value;
+    String				type;
 
+    if (isLoggingEnabled()) {
+      getLogger().info("Inputs for job: " + templateData.inputValues);
+      getLogger().info("Parameters for job: " + templateData.parameterValues);
+    }
+
+    inputs = new HashMap<>();
+    params = new HashMap<>();
+    for (String key: templateData.inputValues.keySetAll()) {
+      type  = templateData.inputTypes.getProperty(key);
+      value = templateData.inputValues.getProperty(key);
+      inputs.put(key, TypeValuePair.typeValuePair(type, fixValue(type, value)));
+    }
+    for (String key: templateData.parameterValues.keySetAll()) {
+      type  = templateData.parameterTypes.getProperty(key);
+      value = templateData.parameterValues.getProperty(key);
+      params.put(key, TypeValuePair.typeValuePair(type, fixValue(type, value)));
+    }
+
+    result = m_Connection.getClient().jobTemplates().newJob(templateData.template.getPK(), inputs, params, description);
     if (isLoggingEnabled())
-      getLogger().info("Data for job: " + propsInputs);
-
-    dockerImage = -1;
-    inputs      = new HashMap<>();
-    params      = new HashMap<>();
-    for (String key: propsInputs.keySetAll()) {
-      value = propsInputs.getProperty(key);
-      inputs.put(key, value);
-    }
-    for (String key: propsParams.keySetAll()) {
-      value = propsParams.getProperty(key);
-      if (key.equals(PROPS_DOCKERIMAGE))
-	dockerImage = propsParams.getInteger(key, -1);
-      else
-	params.put(key, value);
-    }
-
-    // TODO
-//    result = m_Connection.getClient().jobTemplates().newJob(template.getPK(), dockerImage, inputs, params, description);
-//    if (isLoggingEnabled())
-//      getLogger().info("Job: " + result);
+      getLogger().info("Job: " + result);
     result = null;
 
     return result;
@@ -657,8 +834,10 @@ public class UFDLCreateJob
   public boolean doInteract() {
     JobTemplate 	template;
     Job			job;
+    JobTemplateData	templateData;
 
-    m_Accepted = false;
+    m_Accepted   = false;
+    templateData = null;
 
     try {
       if (m_InputToken.hasPayload(Integer.class))
@@ -666,12 +845,19 @@ public class UFDLCreateJob
       else
 	template = (JobTemplate) m_InputToken.getPayload();
       if (isLoggingEnabled())
-        getLogger().info("Template: " + template);
-      if (template != null)
-	updatePanel(template);
+	getLogger().info("Template: " + template);
+      if (template != null) {
+	templateData = new JobTemplateData(m_Connection.getClient(), template, m_ContractType);
+	updatePanel(templateData);
+      }
     }
     catch (Exception e) {
       getLogger().log(Level.SEVERE, "Failed to configure view!", e);
+      return false;
+    }
+
+    if (templateData == null) {
+      getLogger().severe("Failed to collect jobtemplate data!");
       return false;
     }
 
@@ -681,15 +867,17 @@ public class UFDLCreateJob
 
     if (m_Accepted) {
       try {
-        job = createJob(template, m_TextDescription.getText(), m_PropertiesPanelInputs.getProperties(), m_PropertiesPanelParameters.getProperties());
+	templateData.inputValues     = m_PropertiesPanelInputs.getProperties();
+	templateData.parameterValues = m_PropertiesPanelParameters.getProperties();
+	job = createJob(templateData, m_TextDescription.getText());
 	if (job != null)
 	  m_OutputToken = new Token(job);
 	else
 	  getLogger().severe("Failed to create job!");
       }
       catch (Exception e) {
-        getLogger().log(Level.SEVERE, "Failed to create job!", e);
-        return false;
+	getLogger().log(Level.SEVERE, "Failed to create job!", e);
+	return false;
       }
     }
 
