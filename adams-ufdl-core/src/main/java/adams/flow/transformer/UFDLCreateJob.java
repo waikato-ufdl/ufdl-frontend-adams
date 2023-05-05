@@ -855,17 +855,18 @@ public class UFDLCreateJob
   /**
    * Performs the interaction with the user.
    *
-   * @return		true if successfully interacted
+   * @return		null if successfully interacted, otherwise error message
    */
   @Override
-  public boolean doInteract() {
+  public String doInteract() {
     JobTemplate 	template;
     Job			job;
     JobTemplateData	templateData;
     boolean		cancelled;
     int			retVal;
+    String		msg;
 
-    m_Accepted   = false;
+      m_Accepted   = false;
     cancelled    = false;
     templateData = null;
 
@@ -883,13 +884,15 @@ public class UFDLCreateJob
 	}
       }
       catch (Exception e) {
-	getLogger().log(Level.SEVERE, "Failed to configure 'create job' view!", e);
-	return false;
+        msg = "Failed to configure 'create job' view!";
+	getLogger().log(Level.SEVERE, msg, e);
+	return msg;
       }
 
       if (templateData == null) {
-	getLogger().severe("Failed to collect job-template data!");
-	return false;
+        msg = "Failed to collect job-template data!";
+	getLogger().severe(msg);
+	return msg;
       }
 
       registerWindow(m_Dialog, m_Dialog.getTitle());
@@ -918,6 +921,9 @@ public class UFDLCreateJob
       }
     }
 
-    return m_Accepted;
+    if (m_Accepted)
+      return null;
+    else
+      return INTERACTION_CANCELED;
   }
 }
