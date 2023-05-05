@@ -388,7 +388,7 @@ public class UFDLConnection
   public String promptForPasswordTipText() {
     return
       "If enabled and authentication is required, the user gets prompted "
-        + "for enter a password if none has been provided in the setup.";
+	+ "for enter a password if none has been provided in the setup.";
   }
 
   /**
@@ -448,7 +448,7 @@ public class UFDLConnection
   public String customStopMessageTipText() {
     return
       "The custom stop message to use in case a user cancelation stops the "
-        + "flow (default is the full name of the actor)";
+	+ "flow (default is the full name of the actor)";
   }
 
   /**
@@ -608,10 +608,11 @@ public class UFDLConnection
   /**
    * Performs the interaction with the user.
    *
-   * @return		true if successfully interacted
+   * @return		null if successfully interacted, otherwise error message
    */
-  public boolean doInteract() {
-    boolean		result;
+  @Override
+  public String doInteract() {
+    String		result;
     PasswordDialog dlg;
 
     dlg = new PasswordDialog((Dialog) null, ModalityType.DOCUMENT_MODAL);
@@ -619,9 +620,12 @@ public class UFDLConnection
     ((Flow) getRoot()).registerWindow(dlg, dlg.getTitle());
     dlg.setVisible(true);
     ((Flow) getRoot()).deregisterWindow(dlg);
-    result = (dlg.getOption() == PasswordDialog.APPROVE_OPTION);
+    if (dlg.getOption() == PasswordDialog.APPROVE_OPTION)
+      result = null;
+    else
+      result = INTERACTION_CANCELED;
 
-    if (result)
+    if (result == null)
       m_ActualPassword = dlg.getPassword();
 
     return result;
@@ -639,16 +643,17 @@ public class UFDLConnection
   /**
    * Performs the interaction with the user in a headless environment.
    *
-   * @return		true if successfully interacted
+   * @return		null if successfully interacted, otherwise error message
    */
-  public boolean doInteractHeadless() {
-    boolean		result;
+  @Override
+  public String doInteractHeadless() {
+    String		result;
     BasePassword	password;
 
-    result   = false;
+    result   = INTERACTION_CANCELED;
     password = ConsoleHelper.enterPassword("Please enter password (" + getName() + "):");
     if (password != null) {
-      result           = true;
+      result           = null;
       m_ActualPassword = password;
     }
 
@@ -663,6 +668,7 @@ public class UFDLConnection
   @Override
   protected String doExecute() {
     String	result;
+    String	msg;
 
     result = null;
 
@@ -670,34 +676,36 @@ public class UFDLConnection
 
     if (m_PromptForPassword && (m_Password.getValue().length() == 0)) {
       if (!isHeadless()) {
-        if (!doInteract()) {
-          if (m_StopFlowIfCanceled) {
-            if ((m_CustomStopMessage == null) || (m_CustomStopMessage.trim().length() == 0))
-              StopHelper.stop(this, m_StopMode, "Flow canceled: " + getFullName());
-            else
-              StopHelper.stop(this, m_StopMode, m_CustomStopMessage);
-            result = getStopMessage();
-          }
-        }
+        msg = doInteract();
+	if (msg != null) {
+	  if (m_StopFlowIfCanceled) {
+	    if ((m_CustomStopMessage == null) || (m_CustomStopMessage.trim().length() == 0))
+	      StopHelper.stop(this, m_StopMode, "Flow canceled: " + getFullName());
+	    else
+	      StopHelper.stop(this, m_StopMode, m_CustomStopMessage);
+	    result = getStopMessage();
+	  }
+	}
       }
       else if (supportsHeadlessInteraction()) {
-        if (!doInteractHeadless()) {
-          if (m_StopFlowIfCanceled) {
-            if ((m_CustomStopMessage == null) || (m_CustomStopMessage.trim().length() == 0))
-              StopHelper.stop(this, m_StopMode, "Flow canceled: " + getFullName());
-            else
-              StopHelper.stop(this, m_StopMode, m_CustomStopMessage);
-            result = getStopMessage();
-          }
-        }
+        msg = doInteractHeadless();
+	if (msg != null) {
+	  if (m_StopFlowIfCanceled) {
+	    if ((m_CustomStopMessage == null) || (m_CustomStopMessage.trim().length() == 0))
+	      StopHelper.stop(this, m_StopMode, "Flow canceled: " + getFullName());
+	    else
+	      StopHelper.stop(this, m_StopMode, m_CustomStopMessage);
+	    result = getStopMessage();
+	  }
+	}
       }
     }
 
     if (result == null) {
       if (m_Client == null)
-        m_Client = new Client(m_Host.getValue(), m_User, m_Password.getValue(), new LocalStorage(), m_ConnectTimeout, m_ReadTimeout, m_WriteTimeout);
+	m_Client = new Client(m_Host.getValue(), m_User, m_Password.getValue(), new LocalStorage(), m_ConnectTimeout, m_ReadTimeout, m_WriteTimeout);
       if (!m_Client.connection().authentication().getTokens().isValid())
-        result = "No valid API tokens available!";
+	result = "No valid API tokens available!";
     }
 
     if (result == null)

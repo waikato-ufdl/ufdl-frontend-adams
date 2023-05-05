@@ -46,6 +46,7 @@ import adams.gui.core.BaseTextArea;
 import adams.gui.core.GUIHelper;
 import adams.gui.core.PropertiesParameterPanel;
 import adams.gui.core.PropertiesParameterPanel.PropertyType;
+import adams.gui.dialog.ApprovalDialog;
 import adams.gui.goe.GenericArrayEditorPanel;
 import com.github.waikatoufdl.ufdl4j.Client;
 import com.github.waikatoufdl.ufdl4j.action.Domains.Domain;
@@ -55,6 +56,7 @@ import com.github.waikatoufdl.ufdl4j.action.JobTemplates.JobTemplate;
 import com.github.waikatoufdl.ufdl4j.action.Jobs.Job;
 import com.github.waikatoufdl.ufdl4j.action.Licenses.License;
 import com.github.waikatoufdl.ufdl4j.core.TypeValuePair;
+import com.github.waikatoufdl.ufdl4j.core.Types;
 import com.github.waikatoufdl.ufdl4j.core.types.DomainType;
 import com.github.waikatoufdl.ufdl4j.core.types.FrameworkType;
 
@@ -79,7 +81,7 @@ import static com.github.waikatoufdl.ufdl4j.core.Types.pk;
 
 /**
  <!-- globalinfo-start -->
- * Generates a dialog for the user to fill based on the received job template. This input is used to generate the job.
+ * Generates a dialog for the user to fill based on the received job template. The provided values for inputs and parameters are used to generate and submit the job.
  * <br><br>
  <!-- globalinfo-end -->
  *
@@ -97,6 +99,7 @@ import static com.github.waikatoufdl.ufdl4j.core.Types.pk;
  * <pre>-logging-level &lt;OFF|SEVERE|WARNING|INFO|CONFIG|FINE|FINER|FINEST&gt; (property: loggingLevel)
  * &nbsp;&nbsp;&nbsp;The logging level for outputting errors and debugging output.
  * &nbsp;&nbsp;&nbsp;default: WARNING
+ * &nbsp;&nbsp;&nbsp;min-user-mode: Expert
  * </pre>
  *
  * <pre>-name &lt;java.lang.String&gt; (property: name)
@@ -120,12 +123,14 @@ import static com.github.waikatoufdl.ufdl4j.core.Types.pk;
  * &nbsp;&nbsp;&nbsp;actor encounters an error; the error gets propagated; useful for critical
  * &nbsp;&nbsp;&nbsp;actors.
  * &nbsp;&nbsp;&nbsp;default: false
+ * &nbsp;&nbsp;&nbsp;min-user-mode: Expert
  * </pre>
  *
  * <pre>-silent &lt;boolean&gt; (property: silent)
  * &nbsp;&nbsp;&nbsp;If enabled, then no errors are output in the console; Note: the enclosing
  * &nbsp;&nbsp;&nbsp;actor handler must have this enabled as well.
  * &nbsp;&nbsp;&nbsp;default: false
+ * &nbsp;&nbsp;&nbsp;min-user-mode: Expert
  * </pre>
  *
  * <pre>-short-title &lt;boolean&gt; (property: shortTitle)
@@ -174,6 +179,11 @@ import static com.github.waikatoufdl.ufdl4j.core.Types.pk;
  * <pre>-stop-mode &lt;GLOBAL|STOP_RESTRICTOR&gt; (property: stopMode)
  * &nbsp;&nbsp;&nbsp;The stop mode to use.
  * &nbsp;&nbsp;&nbsp;default: GLOBAL
+ * </pre>
+ *
+ * <pre>-contract-type &lt;TRAIN|PREDICT&gt; (property: contractType)
+ * &nbsp;&nbsp;&nbsp;The contract type to use.
+ * &nbsp;&nbsp;&nbsp;default: TRAIN
  * </pre>
  *
  <!-- options-end -->
@@ -297,7 +307,8 @@ public class UFDLCreateJob
    */
   @Override
   public String globalInfo() {
-    return "Generates a dialog for the user to fill based on the received job template. This input is used to generate the job.";
+    return "Generates a dialog for the user to fill based on the received job template. "
+      + "The provided values for inputs and parameters are used to generate and submit the job.";
   }
 
   /**
@@ -530,8 +541,9 @@ public class UFDLCreateJob
    * @param templateData	the template data to use
    * @param values 		for the default values
    * @param types 		for storing the type for the parameter
+   * @throws Exception		if adding of parameter fails
    */
-  protected void addParameter(PropertiesParameterPanel panel, JobTemplates.Parameter parameter, JobTemplateData templateData, Properties values, Properties types) {
+  protected void addParameter(PropertiesParameterPanel panel, JobTemplates.Parameter parameter, JobTemplateData templateData, Properties values, Properties types) throws Exception {
     String 			datasetPK;
     String 			dockerImage;
     String 			dockerImagePK;
@@ -548,8 +560,8 @@ public class UFDLCreateJob
     label           = parameter.getName().replace(GUIHelper.MNEMONIC_INDICATOR, '-');
     datasetPK       = pk(dataset(domain(templateData.domain)));
     dockerImage     = dockerImage(templateData.domain, templateData.framework, null);
-    dockerImagePK   = "PK<" + dockerImage;
-    dockerImageName = "Name<" + dockerImage;
+    dockerImagePK   = Types.PK + dockerImage;
+    dockerImageName = Types.NAME + dockerImage;
 
     defValue = null;
     added    = false;
@@ -575,7 +587,7 @@ public class UFDLCreateJob
 	GenericFilter filter = new GenericFilter();
 	filter.addExpression(new ExactInteger("domain", templateData.domain.getPK()));
 	filter.addExpression(new ExactInteger("framework", templateData.framework.getPK()));
-        chooser.setFilter(filter);
+	chooser.setFilter(filter);
 	chooser.setTask(m_ContractType.getName());
 	chooser.setMultiSelection(false);
 	chooser.setSorting(UFDLListSorting.BY_ID_ONLY);
@@ -590,7 +602,7 @@ public class UFDLCreateJob
       }
       else {
 	switch (type) {
-	  case "bool":
+	  case Types.PRIMITIVE_BOOL:
 	    added = true;
 	    panel.addPropertyType(key, PropertyType.BOOLEAN);
 	    panel.setLabel(key, label);
@@ -601,7 +613,7 @@ public class UFDLCreateJob
 	    types.setProperty(key, type);
 	    break;
 
-	  case "int":
+	  case Types.PRIMITIVE_INT:
 	    added = true;
 	    panel.addPropertyType(key, PropertyType.INTEGER);
 	    panel.setLabel(key, label);
@@ -612,7 +624,7 @@ public class UFDLCreateJob
 	    types.setProperty(key, type);
 	    break;
 
-	  case "float":
+	  case Types.PRIMITIVE_FLOAT:
 	    added = true;
 	    panel.addPropertyType(key, PropertyType.DOUBLE);
 	    panel.setLabel(key, label);
@@ -623,7 +635,7 @@ public class UFDLCreateJob
 	    types.setProperty(key, type);
 	    break;
 
-	  case "str":
+	  case Types.PRIMITIVE_STR:
 	    added = true;
 	    panel.addPropertyType(key, PropertyType.STRING);
 	    panel.setLabel(key, label);
@@ -634,7 +646,7 @@ public class UFDLCreateJob
 	    types.setProperty(key, type);
 	    break;
 
-	  case "Array<str>":
+	  case Types.ARRAY_STR:
 	    added = true;
 	    if (parameter.hasDefault()) {
 	      defValues = parameter.getDefault();
@@ -655,8 +667,12 @@ public class UFDLCreateJob
 	    break;
 
 	  default:
-	    if (!ignored)
-	      getLogger().warning("Unhandled parameter type: " + type);
+	    if (!ignored) {
+	      if (type.contains(Types.DOCKER_IMAGE))
+		throw new IllegalStateException("Unhandled parameter type: " + type + "\n" + parameter.toString());
+	      else
+		getLogger().warning("Unhandled parameter type: " + type + "\n" + parameter.toString());
+	    }
 	}
       }
       if (added)
@@ -764,28 +780,28 @@ public class UFDLCreateJob
   protected Object fixValue(String key, String type, Object value) {
     try {
       if (value instanceof String) {
-        if (type.startsWith("PK<")) {
-          value = Integer.parseInt((String) value);
-        }
-        else if (type.startsWith("JobOutput<")) {
-          value = Integer.parseInt((String) value);
-        }
-        else if (type.equals("Array<str>")) {
-          value = ((String) value).split("\n");
-        }
-        else {
-          switch (type) {
-            case "bool":
-              value = Boolean.parseBoolean((String) value);
-              break;
-            case "int":
-              value = Integer.parseInt((String) value);
-              break;
-            case "float":
-              value = Double.parseDouble((String) value);
-              break;
-          }
-        }
+	if (type.startsWith(Types.PK)) {
+	  value = Integer.parseInt((String) value);
+	}
+	else if (type.startsWith(Types.JOB_OUTPUT)) {
+	  value = Integer.parseInt((String) value);
+	}
+	else if (type.equals(Types.ARRAY_STR)) {
+	  value = ((String) value).split("\n");
+	}
+	else {
+	  switch (type) {
+	    case Types.PRIMITIVE_BOOL:
+	      value = Boolean.parseBoolean((String) value);
+	      break;
+	    case Types.PRIMITIVE_INT:
+	      value = Integer.parseInt((String) value);
+	      break;
+	    case Types.PRIMITIVE_FLOAT:
+	      value = Double.parseDouble((String) value);
+	      break;
+	  }
+	}
       }
 
       return value;
@@ -846,49 +862,59 @@ public class UFDLCreateJob
     JobTemplate 	template;
     Job			job;
     JobTemplateData	templateData;
+    boolean		cancelled;
+    int			retVal;
 
     m_Accepted   = false;
+    cancelled    = false;
     templateData = null;
 
-    try {
-      if (m_InputToken.hasPayload(Integer.class))
-	template = m_Connection.getClient().jobTemplates().load(m_InputToken.getPayload(Integer.class));
-      else
-	template = (JobTemplate) m_InputToken.getPayload();
-      if (isLoggingEnabled())
-	getLogger().info("Template: " + template);
-      if (template != null) {
-	templateData = new JobTemplateData(m_Connection.getClient(), template, m_ContractType);
-	updatePanel(templateData);
-      }
-    }
-    catch (Exception e) {
-      getLogger().log(Level.SEVERE, "Failed to configure view!", e);
-      return false;
-    }
-
-    if (templateData == null) {
-      getLogger().severe("Failed to collect jobtemplate data!");
-      return false;
-    }
-
-    registerWindow(m_Dialog, m_Dialog.getTitle());
-    m_Dialog.setVisible(true);
-    deregisterWindow(m_Dialog);
-
-    if (m_Accepted) {
+    while (!m_Accepted && !cancelled) {
       try {
-	templateData.inputValues     = m_PropertiesPanelInputs.getProperties();
-	templateData.parameterValues = m_PropertiesPanelParameters.getProperties();
-	job = createJob(templateData, m_TextDescription.getText());
-	if (job != null)
-	  m_OutputToken = new Token(job);
+	if (m_InputToken.hasPayload(Integer.class))
+	  template = m_Connection.getClient().jobTemplates().load(m_InputToken.getPayload(Integer.class));
 	else
-	  getLogger().severe("Failed to create job!");
+	  template = (JobTemplate) m_InputToken.getPayload();
+	if (isLoggingEnabled())
+	  getLogger().info("Template: " + template);
+	if (template != null) {
+	  templateData = new JobTemplateData(m_Connection.getClient(), template, m_ContractType);
+	  updatePanel(templateData);
+	}
       }
       catch (Exception e) {
-	getLogger().log(Level.SEVERE, "Failed to create job!", e);
+	getLogger().log(Level.SEVERE, "Failed to configure 'create job' view!", e);
 	return false;
+      }
+
+      if (templateData == null) {
+	getLogger().severe("Failed to collect job-template data!");
+	return false;
+      }
+
+      registerWindow(m_Dialog, m_Dialog.getTitle());
+      m_Dialog.setVisible(true);
+      deregisterWindow(m_Dialog);
+
+      if (m_Accepted) {
+	try {
+	  templateData.inputValues = m_PropertiesPanelInputs.getProperties();
+	  templateData.parameterValues = m_PropertiesPanelParameters.getProperties();
+	  job = createJob(templateData, m_TextDescription.getText());
+	  if (job != null)
+	    m_OutputToken = new Token(job);
+	  else
+	    getLogger().severe("Failed to create job!");
+	  cancelled = !m_Accepted;
+	}
+	catch (Exception e) {
+	  getLogger().log(Level.SEVERE, "Failed to create job!", e);
+	  retVal = GUIHelper.showConfirmMessage(getParentComponent(), "Failed to create job - try again?\n" + e.getMessage());
+	  if (retVal == ApprovalDialog.CANCEL_OPTION)
+	    cancelled = true;
+	  if (retVal == ApprovalDialog.APPROVE_OPTION)
+	    m_Accepted = false;
+	}
       }
     }
 
