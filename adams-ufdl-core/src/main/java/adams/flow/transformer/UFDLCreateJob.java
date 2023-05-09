@@ -866,7 +866,7 @@ public class UFDLCreateJob
     int			retVal;
     String		msg;
 
-      m_Accepted   = false;
+    m_Accepted   = false;
     cancelled    = false;
     templateData = null;
 
@@ -899,6 +899,7 @@ public class UFDLCreateJob
       m_Dialog.setVisible(true);
       deregisterWindow(m_Dialog);
 
+      cancelled = !m_Accepted;
       if (m_Accepted) {
 	try {
 	  templateData.inputValues = m_PropertiesPanelInputs.getProperties();
@@ -908,7 +909,6 @@ public class UFDLCreateJob
 	    m_OutputToken = new Token(job);
 	  else
 	    getLogger().severe("Failed to create job!");
-	  cancelled = !m_Accepted;
 	}
 	catch (Exception e) {
 	  getLogger().log(Level.SEVERE, "Failed to create job!", e);
