@@ -15,11 +15,12 @@
 
 /*
  * UFDLExtractFileNameFromFile.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
 
+import adams.core.QuickInfoHelper;
 import adams.core.io.PlaceholderFile;
 import adams.flow.core.UFDLFileNameExtraction;
 
@@ -85,6 +86,16 @@ public class UFDLExtractFileNameFromFile
    */
   public String imageNameExtractionTipText() {
     return "Determines how to generate the name from the filename.";
+  }
+
+  /**
+   * Returns a quick info about the object, which can be displayed in the GUI.
+   *
+   * @return		null if no info available, otherwise short string
+   */
+  @Override
+  public String getQuickInfo() {
+    return QuickInfoHelper.toString(this, "fileNameExtraction", m_FileNameExtraction, "extraction: ");
   }
 
   /**
