@@ -15,7 +15,7 @@
 
 /*
  * AbortJob.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.transformer.ufdl;
@@ -32,9 +32,6 @@ public class AbortJob
   extends AbstractJobTransformerAction {
 
   private static final long serialVersionUID = 2890424326502728143L;
-
-  /** whether to perform a hard delete. */
-  protected boolean m_Hard;
 
   /**
    * Returns a string describing the object.
