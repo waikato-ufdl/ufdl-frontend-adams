@@ -40,7 +40,7 @@ public class AbortJob
    */
   @Override
   public String globalInfo() {
-    return "Aborts the job via PK.";
+    return "Aborts the job via PK (removes output and basically restarts it).";
   }
 
   /**
