@@ -787,7 +787,7 @@ public class UFDLCreateJob
 	  value = Integer.parseInt((String) value);
 	}
 	else if (type.equals(Types.ARRAY_STR)) {
-	  value = ((String) value).split("\n");
+	  value = Utils.unbackQuoteChars((String) value).split("\n");
 	}
 	else {
 	  switch (type) {
