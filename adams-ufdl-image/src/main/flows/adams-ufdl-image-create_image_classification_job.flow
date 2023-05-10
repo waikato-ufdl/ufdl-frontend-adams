@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2023-05-03 22:25:19
+# Date: 2023-05-10 13:47:53
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-matlab,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -12,7 +12,7 @@ adams.flow.control.Flow -annotation "Creates a job from an image classification 
   adams.flow.transformer.SpreadSheetGetCell -col pk
   adams.flow.transformer.SetVariable -var-name domain
  adams.flow.control.Trigger -name "select contract"
-  adams.flow.source.EnterValue -stop-if-canceled true -message "Please select job type" -selection-values TRAIN -selection-values PREDICT -use-buttons true
+  adams.flow.source.EnterValue -name "Job type" -stop-if-canceled true -message "Please select job type" -selection-values TRAIN -selection-values PREDICT -use-buttons true
   adams.flow.transformer.SetVariable -var-name type
  adams.flow.control.Trigger -name "prompt user"
   adams.flow.source.EnterManyValues -name "Select job template" -stop-if-canceled true -message "Please select job template" -value "adams.flow.source.valuedefinition.UFDLJobTemplateChooserByContract -name template -display template -contract-type @{type} -domain @{domain}" -output-type MAP
