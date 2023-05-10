@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2023-05-10 16:34:10
+# Date: 2023-05-10 17:05:32
 # User: fracpete
 # Charset: UTF-8
 #
@@ -1062,7 +1062,7 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name "select contract"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.EnterValue -name "Job type" -stop-if-canceled true -message "Please select job type" -selection-values TRAIN -selection-values PREDICT -use-buttons true
+        adams.flow.source.EnterValue -name "Job type" -message "Please select job type" -selection-values TRAIN -selection-values PREDICT -use-buttons true
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.SetVariable -var-name type
        adams.flow.control.Block -name "block if cancelled (3)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
