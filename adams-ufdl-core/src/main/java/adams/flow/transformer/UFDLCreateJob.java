@@ -23,6 +23,9 @@ package adams.flow.transformer;
 import adams.core.Properties;
 import adams.core.QuickInfoHelper;
 import adams.core.Utils;
+import adams.core.base.BaseBoolean;
+import adams.core.base.BaseDouble;
+import adams.core.base.BaseInteger;
 import adams.core.base.BaseObject;
 import adams.core.base.BaseString;
 import adams.core.net.HtmlUtils;
@@ -601,6 +604,16 @@ public class UFDLCreateJob
 	ignored = true;
       }
       else {
+        // change size limited arrays to open ones:
+        if (type.startsWith(Types.ARRAY_BOOL_LIMITED))
+          type = Types.ARRAY_BOOL;
+        else if (type.startsWith(Types.ARRAY_INT_LIMITED))
+          type = Types.ARRAY_INT;
+        else if (type.startsWith(Types.ARRAY_FLOAT_LIMITED))
+          type = Types.ARRAY_FLOAT;
+        else if (type.startsWith(Types.ARRAY_STR_LIMITED))
+          type = Types.ARRAY_STR;
+
 	switch (type) {
 	  case Types.PRIMITIVE_BOOL:
 	    added = true;
@@ -665,6 +678,66 @@ public class UFDLCreateJob
 	    panel.setArraySeparator(key, "\n");
 	    types.setProperty(key, type);
 	    break;
+
+          case Types.ARRAY_BOOL:
+            added = true;
+            if (parameter.hasDefault()) {
+              defValues = parameter.getDefault();
+              if (defValues instanceof List)
+                defValues = BaseObject.toObjectArray((String[]) ((List) defValues).toArray(new String[0]), BaseBoolean.class);
+              values.setProperty(key, Utils.flatten((BaseBoolean[]) defValues, "\n"));
+            }
+            else {
+              defValues = new BaseBoolean[0];
+            }
+            gae = new GenericArrayEditorPanel(defValues);
+            panel.addPropertyType(key, PropertyType.ARRAY_EDITOR);
+            panel.setLabel(key, label);
+            panel.setChooser(key, gae);
+            panel.setArrayClass(key, BaseBoolean.class);
+            panel.setArraySeparator(key, "\n");
+            types.setProperty(key, type);
+            break;
+
+	  case Types.ARRAY_INT:
+	    added = true;
+	    if (parameter.hasDefault()) {
+	      defValues = parameter.getDefault();
+	      if (defValues instanceof List)
+		defValues = BaseObject.toObjectArray((String[]) ((List) defValues).toArray(new String[0]), BaseInteger.class);
+	      values.setProperty(key, Utils.flatten((BaseInteger[]) defValues, "\n"));
+	    }
+	    else {
+	      defValues = new BaseInteger[0];
+	    }
+	    gae = new GenericArrayEditorPanel(defValues);
+	    panel.addPropertyType(key, PropertyType.ARRAY_EDITOR);
+	    panel.setLabel(key, label);
+	    panel.setChooser(key, gae);
+	    panel.setArrayClass(key, BaseInteger.class);
+	    panel.setArraySeparator(key, "\n");
+	    types.setProperty(key, type);
+	    break;
+
+          case Types.ARRAY_FLOAT:
+            added = true;
+            if (parameter.hasDefault()) {
+              defValues = parameter.getDefault();
+              if (defValues instanceof List)
+                defValues = BaseObject.toObjectArray((String[]) ((List) defValues).toArray(new String[0]), BaseDouble.class);
+              values.setProperty(key, Utils.flatten((BaseDouble[]) defValues, "\n"));
+            }
+            else {
+              defValues = new BaseDouble[0];
+            }
+            gae = new GenericArrayEditorPanel(defValues);
+            panel.addPropertyType(key, PropertyType.ARRAY_EDITOR);
+            panel.setLabel(key, label);
+            panel.setChooser(key, gae);
+            panel.setArrayClass(key, BaseDouble.class);
+            panel.setArraySeparator(key, "\n");
+            types.setProperty(key, type);
+            break;
 
 	  default:
 	    if (!ignored) {
@@ -778,6 +851,12 @@ public class UFDLCreateJob
    * @return		the potentially fixed value
    */
   protected Object fixValue(String key, String type, Object value) {
+    String[]	parts;
+    Boolean[]	boolArray;
+    Integer[]	intArray;
+    Double[]	numArray;
+    int		i;
+
     try {
       if (value instanceof String) {
 	if (type.startsWith(Types.PK)) {
@@ -786,8 +865,33 @@ public class UFDLCreateJob
 	else if (type.startsWith(Types.JOB_OUTPUT)) {
 	  value = Integer.parseInt((String) value);
 	}
-	else if (type.equals(Types.ARRAY_STR)) {
+	else if (type.equals(Types.ARRAY_STR) || type.startsWith(Types.ARRAY_STR_LIMITED)) {
 	  value = Utils.unbackQuoteChars((String) value).split("\n");
+	  // TODO check size
+	}
+	else if (type.equals(Types.ARRAY_INT) || type.startsWith(Types.ARRAY_INT_LIMITED)) {
+	  parts    = ((String) value).split("\n");
+	  intArray = new Integer[parts.length];
+	  for (i = 0; i < parts.length; i++)
+	    intArray[i] = Integer.parseInt(parts[i]);
+	  value = intArray;
+	  // TODO check size
+	}
+	else if (type.equals(Types.ARRAY_BOOL) || type.startsWith(Types.ARRAY_BOOL_LIMITED)) {
+	  parts     = ((String) value).split("\n");
+	  boolArray = new Boolean[parts.length];
+	  for (i = 0; i < parts.length; i++)
+	    boolArray[i] = Boolean.parseBoolean(parts[i]);
+	  value = boolArray;
+	  // TODO check size
+	}
+	else if (type.equals(Types.ARRAY_FLOAT) || type.startsWith(Types.ARRAY_FLOAT_LIMITED)) {
+	  parts    = ((String) value).split("\n");
+	  numArray = new Double[parts.length];
+	  for (i = 0; i < parts.length; i++)
+	    numArray[i] = Double.parseDouble(parts[i]);
+	  value = numArray;
+	  // TODO check size
 	}
 	else {
 	  switch (type) {
@@ -884,13 +988,13 @@ public class UFDLCreateJob
 	}
       }
       catch (Exception e) {
-        msg = "Failed to configure 'create job' view!";
+	msg = "Failed to configure 'create job' view!";
 	getLogger().log(Level.SEVERE, msg, e);
 	return msg;
       }
 
       if (templateData == null) {
-        msg = "Failed to collect job-template data!";
+	msg = "Failed to collect job-template data!";
 	getLogger().severe(msg);
 	return msg;
       }
