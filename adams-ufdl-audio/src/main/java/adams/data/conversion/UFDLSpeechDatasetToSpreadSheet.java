@@ -15,7 +15,7 @@
 
 /*
  * UFDLSpeechDatasetToSpreadSheet.java
- * Copyright (C) 2020-2021 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
@@ -87,6 +87,7 @@ public class UFDLSpeechDatasetToSpreadSheet
     row.addCell("tn").setContentAsString("name");
     row.addCell("de").setContentAsString("description");
     row.addCell("ci").setContentAsString("creator");
+    row.addCell("do").setContentAsString("domain");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
     row.addCell("li").setContentAsString("license");

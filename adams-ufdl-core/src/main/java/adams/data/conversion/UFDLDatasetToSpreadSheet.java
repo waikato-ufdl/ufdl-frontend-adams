@@ -15,7 +15,7 @@
 
 /*
  * UFDLDatasetToSpreadSheet.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.data.conversion;
@@ -86,6 +86,7 @@ public class UFDLDatasetToSpreadSheet
     row.addCell("pk").setContentAsString("pk");
     row.addCell("tn").setContentAsString("name");
     row.addCell("de").setContentAsString("description");
+    row.addCell("do").setContentAsString("domain");
     row.addCell("ci").setContentAsString("creator");
     row.addCell("ct").setContentAsString("creation_time");
     row.addCell("dt").setContentAsString("deletion_time");
@@ -117,6 +118,7 @@ public class UFDLDatasetToSpreadSheet
     row.addCell("pk").setContent(dataset.getPK());
     row.addCell("tn").setContent(dataset.getName());
     row.addCell("de").setContent(dataset.getDescription());
+    row.addCell("do").setContent(dataset.getDomain());
     row.addCell("ci").setContent(getUser(dataset.getCreator()));
     if (dataset.getCreationTime() != null)
       row.addCell("ct").setContent(new DateTimeMsec(Date.from(dataset.getCreationTime().toInstant(ZoneOffset.UTC))));
