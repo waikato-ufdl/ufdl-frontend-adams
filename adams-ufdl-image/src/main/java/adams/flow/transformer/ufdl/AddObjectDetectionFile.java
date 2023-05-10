@@ -15,7 +15,7 @@
 
 /*
  * AddImageClassificationFile.java
- * Copyright (C) 2020 University of Waikato, Hamilton, NZ
+ * Copyright (C) 2020-2023 University of Waikato, Hamilton, NZ
  */
 
 package adams.flow.transformer.ufdl;
@@ -23,7 +23,10 @@ package adams.flow.transformer.ufdl;
 import adams.core.MessageCollection;
 import adams.core.QuickInfoHelper;
 import adams.core.Utils;
+import adams.core.io.FileUtils;
 import adams.core.io.PlaceholderFile;
+import adams.data.image.BufferedImageContainer;
+import adams.data.image.BufferedImageHelper;
 import adams.flow.control.StorageName;
 import adams.flow.control.StorageUser;
 import adams.flow.core.UFDLFileNameExtraction;
@@ -58,7 +61,9 @@ public class AddObjectDetectionFile
    */
   @Override
   public String globalInfo() {
-    return "Adds the file and its annotations to the dataset passing through (PK or dataset name).";
+    return "Adds the file and (if present) its annotations to the dataset passing through (PK or dataset name).\n"
+      + "If annotations are present, it is assumed that the file represents an image and not a video, determining "
+      + "file type and dimensions and setting the file type via the API.";
   }
 
   /**
@@ -247,6 +252,7 @@ public class AddObjectDetectionFile
     ObjectDetectionDatasets 	action;
     String			name;
     Annotations			anns;
+    BufferedImageContainer 	img;
 
     try {
       action = getDatasetsAction();
@@ -272,14 +278,36 @@ public class AddObjectDetectionFile
       if (m_FlowContext.getStorageHandler().getStorage().has(m_StorageName))
 	anns = (Annotations) m_FlowContext.getStorageHandler().getStorage().get(m_StorageName);
       if (anns != null) {
-	if (isLoggingEnabled())
-	  getLogger().info("Adding annotations for '" + name + "' in dataset " + dataset);
-	try {
-	  if (!action.setAnnotations(dataset, name, anns))
-	    errors.add("Failed to set annotations for '" + name + "' in " + dataset);
+	// set file type, dimensions
+	if (errors.isEmpty()) {
+	  if (isLoggingEnabled())
+	    getLogger().info("Determining file type/dimensions for '" + name + "' in dataset " + dataset);
+	  img = BufferedImageHelper.read(m_File);
+	  if (img == null) {
+	    errors.add("Failed to load as image: " + m_File);
+	  }
+	  else {
+	    try {
+	      if (!action.setFileType(dataset, name, FileUtils.getExtension(m_File), img.getWidth(), img.getHeight(), null))
+		errors.add("Failed to set file type/dimensions for '" + name + "' in " + dataset);
+	    }
+	    catch (Exception e) {
+	      errors.add("Failed to set file type/dimensions for '" + name + "' in " + dataset, e);
+	    }
+	  }
 	}
-	catch (Exception e) {
-	  errors.add("Failed to set annotations for '" + name + "' in " + dataset, e);
+
+	// add annotations
+	if (errors.isEmpty()) {
+	  if (isLoggingEnabled())
+	    getLogger().info("Adding annotations for '" + name + "' in dataset " + dataset);
+	  try {
+	    if (!action.setAnnotations(dataset, name, anns))
+	      errors.add("Failed to set annotations for '" + name + "' in " + dataset);
+	  }
+	  catch (Exception e) {
+	    errors.add("Failed to set annotations for '" + name + "' in " + dataset, e);
+	  }
 	}
       }
     }
