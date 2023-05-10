@@ -1,5 +1,5 @@
 # Project: adams
-# Date: 2023-05-03 21:16:32
+# Date: 2023-05-10 13:47:48
 # User: fracpete
 # Charset: UTF-8
 # Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-matlab,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
@@ -11,12 +11,15 @@ adams.flow.control.Flow -annotation "Creates a job from an object detection job 
   adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListDomains -filter \"adams.data.ufdlfilter.NameFilter -name od\""
   adams.flow.transformer.SpreadSheetGetCell -col pk
   adams.flow.transformer.SetVariable -var-name domain
+ adams.flow.control.Trigger -name "select contract"
+  adams.flow.source.EnterValue -name "Job type" -stop-if-canceled true -message "Please select job type" -selection-values TRAIN -selection-values PREDICT -use-buttons true
+  adams.flow.transformer.SetVariable -var-name type
  adams.flow.control.Trigger -name "prompt user"
   adams.flow.source.EnterManyValues -name "Select job template" -stop-if-canceled true -message "Please select job template" -value "adams.flow.source.valuedefinition.UFDLJobTemplateChooserByContract -name template -display template -domain @{domain}" -output-type MAP
   adams.flow.transformer.MapToVariables
   adams.flow.transformer.UFDLExtractAndTransfer -name template_pk -source template -target template_pk
  adams.flow.control.Trigger -name "create job"
   adams.flow.source.Variable -var-name template_pk -conversion adams.data.conversion.StringToInt
-  adams.flow.transformer.UFDLCreateJob -name "Create job" -x -2 -y -2
+  adams.flow.transformer.UFDLCreateJob -name "Create job" -x -2 -y -2 -contract-type @{type}
   adams.flow.transformer.Convert -conversion "adams.data.conversion.UFDLJobToSpreadSheet -resolve-ids true"
   adams.flow.sink.SpreadSheetDisplay -display-type adams.flow.core.displaytype.Default -cell-rendering-customizer adams.gui.core.spreadsheettable.DefaultCellRenderingCustomizer -writer adams.data.io.output.NullWriter
