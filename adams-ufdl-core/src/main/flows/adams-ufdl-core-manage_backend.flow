@@ -1,8 +1,7 @@
 # Project: adams
-# Date: 2023-05-09 14:08:39
+# Date: 2023-05-10 16:34:10
 # User: fracpete
 # Charset: UTF-8
-# Modules: adams-compress,adams-core,adams-event,adams-imaging,adams-json,adams-matlab,adams-meta,adams-net,adams-rats-core,adams-spreadsheet,adams-terminal,adams-ufdl-core,adams-ufdl-image,adams-xml
 #
 adams.flow.control.Flow -annotation "For managing users, teams, projects, licenses, docker images, job templates, jobs, job outputs, etc.\\nUses host/user/password from the global UFDL Preferences." -error-handling ACTORS_DECIDE_TO_STOP_ON_ERROR -flow-execution-listener adams.flow.execution.NullListener -flow-restart-manager adams.flow.control.flowrestart.NullManager
  adams.flow.standalone.CallableActors
@@ -1061,17 +1060,22 @@ adams.flow.control.Flow -annotation "For managing users, teams, projects, licens
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
         adams.flow.transformer.SetVariable -var-name domain_pk
        adams.flow.control.Block -name "block if cancelled" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
+       adams.flow.control.Trigger -name "select contract"
+        adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
+        adams.flow.source.EnterValue -name "Job type" -stop-if-canceled true -message "Please select job type" -selection-values TRAIN -selection-values PREDICT -use-buttons true
+        adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
+        adams.flow.transformer.SetVariable -var-name type
+       adams.flow.control.Block -name "block if cancelled (3)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name "prompt user"
         adams.flow.standalone.SetVariable -name reset -var-name cancelled -var-value true
-        adams.flow.source.UFDLSource -action "adams.flow.source.ufdl.ListJobTemplates -filter \"adams.data.ufdlfilter.DomainFilter -domain @{domain_pk} -order \\\"adams.data.ufdlfilter.OrderBy -field name\\\"\" -resolve-ids true" -use-error-queue true
-        adams.flow.transformer.SpreadSheetSelectSubset -name "Select job template" -short-title true -width 800 -height 600 -allow-search true -preview adams.gui.core.spreadsheetpreview.SimpleText
+        adams.flow.source.EnterManyValues -name "Select job template" -stop-if-canceled true -message "Please select job template" -value "adams.flow.source.valuedefinition.UFDLJobTemplateChooserByContract -name template -display template -contract-type @{type} -domain @{domain_pk}" -output-type MAP
         adams.flow.transformer.SetVariable -name set -var-name cancelled -var-value false
-        adams.flow.transformer.SpreadSheetVariableRowIterator -columns pk
-        adams.flow.transformer.SetVariable -name "pk -> template_pk" -var-name template_pk -var-value @{pk}
+        adams.flow.transformer.MapToVariables
+        adams.flow.transformer.UFDLExtractAndTransfer -name template_pk -source template -target template_pk
        adams.flow.control.Block -name "block if cancelled (2)" -condition "adams.flow.condition.bool.VariableFlagSet -variable-name cancelled"
        adams.flow.control.Trigger -name "create job"
         adams.flow.source.Variable -var-name template_pk -conversion adams.data.conversion.StringToInt
-        adams.flow.transformer.UFDLCreateJob -name "Create job" -short-title true -x -2 -y -2
+        adams.flow.transformer.UFDLCreateJob -name "Create job" -short-title true -x -2 -y -2 -contract-type @{type}
         adams.flow.transformer.Convert -conversion adams.data.conversion.UFDLJsonObjectToString
         adams.flow.sink.CallableSink -callable Info
       adams.flow.control.Trigger -name Abort
